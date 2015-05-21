@@ -4,5 +4,18 @@
 	"Packages": [
 		"cmd/goulash/main.go"
 	],
-	"Deps": []
+	"Deps": [
+		{
+			"ImportPath": "github.com/nlopes/slack",
+			"Rev": "c4b04b229eabca3f24ddc0e2446f29b2d6d51406"
+		},
+		{
+			"ImportPath": "github.com/pivotal-golang/lager",
+			"Rev": "c88fa6d6c4d2f8a21a4599785211e41777750d34"
+		},
+		{
+			"ImportPath": "golang.org/x/net/websocket",
+			"Rev": "7212a0803472eb1ec2686896a7c626528172a7a6"
+		}
+	]
 }
