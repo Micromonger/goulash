@@ -7,4 +7,4 @@ inputs:
 - name: goulash
 
 run:
-  path: scripts/run-unit-tests
+  path: goulash/scripts/run-unit-tests
