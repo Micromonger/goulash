@@ -1,3 +1,5 @@
 #!/bin/bash
 
+go install github.com/onsi/ginkgo/ginkgo
+
 ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress *
