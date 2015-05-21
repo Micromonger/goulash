@@ -24,10 +24,10 @@ func init() {
 		port = defaultPort
 	}
 	address = fmt.Sprintf(":%s", port)
+	h = handler.New()
 }
 
 func main() {
-	h := handler.New()
 	if err := http.ListenAndServe(address, h); err != nil {
 		log.Fatal("Failed to start server", err)
 	}
