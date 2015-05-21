@@ -4,7 +4,6 @@ package handler
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/nlopes/slack"
 	"github.com/pivotal-golang/lager"
@@ -17,11 +16,7 @@ type Handler struct {
 }
 
 // New returns a new Handler.
-func New(api SlackAPI) *Handler {
-	logger := lager.NewLogger("handler")
-	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
-	logger.RegisterSink(sink)
-
+func New(api SlackAPI, logger lager.Logger) *Handler {
 	return &Handler{
 		api:    api,
 		logger: logger,

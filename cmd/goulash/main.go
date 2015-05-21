@@ -8,6 +8,7 @@ import (
 
 	"github.com/krishicks/goulash/handler"
 	"github.com/nlopes/slack"
+	"github.com/pivotal-golang/lager"
 )
 
 const (
@@ -21,6 +22,7 @@ var (
 	address  string
 	slackAPI *slack.Slack
 	h        *handler.Handler
+	logger   lager.Logger
 	port     string
 )
 
@@ -30,7 +32,11 @@ func init() {
 	}
 	slackAPI = slack.New(os.Getenv(tokenVar))
 	address = fmt.Sprintf(":%s", port)
-	h = handler.New(slackAPI)
+	logger = lager.NewLogger("handler")
+	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
+	logger.RegisterSink(sink)
+
+	h = handler.New(slackAPI, logger)
 }
 
 func main() {

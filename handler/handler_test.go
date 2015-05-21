@@ -8,6 +8,7 @@ import (
 	"github.com/krishicks/goulash/handler"
 	"github.com/krishicks/goulash/handler/fakes"
 	"github.com/nlopes/slack"
+	"github.com/pivotal-golang/lager"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -23,7 +24,7 @@ var _ = Describe("Handler", func() {
 
 		w := httptest.NewRecorder()
 		fakeSlackAPI := &fakes.FakeSlackAPI{}
-		h := handler.New(fakeSlackAPI)
+		h := handler.New(fakeSlackAPI, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
 		Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
