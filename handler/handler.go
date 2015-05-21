@@ -1,3 +1,5 @@
+// Package handler provides an HTTP handler for processing Slack Slash Command
+// callbacks. See https://api.slack.com/slash-commands for more information.
 package handler
 
 import (
@@ -5,8 +7,10 @@ import (
 	"net/http"
 )
 
+// Handler is an HTTP handler.
 type Handler struct{}
 
+// New returns a new Handler.
 func New() *Handler {
 	return &Handler{}
 }
