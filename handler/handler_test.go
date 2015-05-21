@@ -29,7 +29,6 @@ var _ = Describe("Handler", func() {
 		Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 		expectedParams := slack.NewPostMessageParameters()
-		expectedParams.AsUser = true
 		expectedParams.Text = "the text"
 
 		actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)

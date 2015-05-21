@@ -38,7 +38,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	postMessageParameters := slack.NewPostMessageParameters()
-	postMessageParameters.AsUser = true
 	postMessageParameters.Text = text
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
