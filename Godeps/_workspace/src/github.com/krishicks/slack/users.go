@@ -142,17 +142,17 @@ func (api *Slack) SetUserPresence(presence string) error {
 
 }
 
-func (api *Slack) InviteSingleChannelUser(
-	hostname string,
-	channel string,
+func (api *Slack) InviteGuest(
+	teamname string,
+	channelID string,
 	firstName string,
 	lastName string,
 	emailAddress string,
 ) error {
-	endpoint := fmt.Sprintf("https://%s.slack.com/api/users.admin.invite?t=%s", hostname, time.Now().Unix())
+	endpoint := fmt.Sprintf("https://%s.slack.com/api/users.admin.invite?t=%s", teamname, time.Now().Unix())
 	values := url.Values{
 		"email":            {emailAddress},
-		"channels":         {channel},
+		"channels":         {channelID},
 		"first_name":       {firstName},
 		"last_name":        {lastName},
 		"ultra_restricted": {"1"},

@@ -4,7 +4,7 @@ Slack API in Go
 
 ### *go get*
 
-    $ go get github.com/nlopes/slack
+    $ go get github.com/krishicks/slack
 
 ## Example
 
@@ -13,7 +13,7 @@ Slack API in Go
     import (
 		"fmt"
 
-		"github.com/nlopes/slack"
+		"github.com/krishicks/slack"
 	)
 
     func main() {
@@ -36,7 +36,7 @@ Slack API in Go
     import (
 	    "fmt"
 
-	    "github.com/nlopes/slack"
+	    "github.com/krishicks/slack"
     )
 
     func main() {

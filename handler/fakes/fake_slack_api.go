@@ -21,6 +21,18 @@ type FakeSlackAPI struct {
 		result2 string
 		result3 error
 	}
+	InviteGuestStub        func(teamname, channelID, firstName, lastName, emailAddress string) error
+	inviteGuestMutex       sync.RWMutex
+	inviteGuestArgsForCall []struct {
+		teamname     string
+		channelID    string
+		firstName    string
+		lastName     string
+		emailAddress string
+	}
+	inviteGuestReturns struct {
+		result1 error
+	}
 }
 
 func (fake *FakeSlackAPI) PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error) {
@@ -57,6 +69,42 @@ func (fake *FakeSlackAPI) PostMessageReturns(result1 string, result2 string, res
 		result2 string
 		result3 error
 	}{result1, result2, result3}
+}
+
+func (fake *FakeSlackAPI) InviteGuest(teamname string, channelID string, firstName string, lastName string, emailAddress string) error {
+	fake.inviteGuestMutex.Lock()
+	fake.inviteGuestArgsForCall = append(fake.inviteGuestArgsForCall, struct {
+		teamname     string
+		channelID    string
+		firstName    string
+		lastName     string
+		emailAddress string
+	}{teamname, channelID, firstName, lastName, emailAddress})
+	fake.inviteGuestMutex.Unlock()
+	if fake.InviteGuestStub != nil {
+		return fake.InviteGuestStub(teamname, channelID, firstName, lastName, emailAddress)
+	} else {
+		return fake.inviteGuestReturns.result1
+	}
+}
+
+func (fake *FakeSlackAPI) InviteGuestCallCount() int {
+	fake.inviteGuestMutex.RLock()
+	defer fake.inviteGuestMutex.RUnlock()
+	return len(fake.inviteGuestArgsForCall)
+}
+
+func (fake *FakeSlackAPI) InviteGuestArgsForCall(i int) (string, string, string, string, string) {
+	fake.inviteGuestMutex.RLock()
+	defer fake.inviteGuestMutex.RUnlock()
+	return fake.inviteGuestArgsForCall[i].teamname, fake.inviteGuestArgsForCall[i].channelID, fake.inviteGuestArgsForCall[i].firstName, fake.inviteGuestArgsForCall[i].lastName, fake.inviteGuestArgsForCall[i].emailAddress
+}
+
+func (fake *FakeSlackAPI) InviteGuestReturns(result1 error) {
+	fake.InviteGuestStub = nil
+	fake.inviteGuestReturns = struct {
+		result1 error
+	}{result1}
 }
 
 var _ handler.SlackAPI = new(FakeSlackAPI)

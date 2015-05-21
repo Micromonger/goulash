@@ -14,16 +14,18 @@ import (
 const (
 	defaultPort = "8080"
 
-	portVar  = "VCAP_APP_PORT"
-	tokenVar = "SLACK_AUTH_TOKEN"
+	portVar     = "VCAP_APP_PORT"
+	tokenVar    = "SLACK_AUTH_TOKEN"
+	teamNameVar = "SLACK_TEAM_NAME"
 )
 
 var (
-	address  string
-	slackAPI *slack.Slack
-	h        *handler.Handler
-	logger   lager.Logger
-	port     string
+	address       string
+	slackAPI      *slack.Slack
+	slackTeamName string
+	h             *handler.Handler
+	logger        lager.Logger
+	port          string
 )
 
 func init() {
@@ -31,12 +33,13 @@ func init() {
 		port = defaultPort
 	}
 	slackAPI = slack.New(os.Getenv(tokenVar))
+	slackTeamName = os.Getenv(teamNameVar)
 	address = fmt.Sprintf(":%s", port)
 	logger = lager.NewLogger("handler")
 	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
 	logger.RegisterSink(sink)
 
-	h = handler.New(slackAPI, logger)
+	h = handler.New(slackAPI, slackTeamName, logger)
 }
 
 func main() {

@@ -7,7 +7,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/krishicks/slack",
-			"Rev": "2b827f7bc8a5ec9fd2752ac33690d70fb549b170"
+			"Rev": "009868640aba40645aa4a6dc7e2cc6e03dbc8733"
 		},
 		{
 			"ImportPath": "github.com/pivotal-golang/lager",
