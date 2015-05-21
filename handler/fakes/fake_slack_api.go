@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	"github.com/krishicks/goulash/handler"
-	"github.com/nlopes/slack"
+	"github.com/krishicks/slack"
 )
 
 type FakeSlackAPI struct {

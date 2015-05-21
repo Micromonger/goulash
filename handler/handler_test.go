@@ -7,7 +7,7 @@ import (
 
 	"github.com/krishicks/goulash/handler"
 	"github.com/krishicks/goulash/handler/fakes"
-	"github.com/nlopes/slack"
+	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/lager"
 
 	. "github.com/onsi/ginkgo"
