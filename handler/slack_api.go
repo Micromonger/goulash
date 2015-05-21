@@ -8,4 +8,5 @@ import "github.com/krishicks/slack"
 // allows us to fake it for testing purposes.
 type SlackAPI interface {
 	PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error)
+	InviteSingleChannelUser(teamname, channelID, firstName, lastName, emailAddress string) error
 }
