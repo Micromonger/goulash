@@ -5,6 +5,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/krishicks/slack"
@@ -40,7 +41,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "/invite-guest":
-		err := h.inviteGuest(channelID, text)
+		err := h.inviteGuest(channelID, r.Form)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
@@ -52,11 +53,14 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("finished-processing-request")
 }
 
-func (h *Handler) inviteGuest(channelID string, text string) error {
-	params := strings.Split(text, " ")
-	emailAddress := params[0]
-	firstName := params[1]
-	lastName := params[2]
+func (h *Handler) inviteGuest(channelID string, form url.Values) error {
+	channelName := form["channel_name"][0]
+	invitingUser := form["user_name"][0]
+
+	textParams := strings.Split(form["text"][0], " ")
+	emailAddress := textParams[0]
+	firstName := textParams[1]
+	lastName := textParams[2]
 
 	err := h.api.InviteGuest(
 		h.slackTeamName,
@@ -67,13 +71,13 @@ func (h *Handler) inviteGuest(channelID string, text string) error {
 	)
 	if err != nil {
 		h.logger.Error("failed-inviting-single-channel-user", err)
-		h.report(channelID, fmt.Sprintf("Failed to invite user with email address: %s, '%s'", emailAddress, err.Error()))
+		h.report(channelID, fmt.Sprintf("Failed to invite %s %s (%s) as a guest to %s: '%s'", firstName, lastName, emailAddress, channelName, err.Error()))
 
 		return err
 	}
 
 	h.logger.Info("successfully-invited-single-channel-user")
-	h.report(channelID, fmt.Sprintf("Invited user with email address: %s", emailAddress))
+	h.report(channelID, fmt.Sprintf("@%s invited %s %s (%s) as a guest to %s", invitingUser, firstName, lastName, emailAddress, channelName))
 
 	return nil
 }

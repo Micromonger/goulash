@@ -21,10 +21,12 @@ var _ = Describe("Handler", func() {
 	Describe("/inviteGuest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"the-channel"},
+				"command":      {"/invite-guest"},
+				"text":         {"user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -49,10 +51,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to Slack on success", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"the-channel"},
+				"command":      {"/invite-guest"},
+				"text":         {"user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -68,7 +72,7 @@ var _ = Describe("Handler", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 			expectedParams := slack.NewPostMessageParameters()
-			expectedParams.Text = "Invited user with email address: user@example.com"
+			expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a guest to the-channel"
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
@@ -77,10 +81,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to Slack on failure", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"the-channel"},
+				"command":      {"/invite-guest"},
+				"text":         {"user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -98,7 +104,7 @@ var _ = Describe("Handler", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 			expectedParams := slack.NewPostMessageParameters()
-			expectedParams.Text = "Failed to invite user with email address: user@example.com, 'failed to invite user'"
+			expectedParams.Text = "Failed to invite Tom Smith (user@example.com) as a guest to the-channel: 'failed to invite user'"
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
