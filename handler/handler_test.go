@@ -6,23 +6,34 @@ import (
 	"strings"
 
 	"github.com/krishicks/goulash/handler"
+	"github.com/krishicks/goulash/handler/fakes"
+	"github.com/nlopes/slack"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Handler", func() {
-	It("responds with the POSTed command and text", func() {
-		reqBody := strings.NewReader("token=some-token&command=%2Fthe-command&text=the+text")
+	It("posts a message to Slack with the POSTed command and text", func() {
+		reqBody := strings.NewReader("token=some-token&channel_id=C1234567890&command=%2Fthe-command&text=the+text")
 		r, err := http.NewRequest("POST", "http://localhost", reqBody)
 		Ω(err).ShouldNot(HaveOccurred())
 
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 		w := httptest.NewRecorder()
-		h := handler.New()
+		fakeSlackAPI := &fakes.FakeSlackAPI{}
+		h := handler.New(fakeSlackAPI)
 		h.ServeHTTP(w, r)
 
-		Ω(w.Body.String()).Should(Equal("command='/the-command' text='the text'"))
+		Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+
+		expectedParams := slack.NewPostMessageParameters()
+		expectedParams.AsUser = true
+		expectedParams.Text = "the text"
+
+		actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+		Ω(actualChannelID).Should(Equal("C1234567890"))
+		Ω(actualParams).Should(Equal(expectedParams))
 	})
 })

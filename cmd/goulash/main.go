@@ -7,24 +7,30 @@ import (
 	"os"
 
 	"github.com/krishicks/goulash/handler"
+	"github.com/nlopes/slack"
 )
 
 const (
-	portVar     = "VCAP_APP_PORT"
 	defaultPort = "8080"
+
+	portVar  = "VCAP_APP_PORT"
+	tokenVar = "SLACK_AUTH_TOKEN"
 )
 
 var (
-	port    string
-	address string
+	address  string
+	slackAPI *slack.Slack
+	h        *handler.Handler
+	port     string
 )
 
 func init() {
 	if port = os.Getenv(portVar); port == "" {
 		port = defaultPort
 	}
+	slackAPI = slack.New(os.Getenv(tokenVar))
 	address = fmt.Sprintf(":%s", port)
-	h = handler.New()
+	h = handler.New(slackAPI)
 }
 
 func main() {
