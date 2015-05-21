@@ -54,7 +54,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) inviteGuest(channelID string, form url.Values) error {
-	channelName := form["channel_name"][0]
 	invitingUser := form["user_name"][0]
 
 	textParams := strings.Split(form["text"][0], " ")
@@ -71,13 +70,13 @@ func (h *Handler) inviteGuest(channelID string, form url.Values) error {
 	)
 	if err != nil {
 		h.logger.Error("failed-inviting-single-channel-user", err)
-		h.report(channelID, fmt.Sprintf("Failed to invite %s %s (%s) as a guest to %s: '%s'", firstName, lastName, emailAddress, channelName, err.Error()))
+		h.report(channelID, fmt.Sprintf("Failed to invite %s %s (%s) as a guest to this channel: '%s'", firstName, lastName, emailAddress, err.Error()))
 
 		return err
 	}
 
 	h.logger.Info("successfully-invited-single-channel-user")
-	h.report(channelID, fmt.Sprintf("@%s invited %s %s (%s) as a guest to %s", invitingUser, firstName, lastName, emailAddress, channelName))
+	h.report(channelID, fmt.Sprintf("@%s invited %s %s (%s) as a guest to this channel", invitingUser, firstName, lastName, emailAddress))
 
 	return nil
 }

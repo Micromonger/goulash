@@ -23,7 +23,6 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
-				"channel_name": {"the-channel"},
 				"command":      {"/invite-guest"},
 				"text":         {"user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
@@ -53,7 +52,6 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
-				"channel_name": {"the-channel"},
 				"command":      {"/invite-guest"},
 				"text":         {"user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
@@ -72,7 +70,7 @@ var _ = Describe("Handler", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 			expectedParams := slack.NewPostMessageParameters()
-			expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a guest to the-channel"
+			expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a guest to this channel"
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
@@ -83,7 +81,6 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
-				"channel_name": {"the-channel"},
 				"command":      {"/invite-guest"},
 				"text":         {"user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
@@ -104,7 +101,7 @@ var _ = Describe("Handler", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 			expectedParams := slack.NewPostMessageParameters()
-			expectedParams.Text = "Failed to invite Tom Smith (user@example.com) as a guest to the-channel: 'failed to invite user'"
+			expectedParams.Text = "Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
