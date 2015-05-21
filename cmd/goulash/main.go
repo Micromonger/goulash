@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	PortVar = "VCAP_APP_PORT"
+	PortVar     = "VCAP_APP_PORT"
+	DefaultPort = "8080"
 )
 
 var (
@@ -20,7 +21,7 @@ var (
 
 func init() {
 	if port = os.Getenv(PortVar); port == "" {
-		port = "8080"
+		port = DefaultPort
 	}
 	address = fmt.Sprintf(":%s", port)
 }
