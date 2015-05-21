@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress *
