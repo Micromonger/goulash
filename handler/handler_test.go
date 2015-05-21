@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 
 	"github.com/krishicks/goulash/handler/fakes"
@@ -19,7 +20,13 @@ import (
 var _ = Describe("Handler", func() {
 	Describe("/inviteGuest", func() {
 		It("invites a single channel guest", func() {
-			reqBody := strings.NewReader("token=some-token&channel_id=C1234567890&command=%2Finvite-guest&text=user@example.com%20Tom%20Smith")
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+			}
+			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
 			Ω(err).ShouldNot(HaveOccurred())
 
@@ -41,7 +48,13 @@ var _ = Describe("Handler", func() {
 		})
 
 		It("posts a message to Slack on success", func() {
-			reqBody := strings.NewReader("token=some-token&channel_id=C1234567890&command=%2Finvite-guest&text=user@example.com%20Tom%20Smith")
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+			}
+			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
 			Ω(err).ShouldNot(HaveOccurred())
 
@@ -63,7 +76,13 @@ var _ = Describe("Handler", func() {
 		})
 
 		It("posts a message to Slack on failure", func() {
-			reqBody := strings.NewReader("token=some-token&channel_id=C1234567890&command=%2Finvite-guest&text=user@example.com%20Tom%20Smith")
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+			}
+			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
 			Ω(err).ShouldNot(HaveOccurred())
 
