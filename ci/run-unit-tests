@@ -12,10 +12,10 @@ gometalinter --install
 
 source_dir="$(cd "$(dirname "$0")" && pwd)"
 pushd $source_dir/..
-godep restore
+  godep restore
 
-gometalinter --exclude="(Godeps|fakes)" --disable=gotype ./... # gotype is broken on golang#1.4.2-wheezy
+  gometalinter --exclude="(Godeps|fakes)" --disable=gotype ./... # gotype is broken on golang#1.4.2-wheezy
 
-go install github.com/onsi/ginkgo/ginkgo
-ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress
+  go install github.com/onsi/ginkgo/ginkgo
+  ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress
 popd
