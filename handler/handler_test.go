@@ -21,11 +21,11 @@ var _ = Describe("Handler", func() {
 	Describe("/inviteGuest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
-				"token":        {"some-token"},
-				"channel_id":   {"C1234567890"},
-				"command":      {"/invite-guest"},
-				"text":         {"user@example.com Tom Smith"},
-				"user_name":    {"requesting_user"},
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -50,11 +50,11 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to Slack on success", func() {
 			v := url.Values{
-				"token":        {"some-token"},
-				"channel_id":   {"C1234567890"},
-				"command":      {"/invite-guest"},
-				"text":         {"user@example.com Tom Smith"},
-				"user_name":    {"requesting_user"},
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -79,11 +79,11 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to Slack on failure", func() {
 			v := url.Values{
-				"token":        {"some-token"},
-				"channel_id":   {"C1234567890"},
-				"command":      {"/invite-guest"},
-				"text":         {"user@example.com Tom Smith"},
-				"user_name":    {"requesting_user"},
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/invite-guest"},
+				"text":       {"user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
