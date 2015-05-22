@@ -31,8 +31,9 @@ func New(api SlackAPI, slackTeamName string, logger lager.Logger) *Handler {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	channelID := r.PostFormValue("channel_id")
-	command := r.PostFormValue("command")
 	text := r.PostFormValue("text")
+
+	command := text[:strings.IndexByte(text, 0x20)]
 
 	h.logger.Info("started-processing-request", lager.Data{
 		"channel_id": channelID,
@@ -40,7 +41,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	switch command {
-	case "/invite-guest":
+	case "invite-guest":
 		err := h.inviteGuest(channelID, r.Form)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -57,9 +58,9 @@ func (h *Handler) inviteGuest(channelID string, form url.Values) error {
 	invitingUser := form["user_name"][0]
 
 	textParams := strings.Split(form["text"][0], " ")
-	emailAddress := textParams[0]
-	firstName := textParams[1]
-	lastName := textParams[2]
+	emailAddress := textParams[1]
+	firstName := textParams[2]
+	lastName := textParams[3]
 
 	err := h.api.InviteGuest(
 		h.slackTeamName,

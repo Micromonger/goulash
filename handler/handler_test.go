@@ -18,13 +18,13 @@ import (
 )
 
 var _ = Describe("Handler", func() {
-	Describe("/inviteGuest", func() {
+	Describe("/butler invite-guest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
 				"token":      {"some-token"},
 				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
 				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
@@ -52,8 +52,8 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":      {"some-token"},
 				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
 				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
@@ -82,8 +82,8 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":      {"some-token"},
 				"channel_id": {"C1234567890"},
-				"command":    {"/invite-guest"},
-				"text":       {"user@example.com Tom Smith"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
 				"user_name":  {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
