@@ -71,6 +71,7 @@ var _ = Describe("Handler", func() {
 
 			expectedParams := slack.NewPostMessageParameters()
 			expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a guest to this channel"
+			expectedParams.AsUser = true
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
@@ -102,6 +103,7 @@ var _ = Describe("Handler", func() {
 
 			expectedParams := slack.NewPostMessageParameters()
 			expectedParams.Text = "Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"
+			expectedParams.AsUser = true
 
 			actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))

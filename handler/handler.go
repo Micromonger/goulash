@@ -84,6 +84,7 @@ func (h *Handler) inviteGuest(channelID string, form url.Values) error {
 func (h *Handler) report(channelID string, text string) {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.Text = text
+	postMessageParameters.AsUser = true
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
 
