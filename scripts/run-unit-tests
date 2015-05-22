@@ -1,3 +1,19 @@
 #!/bin/bash
 
-ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress *
+set -xe
+
+export GOPATH=$PWD/go
+export PATH=$GOPATH/bin:$PATH
+
+go get github.com/tools/godep
+go install github.com/tools/godep
+
+source_dir="$(cd "$(dirname "$0")" && pwd)"
+
+pushd $source_dir/..
+godep restore
+
+go install github.com/onsi/ginkgo/ginkgo
+
+ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress
+popd

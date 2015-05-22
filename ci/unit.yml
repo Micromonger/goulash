@@ -5,6 +5,7 @@ image: docker:///golang#1.4.2-wheezy
 
 inputs:
 - name: goulash
+  path: go/src/github.com/pivotalservices/goulash
 
 run:
-  path: goulash/scripts/run-unit-tests
+  path: go/src/github.com/pivotalservices/goulash/scripts/run-unit-tests
