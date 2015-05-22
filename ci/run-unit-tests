@@ -6,7 +6,6 @@ export GOPATH=$PWD/go
 export PATH=$GOPATH/bin:$PATH
 
 go get github.com/tools/godep
-go install github.com/tools/godep
 go get github.com/alecthomas/gometalinter
 
 gometalinter --install
