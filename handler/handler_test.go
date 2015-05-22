@@ -7,11 +7,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/krishicks/goulash/handler/fakes"
+	"github.com/pivotalservices/goulash/handler/fakes"
 
-	"github.com/krishicks/goulash/handler"
 	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/handler"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

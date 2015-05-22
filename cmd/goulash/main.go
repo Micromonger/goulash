@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/krishicks/goulash/handler"
+	"github.com/pivotalservices/goulash/handler"
 	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/lager"
 )
