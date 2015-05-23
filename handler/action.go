@@ -7,6 +7,7 @@ import (
 	"github.com/pivotal-golang/lager"
 )
 
+// Action represents an action that is able to be performed by the server.
 type Action interface {
 	Do() error
 	SuccessMessage() string
