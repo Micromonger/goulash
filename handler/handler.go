@@ -45,6 +45,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	channelID := r.PostFormValue("channel_id")
 	text := r.PostFormValue("text")
 
+	if channelID == "" || text == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	command := text[:strings.IndexByte(text, 0x20)]
 
 	h.logger.Info("started-processing-request", lager.Data{

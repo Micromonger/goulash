@@ -31,6 +31,48 @@ var _ = Describe("Handler", func() {
 		fakeClock = fakeclock.NewFakeClock(initialTime)
 	})
 
+	It("returns 400 when given a request without a form including a channel_id field", func() {
+		v := url.Values{
+			"token":      {"some-token"},
+			"command":    {"/butler"},
+			"text":       {"invite-guest user@example.com Tom Smith"},
+			"user_name":  {"requesting_user"},
+		}
+		reqBody := strings.NewReader(v.Encode())
+		r, err := http.NewRequest("POST", "http://localhost", reqBody)
+		Ω(err).ShouldNot(HaveOccurred())
+
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+		w := httptest.NewRecorder()
+		fakeSlackAPI := &fakes.FakeSlackAPI{}
+		h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+		h.ServeHTTP(w, r)
+
+		Ω(w.Code).Should(Equal(http.StatusBadRequest))
+	})
+
+	It("returns 400 when given a request without a form including a text field", func() {
+		v := url.Values{
+			"token":      {"some-token"},
+			"channel_id": {"C1234567890"},
+			"command":    {"/butler"},
+			"user_name":  {"requesting_user"},
+		}
+		reqBody := strings.NewReader(v.Encode())
+		r, err := http.NewRequest("POST", "http://localhost", reqBody)
+		Ω(err).ShouldNot(HaveOccurred())
+
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+		w := httptest.NewRecorder()
+		fakeSlackAPI := &fakes.FakeSlackAPI{}
+		h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+		h.ServeHTTP(w, r)
+
+		Ω(w.Code).Should(Equal(http.StatusBadRequest))
+	})
+
 	Describe("/butler invite-guest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
