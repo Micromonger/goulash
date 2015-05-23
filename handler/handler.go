@@ -5,31 +5,43 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/krishicks/slack"
+	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 )
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api           SlackAPI
-	slackTeamName string
+	api               SlackAPI
+	slackTeamName     string
+	auditLogChannelID string
 
+	clock  clock.Clock
 	logger lager.Logger
 }
 
 // New returns a new Handler.
-func New(api SlackAPI, slackTeamName string, logger lager.Logger) *Handler {
+func New(
+	api SlackAPI,
+	slackTeamName string,
+	auditLogChannelID string,
+	clock clock.Clock,
+	logger lager.Logger,
+) *Handler {
 	return &Handler{
-		api:           api,
-		slackTeamName: slackTeamName,
-		logger:        logger,
+		api:               api,
+		slackTeamName:     slackTeamName,
+		auditLogChannelID: auditLogChannelID,
+		clock:             clock,
+		logger:            logger,
 	}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var action Action
+
 	channelID := r.PostFormValue("channel_id")
 	text := r.PostFormValue("text")
 
@@ -42,52 +54,70 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "invite-guest":
-		err := h.inviteGuest(channelID, r.Form)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+		form := r.PostForm
+		textParams := strings.Split(form["text"][0], " ")
+		emailAddress := textParams[1]
+		firstName := textParams[2]
+		lastName := textParams[3]
+
+		action = inviteGuestAction{
+			channelID:    channelID,
+			invitingUser: form["user_name"][0],
+			emailAddress: emailAddress,
+			firstName:    firstName,
+			lastName:     lastName,
+
+			api:           h.api,
+			slackTeamName: h.slackTeamName,
+			clock:         h.clock,
+			logger:        h.logger,
 		}
 
 	default:
 		w.WriteHeader(http.StatusNotFound)
+		return
 	}
+
+	err := action.Do()
+	if err != nil {
+		h.logger.Error("failed-to-perform-request", err)
+		h.report(channelID, fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if h.auditLogChannelID != "" {
+		h.postAuditLogEntry(action.AuditMessage())
+	}
+
+	h.report(channelID, action.SuccessMessage())
 
 	h.logger.Info("finished-processing-request")
 }
 
-func (h *Handler) inviteGuest(channelID string, form url.Values) error {
-	invitingUser := form["user_name"][0]
-
-	textParams := strings.Split(form["text"][0], " ")
-	emailAddress := textParams[1]
-	firstName := textParams[2]
-	lastName := textParams[3]
-
-	err := h.api.InviteGuest(
-		h.slackTeamName,
-		channelID,
-		firstName,
-		lastName,
-		emailAddress,
-	)
-	if err != nil {
-		h.logger.Error("failed-inviting-single-channel-user", err)
-		h.report(channelID, fmt.Sprintf("Failed to invite %s %s (%s) as a guest to this channel: '%s'", firstName, lastName, emailAddress, err.Error()))
-
-		return err
-	}
-
-	h.logger.Info("successfully-invited-single-channel-user")
-	h.report(channelID, fmt.Sprintf("@%s invited %s %s (%s) as a guest to this channel", invitingUser, firstName, lastName, emailAddress))
-
-	return nil
-}
-
-func (h *Handler) report(channelID string, text string) {
+func (h *Handler) report(channelID string, text string) error {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.Text = text
 	postMessageParameters.AsUser = true
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
+
+	if err != nil {
+		h.logger.Error("failed-to-report-message", err)
+		return err
+	}
+
+	h.logger.Info("successfully-reported-message")
+
+	return nil
+}
+
+func (h *Handler) postAuditLogEntry(text string) {
+	postMessageParameters := slack.NewPostMessageParameters()
+	postMessageParameters.Text = text
+	postMessageParameters.AsUser = true
+
+	_, _, err := h.api.PostMessage(h.auditLogChannelID, text, postMessageParameters)
 
 	if err != nil {
 		h.logger.Error("failed-processing-request", err)
