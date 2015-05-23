@@ -26,7 +26,7 @@ var _ = Describe("Handler", func() {
 	)
 
 	BeforeEach(func() {
-		initialTime = time.Date(2014, 1, 1, 3, 0, 30, 0, time.UTC)
+		initialTime = time.Date(2014, 1, 31, 10, 59, 53, 124235, time.UTC)
 		fakeClock = fakeclock.NewFakeClock(initialTime)
 	})
 
@@ -190,7 +190,8 @@ var _ = Describe("Handler", func() {
 
 				expectedParams := slack.NewPostMessageParameters()
 				expectedParams.AsUser = true
-				expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-01 03:00:30 +0000 UTC"
+
+				expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"
 
 				actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))

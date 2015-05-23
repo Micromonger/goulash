@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
@@ -61,6 +62,6 @@ func (i inviteGuestAction) AuditMessage() string {
 		i.lastName,
 		i.emailAddress,
 		i.channelID,
-		i.clock.Now().UTC(),
+		i.clock.Now().UTC().Round(time.Second),
 	)
 }
