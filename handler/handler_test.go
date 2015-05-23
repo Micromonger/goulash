@@ -32,10 +32,10 @@ var _ = Describe("Handler", func() {
 
 	It("returns 400 when given a request with a form not including a channel_id field", func() {
 		v := url.Values{
-			"token":      {"some-token"},
-			"command":    {"/butler"},
-			"text":       {"invite-guest user@example.com Tom Smith"},
-			"user_name":  {"requesting_user"},
+			"token":     {"some-token"},
+			"command":   {"/butler"},
+			"text":      {"invite-guest user@example.com Tom Smith"},
+			"user_name": {"requesting_user"},
 		}
 		reqBody := strings.NewReader(v.Encode())
 		r, err := http.NewRequest("POST", "http://localhost", reqBody)
