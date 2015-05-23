@@ -31,7 +31,7 @@ var _ = Describe("Handler", func() {
 		fakeClock = fakeclock.NewFakeClock(initialTime)
 	})
 
-	It("returns 400 when given a request without a form including a channel_id field", func() {
+	It("returns 400 when given a request with a form not including a channel_id field", func() {
 		v := url.Values{
 			"token":      {"some-token"},
 			"command":    {"/butler"},
@@ -52,7 +52,7 @@ var _ = Describe("Handler", func() {
 		Ω(w.Code).Should(Equal(http.StatusBadRequest))
 	})
 
-	It("returns 400 when given a request without a form including a text field", func() {
+	It("returns 400 when given a request with a form not including a text field", func() {
 		v := url.Values{
 			"token":      {"some-token"},
 			"channel_id": {"C1234567890"},
