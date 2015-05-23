@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/clock"
@@ -74,7 +75,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			api:           h.api,
 			slackTeamName: h.slackTeamName,
-			clock:         h.clock,
 			logger:        h.logger,
 		}
 
@@ -115,11 +115,13 @@ func (h *Handler) report(channelID string, text string) {
 }
 
 func (h *Handler) postAuditLogEntry(text string) {
+	message := fmt.Sprintf("%s at %s", text, h.clock.Now().UTC().Round(time.Second))
+
 	postMessageParameters := slack.NewPostMessageParameters()
-	postMessageParameters.Text = text
+	postMessageParameters.Text = message
 	postMessageParameters.AsUser = true
 
-	_, _, err := h.api.PostMessage(h.auditLogChannelID, text, postMessageParameters)
+	_, _, err := h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
 
 	if err != nil {
 		h.logger.Error("failed-processing-request", err)

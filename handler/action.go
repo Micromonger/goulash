@@ -2,9 +2,7 @@ package handler
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 )
 
@@ -25,7 +23,6 @@ type inviteGuestAction struct {
 	firstName     string
 	lastName      string
 
-	clock  clock.Clock
 	logger lager.Logger
 }
 
@@ -56,12 +53,11 @@ func (i inviteGuestAction) FailureMessage() string {
 
 func (i inviteGuestAction) AuditMessage() string {
 	return fmt.Sprintf(
-		"@%s invited %s %s (%s) as a single-channel guest to channel with ID %s at %s",
+		"@%s invited %s %s (%s) as a single-channel guest to channel with ID %s",
 		i.invitingUser,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
 		i.channelID,
-		i.clock.Now().UTC().Round(time.Second),
 	)
 }
