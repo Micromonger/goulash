@@ -15,7 +15,7 @@ import (
 const (
 	defaultlistenPort = "8080"
 
-	listenPortVar        = "VCAP_APP_listenPort"
+	listenPortVar        = "VCAP_APP_PORT"
 	tokenVar             = "SLACK_AUTH_TOKEN"
 	teamNameVar          = "SLACK_TEAM_NAME"
 	auditLogChannelIDVar = "SLACK_AUDIT_LOG_CHANNEL_ID"
