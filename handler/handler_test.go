@@ -2,7 +2,6 @@ package handler_test
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -191,7 +190,7 @@ var _ = Describe("Handler", func() {
 
 				expectedParams := slack.NewPostMessageParameters()
 				expectedParams.AsUser = true
-				expectedParams.Text = fmt.Sprintf("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at %s", fakeClock.Now())
+				expectedParams.Text = "@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-01 03:00:30 +0000 UTC"
 
 				actualChannelID, _, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))

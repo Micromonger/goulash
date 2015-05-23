@@ -61,6 +61,6 @@ func (i inviteGuestAction) AuditMessage() string {
 		i.lastName,
 		i.emailAddress,
 		i.channelID,
-		i.clock.Now(),
+		i.clock.Now().UTC(),
 	)
 }
