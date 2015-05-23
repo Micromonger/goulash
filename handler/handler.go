@@ -95,7 +95,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("finished-processing-request")
 }
 
-func (h *Handler) report(channelID string, text string) error {
+func (h *Handler) report(channelID string, text string) {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.Text = text
 	postMessageParameters.AsUser = true
@@ -104,12 +104,9 @@ func (h *Handler) report(channelID string, text string) error {
 
 	if err != nil {
 		h.logger.Error("failed-to-report-message", err)
-		return err
 	}
 
 	h.logger.Info("successfully-reported-message")
-
-	return nil
 }
 
 func (h *Handler) postAuditLogEntry(text string) {
