@@ -19,7 +19,6 @@ type inviteGuestAction struct {
 	api           SlackAPI
 	slackTeamName string
 	channelID     string
-	channelName   string
 	invitingUser  string
 	emailAddress  string
 	firstName     string
