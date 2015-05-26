@@ -453,4 +453,42 @@ var _ = Describe("Handler", func() {
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
+
+	Describe("/butler help", func() {
+		It("posts a message to the Slack channel that the request came from", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"help"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualText).Should(Equal(`USAGE
+        /butler [command] [args]
+
+COMMANDS
+        help    Show this help
+`))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+	})
 })

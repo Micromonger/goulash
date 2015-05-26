@@ -56,6 +56,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	})
 
 	switch command {
+	case "help":
+		h.report(channel.ID, "", helpText())
+		return
+
 	case "invite-guest":
 		emailAddress := commandParams[0]
 		firstName := commandParams[1]
@@ -102,20 +106,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err = action.Do()
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-		h.report(channel.ID, fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
+		h.report(channel.ID, "full", fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	h.report(channel.ID, action.SuccessMessage())
+	h.report(channel.ID, "full", action.SuccessMessage())
 
 	h.logger.Info("finished-processing-request")
 }
 
-func (h *Handler) report(channelID string, text string) {
+func (h *Handler) report(channelID string, parseFlag string, text string) {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.AsUser = true
-	postMessageParameters.Parse = "full"
+	postMessageParameters.Parse = parseFlag
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
 	if err != nil {
@@ -165,4 +169,13 @@ func params(r *http.Request) (Channel, string, string, []string, error) {
 	}
 
 	return channel, commander, command, commandParams, nil
+}
+
+func helpText() string {
+	return `USAGE
+        /butler [command] [args]
+
+COMMANDS
+        help    Show this help
+`
 }
