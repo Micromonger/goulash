@@ -100,16 +100,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if h.auditLogChannelID != "" {
+		h.postAuditLogEntry(action.AuditMessage())
+	}
+
 	err := action.Do()
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
 		h.report(channelID, fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}
-
-	if h.auditLogChannelID != "" {
-		h.postAuditLogEntry(action.AuditMessage())
 	}
 
 	h.report(channelID, action.SuccessMessage())
