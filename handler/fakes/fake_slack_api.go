@@ -45,6 +45,15 @@ type FakeSlackAPI struct {
 	inviteRestrictedReturns struct {
 		result1 error
 	}
+	GetGroupsStub        func(excludeArchived bool) ([]slack.Group, error)
+	getGroupsMutex       sync.RWMutex
+	getGroupsArgsForCall []struct {
+		excludeArchived bool
+	}
+	getGroupsReturns struct {
+		result1 []slack.Group
+		result2 error
+	}
 }
 
 func (fake *FakeSlackAPI) PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error) {
@@ -153,6 +162,39 @@ func (fake *FakeSlackAPI) InviteRestrictedReturns(result1 error) {
 	fake.inviteRestrictedReturns = struct {
 		result1 error
 	}{result1}
+}
+
+func (fake *FakeSlackAPI) GetGroups(excludeArchived bool) ([]slack.Group, error) {
+	fake.getGroupsMutex.Lock()
+	fake.getGroupsArgsForCall = append(fake.getGroupsArgsForCall, struct {
+		excludeArchived bool
+	}{excludeArchived})
+	fake.getGroupsMutex.Unlock()
+	if fake.GetGroupsStub != nil {
+		return fake.GetGroupsStub(excludeArchived)
+	} else {
+		return fake.getGroupsReturns.result1, fake.getGroupsReturns.result2
+	}
+}
+
+func (fake *FakeSlackAPI) GetGroupsCallCount() int {
+	fake.getGroupsMutex.RLock()
+	defer fake.getGroupsMutex.RUnlock()
+	return len(fake.getGroupsArgsForCall)
+}
+
+func (fake *FakeSlackAPI) GetGroupsArgsForCall(i int) bool {
+	fake.getGroupsMutex.RLock()
+	defer fake.getGroupsMutex.RUnlock()
+	return fake.getGroupsArgsForCall[i].excludeArchived
+}
+
+func (fake *FakeSlackAPI) GetGroupsReturns(result1 []slack.Group, result2 error) {
+	fake.GetGroupsStub = nil
+	fake.getGroupsReturns = struct {
+		result1 []slack.Group
+		result2 error
+	}{result1, result2}
 }
 
 var _ handler.SlackAPI = new(FakeSlackAPI)

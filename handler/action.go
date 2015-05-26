@@ -17,8 +17,7 @@ type Action interface {
 type inviteGuestAction struct {
 	api           SlackAPI
 	slackTeamName string
-	channelID     string
-	channelName   string
+	channel       Channel
 	invitingUser  string
 	emailAddress  string
 	firstName     string
@@ -30,7 +29,7 @@ type inviteGuestAction struct {
 func (i inviteGuestAction) Do() error {
 	err := i.api.InviteGuest(
 		i.slackTeamName,
-		i.channelID,
+		i.channel.ID,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
@@ -59,16 +58,15 @@ func (i inviteGuestAction) AuditMessage() string {
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
-		i.channelName,
-		i.channelID,
+		i.channel.Name(i.api),
+		i.channel.ID,
 	)
 }
 
 type inviteRestrictedAction struct {
 	api           SlackAPI
 	slackTeamName string
-	channelID     string
-	channelName   string
+	channel       Channel
 	invitingUser  string
 	emailAddress  string
 	firstName     string
@@ -80,7 +78,7 @@ type inviteRestrictedAction struct {
 func (i inviteRestrictedAction) Do() error {
 	err := i.api.InviteRestricted(
 		i.slackTeamName,
-		i.channelID,
+		i.channel.ID,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
@@ -109,7 +107,7 @@ func (i inviteRestrictedAction) AuditMessage() string {
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
-		i.channelName,
-		i.channelID,
+		i.channel.Name(i.api),
+		i.channel.ID,
 	)
 }

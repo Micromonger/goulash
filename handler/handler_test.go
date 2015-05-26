@@ -203,6 +203,54 @@ var _ = Describe("Handler", func() {
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
+		It("posts a message to the configured audit log channel with the group's real name when it can be found", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"privategroup"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetGroupsReturns([]slack.Group{
+				{
+					Name:        "unexpected-group-1",
+					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
+				},
+				{
+					Name:        "channel-name",
+					BaseChannel: slack.BaseChannel{Id: "C1234567890"},
+				},
+				{
+					Name:        "unexpected-group-2",
+					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
+				},
+			}, nil)
+
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+
 		It("posts a message to the configured audit log channel on failure", func() {
 			v := url.Values{
 				"token":        {"some-token"},
