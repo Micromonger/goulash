@@ -51,8 +51,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	channelName := r.PostFormValue("channel_name")
-	channel := Channel{RawName: channelName, ID: channelID}
+	channel := Channel{
+		RawName: r.PostFormValue("channel_name"),
+		ID:      channelID,
+	}
 	commander := r.PostFormValue("user_name")
 
 	commandSep := strings.IndexByte(text, 0x20)
