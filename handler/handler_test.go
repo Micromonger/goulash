@@ -102,7 +102,7 @@ var _ = Describe("Handler", func() {
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))
 		})
 
-		It("posts a message to the Slack channel that the request came from on success", func() {
+		It("posts a message to the channel/group that the request came from on success", func() {
 			v := url.Values{
 				"token":      {"some-token"},
 				"channel_id": {"C1234567890"},
@@ -133,72 +133,103 @@ var _ = Describe("Handler", func() {
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
-		Describe("when inviting the guest fails", func() {
-			It("posts a message to the Slack channel that the request came from on failure", func() {
-				v := url.Values{
-					"token":      {"some-token"},
-					"channel_id": {"C1234567890"},
-					"command":    {"/butler"},
-					"text":       {"invite-guest user@example.com Tom Smith"},
-					"user_name":  {"requesting_user"},
-				}
-				reqBody := strings.NewReader(v.Encode())
-				r, err := http.NewRequest("POST", "http://localhost", reqBody)
-				Ω(err).ShouldNot(HaveOccurred())
+		It("posts a message to the configured audit log channel on success", func() {
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
+			}
 
-				r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
 
-				fakeSlackAPI := &fakes.FakeSlackAPI{}
-				fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-				w := httptest.NewRecorder()
-				h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
-				h.ServeHTTP(w, r)
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
 
-				Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
 
-				expectedParams := slack.NewPostMessageParameters()
-				expectedParams.AsUser = true
-				expectedParams.Parse = "full"
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
 
-				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
-				Ω(actualChannelID).Should(Equal("C1234567890"))
-				Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"))
-				Ω(actualParams).Should(Equal(expectedParams))
-			})
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
 
-			It("posts a message to the Slack audit log channel when an audit log channel is configured", func() {
-				v := url.Values{
-					"token":      {"some-token"},
-					"channel_id": {"C1234567890"},
-					"command":    {"/butler"},
-					"text":       {"invite-guest user@example.com Tom Smith"},
-					"user_name":  {"requesting_user"},
-				}
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
 
-				reqBody := strings.NewReader(v.Encode())
-				r, err := http.NewRequest("POST", "http://localhost", reqBody)
-				Ω(err).ShouldNot(HaveOccurred())
+		It("posts a message to the channel/group that the request came from on failure", func() {
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
 
-				r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-				fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
-				w := httptest.NewRecorder()
-				h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
-				h.ServeHTTP(w, r)
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
 
-				Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
-				expectedParams := slack.NewPostMessageParameters()
-				expectedParams.AsUser = true
-				expectedParams.Parse = "full"
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
 
-				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
-				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-				Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
-				Ω(actualParams).Should(Equal(expectedParams))
-			})
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+
+		It("posts a message to the configured audit log channel on failure", func() {
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/butler"},
+				"text":       {"invite-guest user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
+			}
+
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
 
@@ -232,7 +263,7 @@ var _ = Describe("Handler", func() {
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))
 		})
 
-		It("posts a message to the Slack channel that the request came from on success", func() {
+		It("posts a message to the channel/group that the request came from on success", func() {
 			v := url.Values{
 				"token":      {"some-token"},
 				"channel_id": {"C1234567890"},
@@ -263,72 +294,70 @@ var _ = Describe("Handler", func() {
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
-		Describe("when inviting the restricted account fails", func() {
-			It("posts a message to the Slack channel that the request came from on failure", func() {
-				v := url.Values{
-					"token":      {"some-token"},
-					"channel_id": {"C1234567890"},
-					"command":    {"/butler"},
-					"text":       {"invite-restricted user@example.com Tom Smith"},
-					"user_name":  {"requesting_user"},
-				}
-				reqBody := strings.NewReader(v.Encode())
-				r, err := http.NewRequest("POST", "http://localhost", reqBody)
-				Ω(err).ShouldNot(HaveOccurred())
+		It("posts a message to the channel/group that the request came from on failure", func() {
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/butler"},
+				"text":       {"invite-restricted user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
 
-				r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-				fakeSlackAPI := &fakes.FakeSlackAPI{}
-				fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
-				w := httptest.NewRecorder()
-				h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
-				h.ServeHTTP(w, r)
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
 
-				Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
-				expectedParams := slack.NewPostMessageParameters()
-				expectedParams.AsUser = true
-				expectedParams.Parse = "full"
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
 
-				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
-				Ω(actualChannelID).Should(Equal("C1234567890"))
-				Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to this channel: 'failed to invite user'"))
-				Ω(actualParams).Should(Equal(expectedParams))
-			})
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to this channel: 'failed to invite user'"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
 
-			It("posts a message to the Slack audit log channel when an audit log channel is configured", func() {
-				v := url.Values{
-					"token":      {"some-token"},
-					"channel_id": {"C1234567890"},
-					"command":    {"/butler"},
-					"text":       {"invite-restricted user@example.com Tom Smith"},
-					"user_name":  {"requesting_user"},
-				}
+		It("posts a message to the configured audit log channel on success", func() {
+			v := url.Values{
+				"token":      {"some-token"},
+				"channel_id": {"C1234567890"},
+				"command":    {"/butler"},
+				"text":       {"invite-restricted user@example.com Tom Smith"},
+				"user_name":  {"requesting_user"},
+			}
 
-				reqBody := strings.NewReader(v.Encode())
-				r, err := http.NewRequest("POST", "http://localhost", reqBody)
-				Ω(err).ShouldNot(HaveOccurred())
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
 
-				r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-				fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
 
-				w := httptest.NewRecorder()
-				h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
-				h.ServeHTTP(w, r)
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
 
-				Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(2))
 
-				expectedParams := slack.NewPostMessageParameters()
-				expectedParams.AsUser = true
-				expectedParams.Parse = "full"
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
 
-				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
-				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-				Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
-				Ω(actualParams).Should(Equal(expectedParams))
-			})
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
 })
