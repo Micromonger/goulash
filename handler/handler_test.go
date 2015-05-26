@@ -129,7 +129,7 @@ var _ = Describe("Handler", func() {
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
 			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a guest to this channel"))
-			Ω(actualParams.AsUser).Should(BeTrue())
+			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
 		Describe("when inviting the guest fails", func() {
@@ -162,7 +162,7 @@ var _ = Describe("Handler", func() {
 				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("C1234567890"))
 				Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"))
-				Ω(actualParams.AsUser).Should(BeTrue())
+				Ω(actualParams).Should(Equal(expectedParams))
 			})
 
 			It("posts a message to the Slack audit log channel when an audit log channel is configured", func() {
@@ -194,7 +194,7 @@ var _ = Describe("Handler", func() {
 				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
 				Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
-				Ω(actualParams.AsUser).Should(BeTrue())
+				Ω(actualParams).Should(Equal(expectedParams))
 			})
 		})
 	})
