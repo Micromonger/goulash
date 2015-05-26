@@ -52,6 +52,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	command := text[:strings.IndexByte(text, 0x20)]
+	commander := r.PostForm["user_name"][0]
+	commandParams := strings.Split(r.PostForm["text"][0], " ")
 
 	h.logger.Info("started-processing-request", lager.Data{
 		"channel_id": channelID,
@@ -60,15 +62,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "invite-guest":
-		form := r.PostForm
-		textParams := strings.Split(form["text"][0], " ")
-		emailAddress := textParams[1]
-		firstName := textParams[2]
-		lastName := textParams[3]
+		emailAddress := commandParams[1]
+		firstName := commandParams[2]
+		lastName := commandParams[3]
 
 		action = inviteGuestAction{
 			channelID:    channelID,
-			invitingUser: form["user_name"][0],
+			invitingUser: commander,
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
