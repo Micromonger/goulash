@@ -103,6 +103,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) report(channelID string, text string) {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.AsUser = true
+	postMessageParameters.Parse = "full"
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
 
@@ -118,6 +119,7 @@ func (h *Handler) postAuditLogEntry(text string) {
 
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.AsUser = true
+	postMessageParameters.Parse = "full"
 
 	_, _, err := h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
 

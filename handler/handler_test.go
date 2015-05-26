@@ -125,6 +125,7 @@ var _ = Describe("Handler", func() {
 
 			expectedParams := slack.NewPostMessageParameters()
 			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("C1234567890"))
@@ -158,6 +159,7 @@ var _ = Describe("Handler", func() {
 
 				expectedParams := slack.NewPostMessageParameters()
 				expectedParams.AsUser = true
+				expectedParams.Parse = "full"
 
 				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("C1234567890"))
@@ -190,6 +192,7 @@ var _ = Describe("Handler", func() {
 
 				expectedParams := slack.NewPostMessageParameters()
 				expectedParams.AsUser = true
+				expectedParams.Parse = "full"
 
 				actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 				Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
