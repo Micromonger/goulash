@@ -75,11 +75,12 @@ var _ = Describe("Handler", func() {
 	Describe("/butler invite-guest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-guest user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -104,11 +105,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the channel/group ID that the request came from on success", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-guest user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -135,11 +137,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the channel/group ID that the request came from on failure", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-guest user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -168,11 +171,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the configured audit log channel on success", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-guest user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 
 			reqBody := strings.NewReader(v.Encode())
@@ -195,17 +199,18 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
 		It("posts a message to the configured audit log channel on failure", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-guest user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 
 			reqBody := strings.NewReader(v.Encode())
@@ -229,7 +234,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
@@ -237,11 +242,12 @@ var _ = Describe("Handler", func() {
 	Describe("/butler invite-restricted", func() {
 		It("invites a restricted account", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-restricted user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -266,11 +272,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the channel/group ID that the request came from on success", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-restricted user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -297,11 +304,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the channel/group ID that the request came from on failure", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-restricted user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 			reqBody := strings.NewReader(v.Encode())
 			r, err := http.NewRequest("POST", "http://localhost", reqBody)
@@ -330,11 +338,12 @@ var _ = Describe("Handler", func() {
 
 		It("posts a message to the configured audit log channel on success", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-restricted user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 
 			reqBody := strings.NewReader(v.Encode())
@@ -357,17 +366,18 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
 		It("posts a message to the configured audit log channel on failure", func() {
 			v := url.Values{
-				"token":      {"some-token"},
-				"channel_id": {"C1234567890"},
-				"command":    {"/butler"},
-				"text":       {"invite-restricted user@example.com Tom Smith"},
-				"user_name":  {"requesting_user"},
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
 			}
 
 			reqBody := strings.NewReader(v.Encode())
@@ -391,7 +401,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to channel with ID C1234567890 at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})

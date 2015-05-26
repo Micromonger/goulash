@@ -51,6 +51,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	channelName := r.PostFormValue("channel_name")
+
 	command := text[:strings.IndexByte(text, 0x20)]
 	commander := r.PostForm["user_name"][0]
 	commandParams := strings.Split(r.PostForm["text"][0], " ")
@@ -68,6 +70,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		action = inviteGuestAction{
 			channelID:    channelID,
+			channelName:  channelName,
 			invitingUser: commander,
 			emailAddress: emailAddress,
 			firstName:    firstName,
@@ -85,6 +88,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		action = inviteRestrictedAction{
 			channelID:    channelID,
+			channelName:  channelName,
 			invitingUser: commander,
 			emailAddress: emailAddress,
 			firstName:    firstName,

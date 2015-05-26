@@ -18,6 +18,7 @@ type inviteGuestAction struct {
 	api           SlackAPI
 	slackTeamName string
 	channelID     string
+	channelName   string
 	invitingUser  string
 	emailAddress  string
 	firstName     string
@@ -53,11 +54,12 @@ func (i inviteGuestAction) FailureMessage() string {
 
 func (i inviteGuestAction) AuditMessage() string {
 	return fmt.Sprintf(
-		"@%s invited %s %s (%s) as a single-channel guest to channel with ID %s",
+		"@%s invited %s %s (%s) as a single-channel guest to '%s' (%s)",
 		i.invitingUser,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
+		i.channelName,
 		i.channelID,
 	)
 }
@@ -66,6 +68,7 @@ type inviteRestrictedAction struct {
 	api           SlackAPI
 	slackTeamName string
 	channelID     string
+	channelName   string
 	invitingUser  string
 	emailAddress  string
 	firstName     string
@@ -101,11 +104,12 @@ func (i inviteRestrictedAction) FailureMessage() string {
 
 func (i inviteRestrictedAction) AuditMessage() string {
 	return fmt.Sprintf(
-		"@%s invited %s %s (%s) as a restricted account to channel with ID %s",
+		"@%s invited %s %s (%s) as a restricted account to '%s' (%s)",
 		i.invitingUser,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
+		i.channelName,
 		i.channelID,
 	)
 }
