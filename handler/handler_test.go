@@ -10,10 +10,10 @@ import (
 
 	"github.com/pivotalservices/goulash/handler/fakes"
 
-	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/clock/fakeclock"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/handler"
+	"github.com/pivotalservices/slack"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

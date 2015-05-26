@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/krishicks/slack"
+import "github.com/pivotalservices/slack"
 
 //go:generate counterfeiter . SlackAPI
 

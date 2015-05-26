@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/slack"
 )
 
 // Handler is an HTTP handler.

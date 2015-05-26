@@ -4,8 +4,8 @@ package fakes
 import (
 	"sync"
 
-	"github.com/krishicks/slack"
 	"github.com/pivotalservices/goulash/handler"
+	"github.com/pivotalservices/slack"
 )
 
 type FakeSlackAPI struct {

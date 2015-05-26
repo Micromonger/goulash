@@ -1,12 +1,8 @@
 package slack
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
 	"net/url"
-	"time"
 )
 
 // UserProfile contains all the information details of a given user
@@ -140,42 +136,4 @@ func (api *Slack) SetUserPresence(presence string) error {
 	}
 	return nil
 
-}
-
-func (api *Slack) InviteGuest(
-	teamname string,
-	channelID string,
-	firstName string,
-	lastName string,
-	emailAddress string,
-) error {
-	endpoint := fmt.Sprintf("https://%s.slack.com/api/users.admin.invite?t=%s", teamname, time.Now().Unix())
-	values := url.Values{
-		"email":            {emailAddress},
-		"channels":         {channelID},
-		"first_name":       {firstName},
-		"last_name":        {lastName},
-		"ultra_restricted": {"1"},
-		"token":            {api.config.token},
-		"set_active":       {"true"},
-		"_attempts":        {"1"},
-	}
-	resp, err := http.PostForm(endpoint, values)
-	if err != nil {
-		return fmt.Errorf("Failed to invite single channel user: %s", err)
-	}
-	defer resp.Body.Close()
-
-	type apiResponse struct {
-		OK bool `json:"ok"`
-	}
-
-	decodedResp := apiResponse{}
-	json.NewDecoder(resp.Body).Decode(&decodedResp)
-
-	if !decodedResp.OK {
-		return fmt.Errorf("Failed to invite single channel user: %s", err)
-	}
-
-	return nil
 }

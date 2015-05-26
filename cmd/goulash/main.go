@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/krishicks/slack"
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/handler"
+	"github.com/pivotalservices/slack"
 )
 
 const (
