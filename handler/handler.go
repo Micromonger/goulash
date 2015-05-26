@@ -136,7 +136,7 @@ func (h *Handler) postAuditLogEntry(text string) {
 	_, _, err := h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
 
 	if err != nil {
-		h.logger.Error("failed-processing-request", err)
+		h.logger.Error("failed-to-add-audit-log-entry", err)
 		return
 	}
 }
