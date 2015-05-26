@@ -118,7 +118,6 @@ func (h *Handler) report(channelID string, text string) {
 	postMessageParameters.Parse = "full"
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
-
 	if err != nil {
 		h.logger.Error("failed-to-report-message", err)
 	}
@@ -134,7 +133,6 @@ func (h *Handler) postAuditLogEntry(text string) {
 	postMessageParameters.Parse = "full"
 
 	_, _, err := h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
-
 	if err != nil {
 		h.logger.Error("failed-to-add-audit-log-entry", err)
 		return
