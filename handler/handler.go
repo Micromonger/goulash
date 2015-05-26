@@ -137,6 +137,8 @@ func (h *Handler) postAuditLogEntry(text string) {
 		h.logger.Error("failed-to-add-audit-log-entry", err)
 		return
 	}
+
+	h.logger.Info("successfully-added-audit-log-entry")
 }
 
 func params(r *http.Request) (Channel, string, string, []string, error) {
