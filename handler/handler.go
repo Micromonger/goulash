@@ -52,10 +52,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	channelName := r.PostFormValue("channel_name")
+	commander := r.PostFormValue("user_name")
 
-	command := text[:strings.IndexByte(text, 0x20)]
-	commander := r.PostForm["user_name"][0]
-	commandParams := strings.Split(r.PostForm["text"][0], " ")
+	commandSep := strings.IndexByte(text, 0x20)
+	command := text[:commandSep]
+	commandParams := strings.Split(text[commandSep+1:], " ")
 
 	h.logger.Info("started-processing-request", lager.Data{
 		"channel_id": channelID,
@@ -64,9 +65,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "invite-guest":
-		emailAddress := commandParams[1]
-		firstName := commandParams[2]
-		lastName := commandParams[3]
+		emailAddress := commandParams[0]
+		firstName := commandParams[1]
+		lastName := commandParams[2]
 
 		action = inviteGuestAction{
 			channelID:    channelID,
@@ -82,9 +83,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case "invite-restricted":
-		emailAddress := commandParams[1]
-		firstName := commandParams[2]
-		lastName := commandParams[3]
+		emailAddress := commandParams[0]
+		firstName := commandParams[1]
+		lastName := commandParams[2]
 
 		action = inviteRestrictedAction{
 			channelID:    channelID,
