@@ -9,4 +9,5 @@ import "github.com/pivotalservices/slack"
 type SlackAPI interface {
 	PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error)
 	InviteGuest(teamname, channelID, firstName, lastName, emailAddress string) error
+	InviteRestricted(teamname, channelID, firstName, lastName, emailAddress string) error
 }

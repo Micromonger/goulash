@@ -61,3 +61,51 @@ func (i inviteGuestAction) AuditMessage() string {
 		i.channelID,
 	)
 }
+
+type inviteRestrictedAction struct {
+	api           SlackAPI
+	slackTeamName string
+	channelID     string
+	invitingUser  string
+	emailAddress  string
+	firstName     string
+	lastName      string
+
+	logger lager.Logger
+}
+
+func (i inviteRestrictedAction) Do() error {
+	err := i.api.InviteRestricted(
+		i.slackTeamName,
+		i.channelID,
+		i.firstName,
+		i.lastName,
+		i.emailAddress,
+	)
+	if err != nil {
+		i.logger.Error("failed-inviting-restricted-account", err)
+		return err
+	}
+
+	i.logger.Info("successfully-invited-restricted-account")
+	return nil
+}
+
+func (i inviteRestrictedAction) SuccessMessage() string {
+	return fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to this channel", i.invitingUser, i.firstName, i.lastName, i.emailAddress)
+}
+
+func (i inviteRestrictedAction) FailureMessage() string {
+	return fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to this channel", i.firstName, i.lastName, i.emailAddress)
+}
+
+func (i inviteRestrictedAction) AuditMessage() string {
+	return fmt.Sprintf(
+		"@%s invited %s %s (%s) as a restricted account to channel with ID %s",
+		i.invitingUser,
+		i.firstName,
+		i.lastName,
+		i.emailAddress,
+		i.channelID,
+	)
+}

@@ -33,6 +33,18 @@ type FakeSlackAPI struct {
 	inviteGuestReturns struct {
 		result1 error
 	}
+	InviteRestrictedStub        func(teamname, channelID, firstName, lastName, emailAddress string) error
+	inviteRestrictedMutex       sync.RWMutex
+	inviteRestrictedArgsForCall []struct {
+		teamname     string
+		channelID    string
+		firstName    string
+		lastName     string
+		emailAddress string
+	}
+	inviteRestrictedReturns struct {
+		result1 error
+	}
 }
 
 func (fake *FakeSlackAPI) PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error) {
@@ -103,6 +115,42 @@ func (fake *FakeSlackAPI) InviteGuestArgsForCall(i int) (string, string, string,
 func (fake *FakeSlackAPI) InviteGuestReturns(result1 error) {
 	fake.InviteGuestStub = nil
 	fake.inviteGuestReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeSlackAPI) InviteRestricted(teamname string, channelID string, firstName string, lastName string, emailAddress string) error {
+	fake.inviteRestrictedMutex.Lock()
+	fake.inviteRestrictedArgsForCall = append(fake.inviteRestrictedArgsForCall, struct {
+		teamname     string
+		channelID    string
+		firstName    string
+		lastName     string
+		emailAddress string
+	}{teamname, channelID, firstName, lastName, emailAddress})
+	fake.inviteRestrictedMutex.Unlock()
+	if fake.InviteRestrictedStub != nil {
+		return fake.InviteRestrictedStub(teamname, channelID, firstName, lastName, emailAddress)
+	} else {
+		return fake.inviteRestrictedReturns.result1
+	}
+}
+
+func (fake *FakeSlackAPI) InviteRestrictedCallCount() int {
+	fake.inviteRestrictedMutex.RLock()
+	defer fake.inviteRestrictedMutex.RUnlock()
+	return len(fake.inviteRestrictedArgsForCall)
+}
+
+func (fake *FakeSlackAPI) InviteRestrictedArgsForCall(i int) (string, string, string, string, string) {
+	fake.inviteRestrictedMutex.RLock()
+	defer fake.inviteRestrictedMutex.RUnlock()
+	return fake.inviteRestrictedArgsForCall[i].teamname, fake.inviteRestrictedArgsForCall[i].channelID, fake.inviteRestrictedArgsForCall[i].firstName, fake.inviteRestrictedArgsForCall[i].lastName, fake.inviteRestrictedArgsForCall[i].emailAddress
+}
+
+func (fake *FakeSlackAPI) InviteRestrictedReturns(result1 error) {
+	fake.InviteRestrictedStub = nil
+	fake.inviteRestrictedReturns = struct {
 		result1 error
 	}{result1}
 }

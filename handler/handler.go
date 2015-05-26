@@ -78,6 +78,23 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			logger:        h.logger,
 		}
 
+	case "invite-restricted":
+		emailAddress := commandParams[1]
+		firstName := commandParams[2]
+		lastName := commandParams[3]
+
+		action = inviteRestrictedAction{
+			channelID:    channelID,
+			invitingUser: commander,
+			emailAddress: emailAddress,
+			firstName:    firstName,
+			lastName:     lastName,
+
+			api:           h.api,
+			slackTeamName: h.slackTeamName,
+			logger:        h.logger,
+		}
+
 	default:
 		w.WriteHeader(http.StatusNotFound)
 		return
