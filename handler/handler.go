@@ -3,6 +3,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -43,27 +44,15 @@ func New(
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var action Action
 
-	channelID := r.PostFormValue("channel_id")
-	text := r.PostFormValue("text")
-
-	if channelID == "" || text == "" {
+	channel, commander, command, commandParams, err := params(r)
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	channel := Channel{
-		RawName: r.PostFormValue("channel_name"),
-		ID:      channelID,
-	}
-	commander := r.PostFormValue("user_name")
-
-	commandSep := strings.IndexByte(text, 0x20)
-	command := text[:commandSep]
-	commandParams := strings.Split(text[commandSep+1:], " ")
-
 	h.logger.Info("started-processing-request", lager.Data{
-		"channel_id": channelID,
-		"text":       text,
+		"channel_id": channel.ID,
+		"text":       fmt.Sprintf("%s %s", command, commandParams),
 	})
 
 	switch command {
@@ -110,15 +99,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.postAuditLogEntry(action.AuditMessage())
 	}
 
-	err := action.Do()
+	err = action.Do()
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-		h.report(channelID, fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
+		h.report(channel.ID, fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	h.report(channelID, action.SuccessMessage())
+	h.report(channel.ID, action.SuccessMessage())
 
 	h.logger.Info("finished-processing-request")
 }
@@ -150,4 +139,30 @@ func (h *Handler) postAuditLogEntry(text string) {
 		h.logger.Error("failed-processing-request", err)
 		return
 	}
+}
+
+func params(r *http.Request) (Channel, string, string, []string, error) {
+	channelID := r.PostFormValue("channel_id")
+	text := r.PostFormValue("text")
+
+	if channelID == "" || text == "" {
+		return Channel{}, "", "", []string{}, errors.New("Missing required attributes")
+	}
+
+	channel := Channel{
+		RawName: r.PostFormValue("channel_name"),
+		ID:      channelID,
+	}
+	commander := r.PostFormValue("user_name")
+
+	var command string
+	var commandParams []string
+	if commandSep := strings.IndexByte(text, 0x20); commandSep > 0 {
+		command = text[:commandSep]
+		commandParams = strings.Split(text[commandSep+1:], " ")
+	} else {
+		command = text
+	}
+
+	return channel, commander, command, commandParams, nil
 }
