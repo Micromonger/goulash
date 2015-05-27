@@ -102,13 +102,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = action.Do()
+
 	if h.auditLogChannelID != "" {
-		h.postAuditLogEntry(action.AuditMessage())
+		h.postAuditLogEntry(action.AuditMessage(), err)
 	}
 
-	err = action.Do()
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
+
 		h.report(channel.ID, "full", fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -133,14 +135,21 @@ func (h *Handler) report(channelID string, parseFlag string, text string) {
 	h.logger.Info("successfully-reported-message")
 }
 
-func (h *Handler) postAuditLogEntry(text string) {
-	message := fmt.Sprintf("%s at %s", text, h.clock.Now().UTC().Round(time.Second))
+func (h *Handler) postAuditLogEntry(text string, err error) {
+	var outcome string
+	if err == nil {
+		outcome = "was successful."
+	} else {
+		outcome = fmt.Sprintf("failed with error: %s", err.Error())
+	}
+
+	message := fmt.Sprintf("%s at %s, which %s", text, h.clock.Now().UTC().Round(time.Second), outcome)
 
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.AsUser = true
 	postMessageParameters.Parse = "full"
 
-	_, _, err := h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
+	_, _, err = h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
 	if err != nil {
 		h.logger.Error("failed-to-add-audit-log-entry", err)
 		return

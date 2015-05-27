@@ -199,7 +199,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC, which was successful."))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
@@ -247,7 +247,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC, which was successful."))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
@@ -282,7 +282,41 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC, which failed with error: failed to invite user"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+
+		It("DMs the inviting user when the butler does not have access to the channel/group", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
+
+			w := httptest.NewRecorder()
+			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualText).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to this channel: 'failed to invite user'"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
@@ -414,7 +448,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC, which was successful."))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 
@@ -449,7 +483,7 @@ var _ = Describe("Handler", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
-			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC"))
+			Ω(actualText).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name' (C1234567890) at 2014-01-31 10:59:53 +0000 UTC, which failed with error: failed to invite user"))
 			Ω(actualParams).Should(Equal(expectedParams))
 		})
 	})
