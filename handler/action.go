@@ -17,7 +17,7 @@ type Action interface {
 type inviteGuestAction struct {
 	api           SlackAPI
 	slackTeamName string
-	channel       Channel
+	channel       *Channel
 	invitingUser  string
 	emailAddress  string
 	firstName     string
@@ -66,7 +66,7 @@ func (i inviteGuestAction) AuditMessage() string {
 type inviteRestrictedAction struct {
 	api           SlackAPI
 	slackTeamName string
-	channel       Channel
+	channel       *Channel
 	invitingUser  string
 	emailAddress  string
 	firstName     string

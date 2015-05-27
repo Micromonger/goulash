@@ -51,8 +51,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.logger.Info("started-processing-request", lager.Data{
-		"channel_id": channel.ID,
-		"text":       fmt.Sprintf("%s %s", command, commandParams),
+		"channelID":     channel.ID,
+		"channelName":   channel.Name(h.api),
+		"commander":     commander,
+		"command":       command,
+		"commandParams": commandParams,
 	})
 
 	switch command {
@@ -145,15 +148,15 @@ func (h *Handler) postAuditLogEntry(text string) {
 	h.logger.Info("successfully-added-audit-log-entry")
 }
 
-func params(r *http.Request) (Channel, string, string, []string, error) {
+func params(r *http.Request) (*Channel, string, string, []string, error) {
 	channelID := r.PostFormValue("channel_id")
 	text := r.PostFormValue("text")
 
 	if channelID == "" || text == "" {
-		return Channel{}, "", "", []string{}, errors.New("Missing required attributes")
+		return &Channel{}, "", "", []string{}, errors.New("Missing required attributes")
 	}
 
-	channel := Channel{
+	channel := &Channel{
 		RawName: r.PostFormValue("channel_name"),
 		ID:      channelID,
 	}
