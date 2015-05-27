@@ -127,6 +127,7 @@ func (h *Handler) report(channelID string, parseFlag string, text string) {
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
 	if err != nil {
 		h.logger.Error("failed-to-report-message", err)
+		return
 	}
 
 	h.logger.Info("successfully-reported-message")
