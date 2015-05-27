@@ -14,10 +14,6 @@ import (
 	"github.com/pivotalservices/slack"
 )
 
-const (
-	errChannelNotFound = "channel_not_found"
-)
-
 // Handler is an HTTP handler.
 type Handler struct {
 	api               SlackAPI
@@ -65,7 +61,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "help":
-		h.report(channel.ID, commanderID, "", helpText())
+		_, err = w.Write([]byte(helpText()))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 
 	case "invite-guest":
@@ -103,7 +102,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 	default:
-		w.WriteHeader(http.StatusNotFound)
+		_, err = w.Write(helpText())
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
@@ -115,44 +117,19 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-
-		h.report(channel.ID, commanderID, "full", fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
-		w.WriteHeader(http.StatusInternalServerError)
+		_, err = w.Write([]byte(fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error())))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 
-	h.report(channel.ID, commanderID, "full", action.SuccessMessage())
+	_, err = w.Write([]byte(action.SuccessMessage()))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 
 	h.logger.Info("finished-processing-request")
-}
-
-func (h *Handler) report(channelID string, commanderID string, parseFlag string, text string) {
-	postMessageParameters := slack.NewPostMessageParameters()
-	postMessageParameters.AsUser = true
-	postMessageParameters.Parse = parseFlag
-
-	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
-	if err == nil {
-		h.logger.Info("successfully-reported-message")
-		return
-	}
-
-	if err.Error() != errChannelNotFound {
-		h.logger.Error("failed-to-report-message", err)
-		return
-	}
-
-	var openIMChannelErr error
-	_, _, dmChannelID, openIMChannelErr := h.api.OpenIMChannel(commanderID)
-	if openIMChannelErr != nil {
-		h.logger.Error("failed-to-open-dm-channel", openIMChannelErr)
-		return
-	}
-
-	_, _, err = h.api.PostMessage(dmChannelID, text, postMessageParameters)
-	if err != nil {
-		h.logger.Error("failed-to-report-message-as-dm", err)
-	}
 }
 
 func (h *Handler) postAuditLogEntry(text string, err error) {
@@ -205,8 +182,8 @@ func params(r *http.Request) (*Channel, string, string, string, []string, error)
 	return channel, commanderName, commanderID, command, commandParams, nil
 }
 
-func helpText() string {
-	return "*USAGE*\n" +
+func helpText() []byte {
+	return []byte("*USAGE*\n" +
 		"`/butler [command] [args]`\n" +
 		"\n" +
 		"*COMMANDS*\n" +
@@ -215,5 +192,5 @@ func helpText() string {
 		"_Invite a Single-Channel Guest to the current channel/group_\n" +
 		"\n" +
 		"`invite-restricted <email> <firstname> <lastname>`\n" +
-		"_Invite a Restricted Account to the current channel/group_\n"
+		"_Invite a Restricted Account to the current channel/group_\n")
 }
