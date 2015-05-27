@@ -11,4 +11,5 @@ type SlackAPI interface {
 	InviteGuest(teamname, channelID, firstName, lastName, emailAddress string) error
 	InviteRestricted(teamname, channelID, firstName, lastName, emailAddress string) error
 	GetGroups(excludeArchived bool) ([]slack.Group, error)
+	OpenIMChannel(userID string) (bool, bool, string, error)
 }

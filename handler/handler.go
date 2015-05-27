@@ -14,6 +14,10 @@ import (
 	"github.com/pivotalservices/slack"
 )
 
+const (
+	errChannelNotFound = "channel_not_found"
+)
+
 // Handler is an HTTP handler.
 type Handler struct {
 	api               SlackAPI
@@ -44,7 +48,7 @@ func New(
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var action Action
 
-	channel, commander, command, commandParams, err := params(r)
+	channel, commanderName, commanderID, command, commandParams, err := params(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -53,14 +57,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.logger.Info("started-processing-request", lager.Data{
 		"channelID":     channel.ID,
 		"channelName":   channel.Name(h.api),
-		"commander":     commander,
+		"commanderName": commanderName,
+		"commanderID":   commanderID,
 		"command":       command,
 		"commandParams": commandParams,
 	})
 
 	switch command {
 	case "help":
-		h.report(channel.ID, "", helpText())
+		h.report(channel.ID, commanderID, "", helpText())
 		return
 
 	case "invite-guest":
@@ -70,7 +75,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		action = inviteGuestAction{
 			channel:      channel,
-			invitingUser: commander,
+			invitingUser: commanderName,
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
@@ -87,7 +92,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		action = inviteRestrictedAction{
 			channel:      channel,
-			invitingUser: commander,
+			invitingUser: commanderName,
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
@@ -111,28 +116,43 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
 
-		h.report(channel.ID, "full", fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
+		h.report(channel.ID, commanderID, "full", fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error()))
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	h.report(channel.ID, "full", action.SuccessMessage())
+	h.report(channel.ID, commanderID, "full", action.SuccessMessage())
 
 	h.logger.Info("finished-processing-request")
 }
 
-func (h *Handler) report(channelID string, parseFlag string, text string) {
+func (h *Handler) report(channelID string, commanderID string, parseFlag string, text string) {
 	postMessageParameters := slack.NewPostMessageParameters()
 	postMessageParameters.AsUser = true
 	postMessageParameters.Parse = parseFlag
 
 	_, _, err := h.api.PostMessage(channelID, text, postMessageParameters)
-	if err != nil {
+	if err == nil {
+		h.logger.Info("successfully-reported-message")
+		return
+	}
+
+	if err.Error() != errChannelNotFound {
 		h.logger.Error("failed-to-report-message", err)
 		return
 	}
 
-	h.logger.Info("successfully-reported-message")
+	var openIMChannelErr error
+	_, _, dmChannelID, openIMChannelErr := h.api.OpenIMChannel(commanderID)
+	if openIMChannelErr != nil {
+		h.logger.Error("failed-to-open-dm-channel", openIMChannelErr)
+		return
+	}
+
+	_, _, err = h.api.PostMessage(dmChannelID, text, postMessageParameters)
+	if err != nil {
+		h.logger.Error("failed-to-report-message-as-dm", err)
+	}
 }
 
 func (h *Handler) postAuditLogEntry(text string, err error) {
@@ -158,19 +178,20 @@ func (h *Handler) postAuditLogEntry(text string, err error) {
 	h.logger.Info("successfully-added-audit-log-entry")
 }
 
-func params(r *http.Request) (*Channel, string, string, []string, error) {
+func params(r *http.Request) (*Channel, string, string, string, []string, error) {
 	channelID := r.PostFormValue("channel_id")
 	text := r.PostFormValue("text")
 
 	if channelID == "" || text == "" {
-		return &Channel{}, "", "", []string{}, errors.New("Missing required attributes")
+		return &Channel{}, "", "", "", []string{}, errors.New("Missing required attributes")
 	}
 
 	channel := &Channel{
 		RawName: r.PostFormValue("channel_name"),
 		ID:      channelID,
 	}
-	commander := r.PostFormValue("user_name")
+	commanderName := r.PostFormValue("user_name")
+	commanderID := r.PostFormValue("user_id")
 
 	var command string
 	var commandParams []string
@@ -181,7 +202,7 @@ func params(r *http.Request) (*Channel, string, string, []string, error) {
 		command = text
 	}
 
-	return channel, commander, command, commandParams, nil
+	return channel, commanderName, commanderID, command, commandParams, nil
 }
 
 func helpText() string {

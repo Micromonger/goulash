@@ -44,11 +44,11 @@ func (i inviteGuestAction) Do() error {
 }
 
 func (i inviteGuestAction) SuccessMessage() string {
-	return fmt.Sprintf("@%s invited %s %s (%s) as a guest to this channel", i.invitingUser, i.firstName, i.lastName, i.emailAddress)
+	return fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 }
 
 func (i inviteGuestAction) FailureMessage() string {
-	return fmt.Sprintf("Failed to invite %s %s (%s) as a guest to this channel", i.firstName, i.lastName, i.emailAddress)
+	return fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s'", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 }
 
 func (i inviteGuestAction) AuditMessage() string {
@@ -93,11 +93,11 @@ func (i inviteRestrictedAction) Do() error {
 }
 
 func (i inviteRestrictedAction) SuccessMessage() string {
-	return fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to this channel", i.invitingUser, i.firstName, i.lastName, i.emailAddress)
+	return fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 }
 
 func (i inviteRestrictedAction) FailureMessage() string {
-	return fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to this channel", i.firstName, i.lastName, i.emailAddress)
+	return fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s'", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 }
 
 func (i inviteRestrictedAction) AuditMessage() string {
