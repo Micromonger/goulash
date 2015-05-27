@@ -32,6 +32,12 @@ var _ = Describe("handler.Channel", func() {
 				Ω(excludeArchived).To(BeTrue())
 			})
 
+			It("only hits the Slack API once", func() {
+				channel.Name(fakeSlackAPI)
+				channel.Name(fakeSlackAPI)
+				Ω(fakeSlackAPI.GetGroupsCallCount()).To(Equal(1))
+			})
+
 			Describe("when the group is found in Slack", func() {
 				BeforeEach(func() {
 					fakeSlackAPI.GetGroupsReturns([]slack.Group{
