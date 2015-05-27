@@ -172,10 +172,14 @@ func params(r *http.Request) (Channel, string, string, []string, error) {
 }
 
 func helpText() string {
-	return `USAGE
-        /butler [command] [args]
-
-COMMANDS
-        help    Show this help
-`
+	return "*USAGE*\n" +
+		"`/butler [command] [args]`\n" +
+		"\n" +
+		"*COMMANDS*\n" +
+		"\n" +
+		"`invite-guest <email> <firstname> <lastname>`\n" +
+		"_Invite a Single-Channel Guest to the current channel/group_\n" +
+		"\n" +
+		"`invite-restricted <email> <firstname> <lastname>`\n" +
+		"_Invite a Restricted Account to the current channel/group_\n"
 }
