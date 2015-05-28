@@ -54,10 +54,10 @@ type FakeSlackAPI struct {
 		result1 []slack.Group
 		result2 error
 	}
-	OpenIMChannelStub        func(userId string) (bool, bool, string, error)
+	OpenIMChannelStub        func(userID string) (bool, bool, string, error)
 	openIMChannelMutex       sync.RWMutex
 	openIMChannelArgsForCall []struct {
-		userId string
+		userID string
 	}
 	openIMChannelReturns struct {
 		result1 bool
@@ -208,14 +208,14 @@ func (fake *FakeSlackAPI) GetGroupsReturns(result1 []slack.Group, result2 error)
 	}{result1, result2}
 }
 
-func (fake *FakeSlackAPI) OpenIMChannel(userId string) (bool, bool, string, error) {
+func (fake *FakeSlackAPI) OpenIMChannel(userID string) (bool, bool, string, error) {
 	fake.openIMChannelMutex.Lock()
 	fake.openIMChannelArgsForCall = append(fake.openIMChannelArgsForCall, struct {
-		userId string
-	}{userId})
+		userID string
+	}{userID})
 	fake.openIMChannelMutex.Unlock()
 	if fake.OpenIMChannelStub != nil {
-		return fake.OpenIMChannelStub(userId)
+		return fake.OpenIMChannelStub(userID)
 	} else {
 		return fake.openIMChannelReturns.result1, fake.openIMChannelReturns.result2, fake.openIMChannelReturns.result3, fake.openIMChannelReturns.result4
 	}
@@ -230,7 +230,7 @@ func (fake *FakeSlackAPI) OpenIMChannelCallCount() int {
 func (fake *FakeSlackAPI) OpenIMChannelArgsForCall(i int) string {
 	fake.openIMChannelMutex.RLock()
 	defer fake.openIMChannelMutex.RUnlock()
-	return fake.openIMChannelArgsForCall[i].userId
+	return fake.openIMChannelArgsForCall[i].userID
 }
 
 func (fake *FakeSlackAPI) OpenIMChannelReturns(result1 bool, result2 bool, result3 string, result4 error) {
