@@ -70,10 +70,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch command {
 	case "help":
-		_, err = w.Write([]byte(helpText()))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		respondWith(helpText(), w, h.logger)
 		return
 
 	case "invite-guest":
@@ -112,19 +109,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 	default:
-		_, err = w.Write(helpText())
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		respondWith(helpText(), w, h.logger)
 		return
 	}
 
 	if action, ok := action.(GuardedAction); ok {
 		if action.Guard() {
-			_, err = w.Write([]byte(action.GuardMessage()))
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-			}
+			respondWith(action.GuardMessage(), w, h.logger)
 			return
 		}
 	}
@@ -137,17 +128,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-		_, err = w.Write([]byte(fmt.Sprintf("%s: %s", action.FailureMessage(), err.Error())))
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		respondWith(fmt.Sprintf("%s: %s", action.FailureMessage(), err.Error()), w, h.logger)
 		return
 	}
 
-	_, err = w.Write([]byte(action.SuccessMessage()))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	respondWith(action.SuccessMessage(), w, h.logger)
 
 	h.logger.Info("finished-processing-request")
 }
@@ -202,8 +187,8 @@ func params(r *http.Request) (*Channel, string, string, string, []string, error)
 	return channel, commanderName, commanderID, command, commandParams, nil
 }
 
-func helpText() []byte {
-	return []byte("*USAGE*\n" +
+func helpText() string {
+	return "*USAGE*\n" +
 		"`/butler [command] [args]`\n" +
 		"\n" +
 		"*COMMANDS*\n" +
@@ -212,5 +197,13 @@ func helpText() []byte {
 		"_Invite a Single-Channel Guest to the current channel/group_\n" +
 		"\n" +
 		"`invite-restricted <email> <firstname> <lastname>`\n" +
-		"_Invite a Restricted Account to the current channel/group_\n")
+		"_Invite a Restricted Account to the current channel/group_\n"
+}
+
+func respondWith(text string, w http.ResponseWriter, logger lager.Logger) {
+	_, err := w.Write([]byte(text))
+	if err != nil {
+		logger.Error("failed-writing-response-body", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
