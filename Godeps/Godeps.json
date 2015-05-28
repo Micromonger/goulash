@@ -34,7 +34,7 @@
 		},
 		{
 			"ImportPath": "github.com/pivotalservices/slack",
-			"Rev": "458f448b101a31489fc201424cda9ce0895a433e"
+			"Rev": "09e3642239b80ee9b0b8c76f7b266bc6d0cbb3d1"
 		},
 		{
 			"ImportPath": "golang.org/x/net/websocket",
