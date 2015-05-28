@@ -97,7 +97,7 @@ var _ = Describe("Handler", func() {
 
 			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteGuestArgsForCall(0)
 			Ω(actualTeamName).Should(Equal("fake-team-name"))
-			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualChannelID).Should(Equal([]string{"C1234567890"}))
 			Ω(actualFirstName).Should(Equal("Tom"))
 			Ω(actualLastName).Should(Equal("Smith"))
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))

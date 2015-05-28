@@ -11,7 +11,7 @@ type SlackAPI interface {
 	PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error)
 
 	// admin
-	InviteGuest(teamname, channelID, firstName, lastName, emailAddress string) error
+	InviteGuest(teamname string, channelIDs []string, firstName string, lastName string, emailAddress string) error
 	InviteRestricted(teamname, channelID, firstName, lastName, emailAddress string) error
 
 	// groups

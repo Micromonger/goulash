@@ -29,7 +29,7 @@ type inviteGuestAction struct {
 func (i inviteGuestAction) Do() error {
 	err := i.api.InviteGuest(
 		i.slackTeamName,
-		i.channel.ID,
+		[]string{i.channel.ID},
 		i.firstName,
 		i.lastName,
 		i.emailAddress,
