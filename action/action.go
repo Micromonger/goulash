@@ -190,7 +190,7 @@ func (i inviteGuest) Do() (string, error) {
 
 	err := i.api.InviteGuest(
 		i.slackTeamName,
-		[]string{i.channel.ID},
+		i.channel.ID,
 		i.firstName,
 		i.lastName,
 		i.emailAddress,

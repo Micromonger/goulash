@@ -27,14 +27,14 @@ func adminRequest(method string, teamName string, values url.Values, debug bool)
 
 func (api *Slack) InviteGuest(
 	teamName string,
-	channelIDs []string,
+	channelID string,
 	firstName string,
 	lastName string,
 	emailAddress string,
 ) error {
 	values := url.Values{
 		"email":            {emailAddress},
-		"channels":         channelIDs,
+		"channels":         {channelID},
 		"first_name":       {firstName},
 		"last_name":        {lastName},
 		"ultra_restricted": {"1"},

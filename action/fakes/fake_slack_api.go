@@ -21,11 +21,11 @@ type FakeSlackAPI struct {
 		result2 string
 		result3 error
 	}
-	InviteGuestStub        func(teamname string, channelIDs []string, firstName string, lastName string, emailAddress string) error
+	InviteGuestStub        func(teamname string, channelID string, firstName string, lastName string, emailAddress string) error
 	inviteGuestMutex       sync.RWMutex
 	inviteGuestArgsForCall []struct {
 		teamname     string
-		channelIDs   []string
+		channelID    string
 		firstName    string
 		lastName     string
 		emailAddress string
@@ -110,18 +110,18 @@ func (fake *FakeSlackAPI) PostMessageReturns(result1 string, result2 string, res
 	}{result1, result2, result3}
 }
 
-func (fake *FakeSlackAPI) InviteGuest(teamname string, channelIDs []string, firstName string, lastName string, emailAddress string) error {
+func (fake *FakeSlackAPI) InviteGuest(teamname string, channelID string, firstName string, lastName string, emailAddress string) error {
 	fake.inviteGuestMutex.Lock()
 	fake.inviteGuestArgsForCall = append(fake.inviteGuestArgsForCall, struct {
 		teamname     string
-		channelIDs   []string
+		channelID    string
 		firstName    string
 		lastName     string
 		emailAddress string
-	}{teamname, channelIDs, firstName, lastName, emailAddress})
+	}{teamname, channelID, firstName, lastName, emailAddress})
 	fake.inviteGuestMutex.Unlock()
 	if fake.InviteGuestStub != nil {
-		return fake.InviteGuestStub(teamname, channelIDs, firstName, lastName, emailAddress)
+		return fake.InviteGuestStub(teamname, channelID, firstName, lastName, emailAddress)
 	} else {
 		return fake.inviteGuestReturns.result1
 	}
@@ -133,10 +133,10 @@ func (fake *FakeSlackAPI) InviteGuestCallCount() int {
 	return len(fake.inviteGuestArgsForCall)
 }
 
-func (fake *FakeSlackAPI) InviteGuestArgsForCall(i int) (string, []string, string, string, string) {
+func (fake *FakeSlackAPI) InviteGuestArgsForCall(i int) (string, string, string, string, string) {
 	fake.inviteGuestMutex.RLock()
 	defer fake.inviteGuestMutex.RUnlock()
-	return fake.inviteGuestArgsForCall[i].teamname, fake.inviteGuestArgsForCall[i].channelIDs, fake.inviteGuestArgsForCall[i].firstName, fake.inviteGuestArgsForCall[i].lastName, fake.inviteGuestArgsForCall[i].emailAddress
+	return fake.inviteGuestArgsForCall[i].teamname, fake.inviteGuestArgsForCall[i].channelID, fake.inviteGuestArgsForCall[i].firstName, fake.inviteGuestArgsForCall[i].lastName, fake.inviteGuestArgsForCall[i].emailAddress
 }
 
 func (fake *FakeSlackAPI) InviteGuestReturns(result1 error) {
