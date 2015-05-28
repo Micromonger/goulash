@@ -45,7 +45,7 @@ var _ = Describe("Handler", func() {
 
 		w := httptest.NewRecorder()
 		fakeSlackAPI := &fakes.FakeSlackAPI{}
-		h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
 		Ω(w.Code).Should(Equal(http.StatusBadRequest))
@@ -66,7 +66,7 @@ var _ = Describe("Handler", func() {
 
 		w := httptest.NewRecorder()
 		fakeSlackAPI := &fakes.FakeSlackAPI{}
-		h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
 		Ω(w.Code).Should(Equal(http.StatusBadRequest))
@@ -90,7 +90,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
@@ -120,7 +120,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a guest to 'channel-name'"))
 		})
@@ -144,9 +144,42 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': 'failed to invite user'"))
+		})
+
+		It("responds to Slack when it isn't a member of the private group", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {handler.PrivateGroupName},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetGroupsReturns([]slack.Group{
+				{
+					Name:        "unexpected-group-1",
+					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
+				},
+				{
+					Name:        "unexpected-group-2",
+					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
+				},
+			}, nil)
+
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel you would like <@butler-user-id> to invite people to."))
 		})
 
 		It("posts a message to the configured audit log channel on success", func() {
@@ -167,7 +200,7 @@ var _ = Describe("Handler", func() {
 
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -215,7 +248,7 @@ var _ = Describe("Handler", func() {
 			}, nil)
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -250,7 +283,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -284,7 +317,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
@@ -314,7 +347,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
@@ -339,7 +372,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to 'channel-name': 'failed to invite user'"))
@@ -363,7 +396,7 @@ var _ = Describe("Handler", func() {
 
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -398,7 +431,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -432,7 +465,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakes.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).ShouldNot(BeEmpty())

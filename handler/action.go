@@ -14,9 +14,18 @@ type Action interface {
 	AuditMessage() string
 }
 
+// GuardedAction is an Action with prerequisites. Use Guard() to return whether
+// the prerequisite(s) for the action are met, and GuardMessage() for the
+// message when the prerequisite(s) are not met.
+type GuardedAction interface {
+	Guard() bool
+	GuardMessage() string
+}
+
 type inviteGuestAction struct {
 	api           SlackAPI
 	slackTeamName string
+	slackUserID   string
 	channel       *Channel
 	invitingUser  string
 	emailAddress  string
@@ -24,6 +33,10 @@ type inviteGuestAction struct {
 	lastName      string
 
 	logger lager.Logger
+}
+
+func (i inviteGuestAction) Guard() bool {
+	return !i.channel.Visible(i.api)
 }
 
 func (i inviteGuestAction) Do() error {
@@ -41,6 +54,16 @@ func (i inviteGuestAction) Do() error {
 
 	i.logger.Info("successfully-invited-single-channel-user")
 	return nil
+}
+
+func (i inviteGuestAction) GuardMessage() string {
+	return fmt.Sprintf(
+		"<@%s> can only invite people to channels it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel you would like <@%s> to invite people to.",
+		i.slackUserID,
+		i.slackUserID,
+		i.slackUserID,
+		i.slackUserID,
+	)
 }
 
 func (i inviteGuestAction) SuccessMessage() string {

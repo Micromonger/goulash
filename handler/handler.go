@@ -24,6 +24,7 @@ const (
 type Handler struct {
 	api               SlackAPI
 	slackTeamName     string
+	slackUserID       string
 	auditLogChannelID string
 
 	clock  clock.Clock
@@ -34,6 +35,7 @@ type Handler struct {
 func New(
 	api SlackAPI,
 	slackTeamName string,
+	slackUserID string,
 	auditLogChannelID string,
 	clock clock.Clock,
 	logger lager.Logger,
@@ -41,6 +43,7 @@ func New(
 	return &Handler{
 		api:               api,
 		slackTeamName:     slackTeamName,
+		slackUserID:       slackUserID,
 		auditLogChannelID: auditLogChannelID,
 		clock:             clock,
 		logger:            logger,
@@ -87,6 +90,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			api:           h.api,
 			slackTeamName: h.slackTeamName,
+			slackUserID:   h.slackUserID,
 			logger:        h.logger,
 		}
 
@@ -113,6 +117,16 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
+	}
+
+	if action, ok := action.(GuardedAction); ok {
+		if action.Guard() {
+			_, err = w.Write([]byte(action.GuardMessage()))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			return
+		}
 	}
 
 	err = action.Do()

@@ -19,6 +19,7 @@ const (
 	tokenVar             = "SLACK_AUTH_TOKEN"
 	teamNameVar          = "SLACK_TEAM_NAME"
 	auditLogChannelIDVar = "SLACK_AUDIT_LOG_CHANNEL_ID"
+	slackUserIDVar       = "SLACK_USER_ID"
 )
 
 var (
@@ -27,6 +28,7 @@ var (
 
 	slackAPI          *slack.Slack
 	slackTeamName     string
+	slackUserID       string
 	auditLogChannelID string
 
 	timekeeper clock.Clock
@@ -42,6 +44,7 @@ func init() {
 
 	slackAPI = slack.New(os.Getenv(tokenVar))
 	slackTeamName = os.Getenv(teamNameVar)
+	slackUserID = os.Getenv(slackUserIDVar)
 	auditLogChannelID = os.Getenv(auditLogChannelIDVar)
 
 	timekeeper = clock.NewClock()
@@ -49,7 +52,7 @@ func init() {
 	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
 	logger.RegisterSink(sink)
 
-	h = handler.New(slackAPI, slackTeamName, auditLogChannelID, timekeeper, logger)
+	h = handler.New(slackAPI, slackTeamName, slackUserID, auditLogChannelID, timekeeper, logger)
 }
 
 func main() {

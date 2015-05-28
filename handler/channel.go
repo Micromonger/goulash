@@ -32,3 +32,9 @@ func (c *Channel) Name(api SlackAPI) string {
 	c.name = c.RawName
 	return c.name
 }
+
+// Visible returns true if the account associated with the configured
+// SLACK_AUTH_TOKEN is a member of the channel, and false if not.
+func (c *Channel) Visible(api SlackAPI) bool {
+	return c.Name(api) != PrivateGroupName
+}
