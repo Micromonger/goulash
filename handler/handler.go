@@ -137,7 +137,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-		_, err = w.Write([]byte(fmt.Sprintf("%s: '%s'", action.FailureMessage(), err.Error())))
+		_, err = w.Write([]byte(fmt.Sprintf("%s: %s", action.FailureMessage(), err.Error())))
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		}

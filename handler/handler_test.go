@@ -146,7 +146,7 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
-			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': 'failed to invite user'"))
+			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': failed to invite user"))
 		})
 
 		It("responds to Slack when it isn't a member of the private group", func() {
@@ -375,7 +375,7 @@ var _ = Describe("Handler", func() {
 			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to 'channel-name': 'failed to invite user'"))
+			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to 'channel-name': failed to invite user"))
 		})
 
 		It("posts a message to the configured audit log channel on success", func() {
