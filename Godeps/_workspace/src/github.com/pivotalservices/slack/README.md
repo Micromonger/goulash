@@ -1,4 +1,6 @@
-Slack API in Go
+# Slack API in Go
+
+[![GoDoc](https://godoc.org/github.com/nlopes/slack?status.png)](https://godoc.org/github.com/nlopes/slack)
 
 ## Installing
 
@@ -27,7 +29,7 @@ Slack API in Go
 			return
 		}
 		for _, group := range groups {
-			fmt.Printf("Id: %s, Name: %s\n", group.Id, group.Name)
+			fmt.Printf("ID: %s, Name: %s\n", group.ID, group.Name)
 		}
 	}
 
@@ -46,7 +48,7 @@ Slack API in Go
 		    fmt.Printf("%s\n", err)
 		    return
 	    }
-	    fmt.Printf("Id: %s, Fullname: %s, Email: %s\n", user.Id, user.Profile.RealName, user.Profile.Email)
+	    fmt.Printf("ID: %s, Fullname: %s, Email: %s\n", user.ID, user.Profile.RealName, user.Profile.Email)
     }
 
 ## Why?

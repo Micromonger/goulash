@@ -39,7 +39,7 @@ func (c *channel) Name(api SlackAPI) string {
 	groups, _ := api.GetGroups(excludeArchived)
 
 	for _, group := range groups {
-		if group.BaseChannel.Id == c.id {
+		if group.ID == c.id {
 			c.name = group.Name
 			return c.name
 		}

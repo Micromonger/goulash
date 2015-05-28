@@ -209,14 +209,8 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
-				{
-					Name:        "unexpected-group-1",
-					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
-				},
-				{
-					Name:        "unexpected-group-2",
-					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
-				},
+				newGroup("unexpected-group-1", "C1111111111"),
+				newGroup("unexpected-group-2", "C9999999999"),
 			}, nil)
 
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
@@ -307,18 +301,9 @@ var _ = Describe("Handler", func() {
 
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
-				{
-					Name:        "unexpected-group-1",
-					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
-				},
-				{
-					Name:        "channel-name",
-					BaseChannel: slack.BaseChannel{Id: "C1234567890"},
-				},
-				{
-					Name:        "unexpected-group-2",
-					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
-				},
+				newGroup("unexpected-group-1", "C1111111111"),
+				newGroup("channel-name", "C1234567890"),
+				newGroup("unexpected-group-2", "C9999999999"),
 			}, nil)
 
 			w := httptest.NewRecorder()
@@ -493,14 +478,8 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
-				{
-					Name:        "unexpected-group-1",
-					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
-				},
-				{
-					Name:        "unexpected-group-2",
-					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
-				},
+				newGroup("unexpected-group-1", "C1111111111"),
+				newGroup("unexpected-group-2", "C9999999999"),
 			}, nil)
 
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
@@ -965,3 +944,11 @@ var _ = Describe("Handler", func() {
 		})
 	})
 })
+
+func newGroup(name, id string) slack.Group {
+	group := slack.Group{}
+	group.Name = name
+	group.ID = id
+
+	return group
+}

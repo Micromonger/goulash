@@ -45,14 +45,14 @@ func (api *Slack) DisableUser(teamName string, user string) error {
 // InviteGuest invites a user to Slack as a single-channel guest
 func (api *Slack) InviteGuest(
 	teamName string,
-	channelID string,
+	channel string,
 	firstName string,
 	lastName string,
 	emailAddress string,
 ) error {
 	values := url.Values{
 		"email":            {emailAddress},
-		"channels":         {channelID},
+		"channels":         {channel},
 		"first_name":       {firstName},
 		"last_name":        {lastName},
 		"ultra_restricted": {"1"},
@@ -63,22 +63,23 @@ func (api *Slack) InviteGuest(
 
 	_, err := adminRequest("invite", teamName, values, api.debug)
 	if err != nil {
-		return fmt.Errorf("Failed to invite single channel user: %s", err)
+		return fmt.Errorf("Failed to invite single-channel guest: %s", err)
 	}
 
 	return nil
 }
 
+// InviteRestricted invites a user to Slack as a restricted account
 func (api *Slack) InviteRestricted(
 	teamName string,
-	channelID string,
+	channel string,
 	firstName string,
 	lastName string,
 	emailAddress string,
 ) error {
 	values := url.Values{
 		"email":      {emailAddress},
-		"channels":   {channelID},
+		"channels":   {channel},
 		"first_name": {firstName},
 		"last_name":  {lastName},
 		"restricted": {"1"},
@@ -89,7 +90,24 @@ func (api *Slack) InviteRestricted(
 
 	_, err := adminRequest("invite", teamName, values, api.debug)
 	if err != nil {
-		return fmt.Errorf("Failed to invite restricted account: %s", err)
+		return fmt.Errorf("Failed to restricted account: %s", err)
+	}
+
+	return nil
+}
+
+// SetRegular enables the specified user
+func (api *Slack) SetRegular(teamName string, user string) error {
+	values := url.Values{
+		"user":       {user},
+		"token":      {api.config.token},
+		"set_active": {"true"},
+		"_attempts":  {"1"},
+	}
+
+	_, err := adminRequest("setRegular", teamName, values, api.debug)
+	if err != nil {
+		return fmt.Errorf("Failed to change the user (%s) to a regular user: %s", user, err)
 	}
 
 	return nil

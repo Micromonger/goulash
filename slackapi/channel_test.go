@@ -41,9 +41,10 @@ var _ = Describe("Channel", func() {
 
 			Describe("when the group is found in Slack", func() {
 				BeforeEach(func() {
-					fakeSlackAPI.GetGroupsReturns([]slack.Group{
-						{Name: "channel-name", BaseChannel: slack.BaseChannel{Id: "C1234"}},
-					}, nil)
+					group := slack.Group{}
+					group.Name = "channel-name"
+					group.ID = "C1234"
+					fakeSlackAPI.GetGroupsReturns([]slack.Group{group}, nil)
 				})
 
 				It("returns the name associated with the found group", func() {
@@ -53,9 +54,10 @@ var _ = Describe("Channel", func() {
 
 			Describe("when the group's name is not found in Slack", func() {
 				BeforeEach(func() {
-					fakeSlackAPI.GetGroupsReturns([]slack.Group{
-						{Name: "other-channel-name", BaseChannel: slack.BaseChannel{Id: "C9999"}},
-					}, nil)
+					group := slack.Group{}
+					group.Name = "other-channel-name"
+					group.ID = "C9999"
+					fakeSlackAPI.GetGroupsReturns([]slack.Group{group}, nil)
 				})
 
 				It("returns slackapi.PrivateGroupName", func() {

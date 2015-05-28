@@ -12,8 +12,8 @@ const (
 	DEFAULT_MESSAGE_ASUSER       = false
 	DEFAULT_MESSAGE_PARSE        = ""
 	DEFAULT_MESSAGE_LINK_NAMES   = 0
-	DEFAULT_MESSAGE_UNFURL_LINKS = true
-	DEFAULT_MESSAGE_UNFURL_MEDIA = false
+	DEFAULT_MESSAGE_UNFURL_LINKS = false
+	DEFAULT_MESSAGE_UNFURL_MEDIA = true
 	DEFAULT_MESSAGE_ICON_URL     = ""
 	DEFAULT_MESSAGE_ICON_EMOJI   = ""
 	DEFAULT_MESSAGE_MARKDOWN     = true
@@ -21,42 +21,10 @@ const (
 )
 
 type chatResponseFull struct {
-	ChannelId string `json:"channel"`
+	Channel   string `json:"channel"`
 	Timestamp string `json:"ts"`
 	Text      string `json:"text"`
 	SlackResponse
-}
-
-// AttachmentField contains information for an attachment field
-// An Attachment can contain multiple of these
-type AttachmentField struct {
-	Title string `json:"title"`
-	Value string `json:"value"`
-	Short bool   `json:"short"`
-}
-
-// Attachment contains all the information for an attachment
-type Attachment struct {
-	Fallback string `json:"fallback"`
-
-	Color string `json:"color,omitempty"`
-
-	Pretext string `json:"pretext,omitempty"`
-
-	AuthorName string `json:"author_name,omitempty"`
-	AuthorLink string `json:"author_link,omitempty"`
-	AuthorIcon string `json:"author_icon,omitempty"`
-
-	Title     string `json:"title,omitempty"`
-	TitleLink string `json:"title_link,omitempty"`
-
-	Text string `json:"text"`
-
-	ImageURL string `json:"image_url,omitempty"`
-
-	Fields []AttachmentField `json:"fields,omitempty"`
-
-	MarkdownIn []string `json:"mrkdwn_in,omitempty"`
 }
 
 // PostMessageParameters contains all the parameters necessary (including the optional ones) for a PostMessage() request
@@ -105,17 +73,17 @@ func chatRequest(path string, values url.Values, debug bool) (*chatResponseFull,
 }
 
 // DeleteMessage deletes a message in a channel
-func (api *Slack) DeleteMessage(channelId, messageTimestamp string) (string, string, error) {
+func (api *Slack) DeleteMessage(channel, messageTimestamp string) (string, string, error) {
 	values := url.Values{
 		"token":   {api.config.token},
-		"channel": {channelId},
+		"channel": {channel},
 		"ts":      {messageTimestamp},
 	}
 	response, err := chatRequest("chat.delete", values, api.debug)
 	if err != nil {
 		return "", "", err
 	}
-	return response.ChannelId, response.Timestamp, nil
+	return response.Channel, response.Timestamp, nil
 }
 
 func escapeMessage(message string) string {
@@ -130,13 +98,13 @@ func escapeMessage(message string) string {
 
 // PostMessage sends a message to a channel
 // Message is escaped by default according to https://api.slack.com/docs/formatting
-func (api *Slack) PostMessage(channelId string, text string, params PostMessageParameters) (channel string, timestamp string, err error) {
+func (api *Slack) PostMessage(channel string, text string, params PostMessageParameters) (string, string, error) {
 	if params.EscapeText {
 		text = escapeMessage(text)
 	}
 	values := url.Values{
 		"token":   {api.config.token},
-		"channel": {channelId},
+		"channel": {channel},
 		"text":    {text},
 	}
 	if params.Username != DEFAULT_MESSAGE_USERNAME {
@@ -158,11 +126,11 @@ func (api *Slack) PostMessage(channelId string, text string, params PostMessageP
 		}
 		values.Set("attachments", string(attachments))
 	}
-	if params.UnfurlLinks == DEFAULT_MESSAGE_UNFURL_LINKS {
-		values.Set("unfurl_links", "false")
+	if params.UnfurlLinks != DEFAULT_MESSAGE_UNFURL_LINKS {
+		values.Set("unfurl_links", "true")
 	}
 	if params.UnfurlMedia != DEFAULT_MESSAGE_UNFURL_MEDIA {
-		values.Set("unfurl_media", "true")
+		values.Set("unfurl_media", "false")
 	}
 	if params.IconURL != DEFAULT_MESSAGE_ICON_URL {
 		values.Set("icon_url", params.IconURL)
@@ -178,14 +146,14 @@ func (api *Slack) PostMessage(channelId string, text string, params PostMessageP
 	if err != nil {
 		return "", "", err
 	}
-	return response.ChannelId, response.Timestamp, nil
+	return response.Channel, response.Timestamp, nil
 }
 
 // UpdateMessage updates a message in a channel
-func (api *Slack) UpdateMessage(channelId, timestamp, text string) (string, string, string, error) {
+func (api *Slack) UpdateMessage(channel, timestamp, text string) (string, string, string, error) {
 	values := url.Values{
 		"token":   {api.config.token},
-		"channel": {channelId},
+		"channel": {channel},
 		"text":    {escapeMessage(text)},
 		"ts":      {timestamp},
 	}
@@ -193,5 +161,5 @@ func (api *Slack) UpdateMessage(channelId, timestamp, text string) (string, stri
 	if err != nil {
 		return "", "", "", err
 	}
-	return response.ChannelId, response.Timestamp, response.Text, nil
+	return response.Channel, response.Timestamp, response.Text, nil
 }
