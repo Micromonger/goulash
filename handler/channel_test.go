@@ -19,9 +19,9 @@ var _ = Describe("handler.Channel", func() {
 			fakeSlackAPI = &fakes.FakeSlackAPI{}
 		})
 
-		Describe("when the group's name is 'privategroup'", func() {
+		Describe("when the group's name is handler.PrivateGroupName", func() {
 			BeforeEach(func() {
-				channel = handler.Channel{RawName: "privategroup", ID: "C1234"}
+				channel = handler.Channel{RawName: handler.PrivateGroupName, ID: "C1234"}
 			})
 
 			It("tries to find the group's name in Slack, excluding archived groups", func() {
@@ -57,13 +57,13 @@ var _ = Describe("handler.Channel", func() {
 					}, nil)
 				})
 
-				It("returns 'privategroup'", func() {
-					Ω(channel.Name(fakeSlackAPI)).To(Equal("privategroup"))
+				It("returns handler.PrivateGroupName", func() {
+					Ω(channel.Name(fakeSlackAPI)).To(Equal(handler.PrivateGroupName))
 				})
 			})
 		})
 
-		Describe("when the group's name is not 'privategroup'", func() {
+		Describe("when the group's name is not handler.PrivateGroupName", func() {
 			BeforeEach(func() {
 				channel = handler.Channel{RawName: "channel-name"}
 			})

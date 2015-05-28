@@ -15,7 +15,7 @@ func (c *Channel) Name(api SlackAPI) string {
 		return c.name
 	}
 
-	if c.RawName != "privategroup" {
+	if c.RawName != PrivateGroupName {
 		return c.RawName
 	}
 

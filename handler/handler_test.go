@@ -186,7 +186,7 @@ var _ = Describe("Handler", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
-				"channel_name": {"privategroup"},
+				"channel_name": {handler.PrivateGroupName},
 				"command":      {"/butler"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},

@@ -14,6 +14,12 @@ import (
 	"github.com/pivotalservices/slack"
 )
 
+const (
+	// PrivateGroupName holds the name Slack provides for a Slash Command sent
+	// from a group which is private.
+	PrivateGroupName = "privategroup"
+)
+
 // Handler is an HTTP handler.
 type Handler struct {
 	api               SlackAPI
