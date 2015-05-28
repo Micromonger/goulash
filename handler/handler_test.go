@@ -330,6 +330,39 @@ var _ = Describe("Handler", func() {
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))
 		})
 
+		It("responds to Slack when it isn't a member of a private group", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {handler.PrivateGroupName},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetGroupsReturns([]slack.Group{
+				{
+					Name:        "unexpected-group-1",
+					BaseChannel: slack.BaseChannel{Id: "C1111111111"},
+				},
+				{
+					Name:        "unexpected-group-2",
+					BaseChannel: slack.BaseChannel{Id: "C9999999999"},
+				},
+			}, nil)
+
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels or private groups it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel or private group you would like <@butler-user-id> to invite people to."))
+		})
+
 		It("responds to Slack with the result of the command on success", func() {
 			v := url.Values{
 				"token":        {"some-token"},

@@ -125,6 +125,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			api:           h.api,
 			slackTeamName: h.slackTeamName,
+			slackUserID:   h.slackUserID,
 			logger:        h.logger,
 		}
 

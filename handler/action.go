@@ -86,6 +86,7 @@ func (i inviteGuestAction) AuditMessage() string {
 type inviteRestrictedAction struct {
 	api           SlackAPI
 	slackTeamName string
+	slackUserID   string
 	channel       *Channel
 	invitingUser  string
 	emailAddress  string
@@ -93,6 +94,10 @@ type inviteRestrictedAction struct {
 	lastName      string
 
 	logger lager.Logger
+}
+
+func (i inviteRestrictedAction) Guard() bool {
+	return !i.channel.Visible(i.api)
 }
 
 func (i inviteRestrictedAction) Do() (string, error) {
@@ -113,6 +118,16 @@ func (i inviteRestrictedAction) Do() (string, error) {
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 	return result, nil
+}
+
+func (i inviteRestrictedAction) GuardMessage() string {
+	return fmt.Sprintf(
+		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
+		i.slackUserID,
+		i.slackUserID,
+		i.slackUserID,
+		i.slackUserID,
+	)
 }
 
 func (i inviteRestrictedAction) AuditMessage() string {
