@@ -120,7 +120,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = action.Do()
+	result, err := action.Do()
 
 	if h.auditLogChannelID != "" {
 		h.postAuditLogEntry(action.AuditMessage(), err)
@@ -128,11 +128,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		h.logger.Error("failed-to-perform-request", err)
-		respondWith(fmt.Sprintf("%s: %s", action.FailureMessage(), err.Error()), w, h.logger)
-		return
 	}
 
-	respondWith(action.SuccessMessage(), w, h.logger)
+	respondWith(result, w, h.logger)
 
 	h.logger.Info("finished-processing-request")
 }

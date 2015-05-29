@@ -8,9 +8,7 @@ import (
 
 // Action represents an action that is able to be performed by the server.
 type Action interface {
-	Do() error
-	SuccessMessage() string
-	FailureMessage() string
+	Do() (string, error)
 	AuditMessage() string
 }
 
@@ -39,7 +37,9 @@ func (i inviteGuestAction) Guard() bool {
 	return !i.channel.Visible(i.api)
 }
 
-func (i inviteGuestAction) Do() error {
+func (i inviteGuestAction) Do() (string, error) {
+	var result string
+
 	err := i.api.InviteGuest(
 		i.slackTeamName,
 		[]string{i.channel.ID},
@@ -49,11 +49,14 @@ func (i inviteGuestAction) Do() error {
 	)
 	if err != nil {
 		i.logger.Error("failed-inviting-single-channel-user", err)
-		return err
+		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api), err.Error())
+		return result, err
 	}
 
 	i.logger.Info("successfully-invited-single-channel-user")
-	return nil
+
+	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
+	return result, nil
 }
 
 func (i inviteGuestAction) GuardMessage() string {
@@ -64,14 +67,6 @@ func (i inviteGuestAction) GuardMessage() string {
 		i.slackUserID,
 		i.slackUserID,
 	)
-}
-
-func (i inviteGuestAction) SuccessMessage() string {
-	return fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
-}
-
-func (i inviteGuestAction) FailureMessage() string {
-	return fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s'", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 }
 
 func (i inviteGuestAction) AuditMessage() string {
@@ -98,7 +93,9 @@ type inviteRestrictedAction struct {
 	logger lager.Logger
 }
 
-func (i inviteRestrictedAction) Do() error {
+func (i inviteRestrictedAction) Do() (string, error) {
+	var result string
+
 	err := i.api.InviteRestricted(
 		i.slackTeamName,
 		i.channel.ID,
@@ -108,19 +105,12 @@ func (i inviteRestrictedAction) Do() error {
 	)
 	if err != nil {
 		i.logger.Error("failed-inviting-restricted-account", err)
-		return err
+		result = fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s': %s", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api), err.Error())
+		return result, err
 	}
 
-	i.logger.Info("successfully-invited-restricted-account")
-	return nil
-}
-
-func (i inviteRestrictedAction) SuccessMessage() string {
-	return fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
-}
-
-func (i inviteRestrictedAction) FailureMessage() string {
-	return fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s'", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
+	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
+	return result, nil
 }
 
 func (i inviteRestrictedAction) AuditMessage() string {
