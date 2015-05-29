@@ -21,12 +21,111 @@ var membershipSingleChannelGuest = "single-channel guest"
 // Action represents an action that is able to be performed by the server.
 type Action interface {
 	Do() (string, error)
-	AuditMessage() string
+}
+
+// NewAction creates a new Action based on the command provided.
+func NewAction(
+	channel *Channel,
+	commanderName string,
+	command string,
+	commandParams []string,
+	channelName string,
+
+	api SlackAPI,
+	slackTeamName string,
+	slackUserID string,
+	uninvitableDomain string,
+	uninvitableMessage string,
+	logger lager.Logger,
+) Action {
+	switch command {
+	case "help":
+		return helpAction{}
+
+	case "info":
+		emailAddress := commandParams[0]
+
+		return userInfoAction{
+			emailAddress: emailAddress,
+
+			api:                api,
+			requestingUser:     commanderName,
+			slackTeamName:      slackTeamName,
+			uninvitableDomain:  uninvitableDomain,
+			uninvitableMessage: uninvitableMessage,
+			logger:             logger,
+		}
+
+	case "invite-guest":
+		emailAddress := commandParams[0]
+		firstName := commandParams[1]
+		lastName := commandParams[2]
+
+		return inviteGuestAction{
+			emailAddress: emailAddress,
+			firstName:    firstName,
+			lastName:     lastName,
+
+			api:                api,
+			channel:            channel,
+			invitingUser:       commanderName,
+			slackTeamName:      slackTeamName,
+			slackUserID:        slackUserID,
+			uninvitableDomain:  uninvitableDomain,
+			uninvitableMessage: uninvitableMessage,
+			logger:             logger,
+		}
+
+	case "invite-restricted":
+		emailAddress := commandParams[0]
+		firstName := commandParams[1]
+		lastName := commandParams[2]
+
+		return inviteRestrictedAction{
+			emailAddress: emailAddress,
+			firstName:    firstName,
+			lastName:     lastName,
+
+			api:                api,
+			channel:            channel,
+			invitingUser:       commanderName,
+			slackTeamName:      slackTeamName,
+			slackUserID:        slackUserID,
+			uninvitableDomain:  uninvitableDomain,
+			uninvitableMessage: uninvitableMessage,
+			logger:             logger,
+		}
+
+	default:
+		return helpAction{}
+	}
 }
 
 // GuardedAction is an Action with prerequisites described in Check().
 type GuardedAction interface {
 	Check() error
+}
+
+// AuditableAction is an Action that should have an audit log entry created.
+type AuditableAction interface {
+	AuditMessage() string
+}
+
+type helpAction struct{}
+
+func (h helpAction) Do() (string, error) {
+	text := "*USAGE*\n" +
+		"`/butler [command] [args]`\n" +
+		"\n" +
+		"*COMMANDS*\n" +
+		"\n" +
+		"`invite-guest <email> <firstname> <lastname>`\n" +
+		"_Invite a Single-Channel Guest to the current channel/group_\n" +
+		"\n" +
+		"`invite-restricted <email> <firstname> <lastname>`\n" +
+		"_Invite a Restricted Account to the current channel/group_\n"
+
+	return text, nil
 }
 
 type inviteGuestAction struct {

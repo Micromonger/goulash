@@ -56,8 +56,6 @@ func New(
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var action Action
-
 	channel, commanderName, commanderID, command, commandParams, err := params(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -73,69 +71,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"commandParams": commandParams,
 	})
 
-	switch command {
-	case "help":
-		respondWith(helpText(), w, h.logger)
-		return
+	action := NewAction(
+		channel,
+		commanderName,
+		command,
+		commandParams,
+		channel.Name(h.api),
 
-	case "info":
-		emailAddress := commandParams[0]
-
-		action = userInfoAction{
-			emailAddress: emailAddress,
-
-			api:                h.api,
-			requestingUser:     commanderName,
-			slackTeamName:      h.slackTeamName,
-			uninvitableDomain:  h.uninvitableDomain,
-			uninvitableMessage: h.uninvitableMessage,
-			logger:             h.logger,
-		}
-
-	case "invite-guest":
-		emailAddress := commandParams[0]
-		firstName := commandParams[1]
-		lastName := commandParams[2]
-
-		action = inviteGuestAction{
-			emailAddress: emailAddress,
-			firstName:    firstName,
-			lastName:     lastName,
-
-			api:                h.api,
-			channel:            channel,
-			invitingUser:       commanderName,
-			slackTeamName:      h.slackTeamName,
-			slackUserID:        h.slackUserID,
-			uninvitableDomain:  h.uninvitableDomain,
-			uninvitableMessage: h.uninvitableMessage,
-			logger:             h.logger,
-		}
-
-	case "invite-restricted":
-		emailAddress := commandParams[0]
-		firstName := commandParams[1]
-		lastName := commandParams[2]
-
-		action = inviteRestrictedAction{
-			emailAddress: emailAddress,
-			firstName:    firstName,
-			lastName:     lastName,
-
-			api:                h.api,
-			channel:            channel,
-			invitingUser:       commanderName,
-			slackTeamName:      h.slackTeamName,
-			slackUserID:        h.slackUserID,
-			uninvitableDomain:  h.uninvitableDomain,
-			uninvitableMessage: h.uninvitableMessage,
-			logger:             h.logger,
-		}
-
-	default:
-		respondWith(helpText(), w, h.logger)
-		return
-	}
+		h.api,
+		h.slackTeamName,
+		h.slackUserID,
+		h.uninvitableDomain,
+		h.uninvitableMessage,
+		h.logger,
+	)
 
 	if action, ok := action.(GuardedAction); ok {
 		checkErr := action.Check()
@@ -148,7 +97,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	result, err := action.Do()
 
 	if h.auditLogChannelID != "" {
-		h.postAuditLogEntry(action.AuditMessage(), err)
+		if action, ok := action.(AuditableAction); ok {
+			h.postAuditLogEntry(action.AuditMessage(), err)
+		}
 	}
 
 	if err != nil {
@@ -208,19 +159,6 @@ func params(r *http.Request) (*Channel, string, string, string, []string, error)
 	}
 
 	return channel, commanderName, commanderID, command, commandParams, nil
-}
-
-func helpText() string {
-	return "*USAGE*\n" +
-		"`/butler [command] [args]`\n" +
-		"\n" +
-		"*COMMANDS*\n" +
-		"\n" +
-		"`invite-guest <email> <firstname> <lastname>`\n" +
-		"_Invite a Single-Channel Guest to the current channel/group_\n" +
-		"\n" +
-		"`invite-restricted <email> <firstname> <lastname>`\n" +
-		"_Invite a Restricted Account to the current channel/group_\n"
 }
 
 func respondWith(text string, w http.ResponseWriter, logger lager.Logger) {
