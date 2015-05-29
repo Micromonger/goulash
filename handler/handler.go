@@ -135,8 +135,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if action, ok := action.(GuardedAction); ok {
-		if action.Guard() {
-			respondWith(action.GuardMessage(), w, h.logger)
+		checkErr := action.Check()
+		if checkErr != nil {
+			respondWith(checkErr.Error(), w, h.logger)
 			return
 		}
 	}

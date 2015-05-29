@@ -23,8 +23,7 @@ type Action interface {
 
 // GuardedAction is an Action with prerequisites described in Check().
 type GuardedAction interface {
-	Guard() bool
-	GuardMessage() string
+	Check() error
 }
 
 type inviteGuestAction struct {
@@ -40,8 +39,12 @@ type inviteGuestAction struct {
 	logger lager.Logger
 }
 
-func (i inviteGuestAction) Guard() bool {
-	return !i.channel.Visible(i.api)
+func (i inviteGuestAction) Check() error {
+	if !i.channel.Visible(i.api) {
+		return channelNotVisibleErr(i.slackUserID)
+	}
+
+	return nil
 }
 
 func (i inviteGuestAction) Do() (string, error) {
@@ -64,16 +67,6 @@ func (i inviteGuestAction) Do() (string, error) {
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 	return result, nil
-}
-
-func (i inviteGuestAction) GuardMessage() string {
-	return fmt.Sprintf(
-		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
-		i.slackUserID,
-		i.slackUserID,
-		i.slackUserID,
-		i.slackUserID,
-	)
 }
 
 func (i inviteGuestAction) AuditMessage() string {
@@ -101,8 +94,12 @@ type inviteRestrictedAction struct {
 	logger lager.Logger
 }
 
-func (i inviteRestrictedAction) Guard() bool {
-	return !i.channel.Visible(i.api)
+func (i inviteRestrictedAction) Check() error {
+	if !i.channel.Visible(i.api) {
+		return channelNotVisibleErr(i.slackUserID)
+	}
+
+	return nil
 }
 
 func (i inviteRestrictedAction) Do() (string, error) {
@@ -123,16 +120,6 @@ func (i inviteRestrictedAction) Do() (string, error) {
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
 	return result, nil
-}
-
-func (i inviteRestrictedAction) GuardMessage() string {
-	return fmt.Sprintf(
-		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
-		i.slackUserID,
-		i.slackUserID,
-		i.slackUserID,
-		i.slackUserID,
-	)
 }
 
 func (i inviteRestrictedAction) AuditMessage() string {
@@ -200,4 +187,14 @@ func (i userInfoAction) Do() (string, error) {
 
 func (i userInfoAction) AuditMessage() string {
 	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress)
+}
+
+func channelNotVisibleErr(slackUserID string) error {
+	return fmt.Errorf(
+		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
+		slackUserID,
+		slackUserID,
+		slackUserID,
+		slackUserID,
+	)
 }
