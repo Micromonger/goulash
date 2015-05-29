@@ -167,9 +167,8 @@ func (i userInfoAction) Do() (string, error) {
 	}
 
 	result = fmt.Sprintf(
-		"No user with email '%s' found for team '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
+		"There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
 		i.emailAddress,
-		i.slackTeamName,
 	)
 
 	return result, errors.New("user_not_found")

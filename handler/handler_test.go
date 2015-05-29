@@ -517,7 +517,7 @@ var _ = Describe("Handler", func() {
 			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).Should(Equal("No user with email 'user@example.com' found for team 'fake-team-name'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."))
+			Ω(w.Body.String()).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."))
 		})
 
 		It("responds to Slack with a message about a full member", func() {
