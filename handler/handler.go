@@ -25,11 +25,11 @@ type Handler struct {
 	api                SlackAPI
 	slackTeamName      string
 	slackUserID        string
-	uninvitableEmail   string
+	uninvitableDomain  string
 	uninvitableMessage string
 	auditLogChannelID  string
-	clock  clock.Clock
-	logger lager.Logger
+	clock              clock.Clock
+	logger             lager.Logger
 }
 
 // New returns a new Handler.
@@ -37,7 +37,7 @@ func New(
 	api SlackAPI,
 	slackTeamName string,
 	slackUserID string,
-	uninvitableEmail string,
+	uninvitableDomain string,
 	uninvitableMessage string,
 	auditLogChannelID string,
 	clock clock.Clock,
@@ -47,7 +47,7 @@ func New(
 		api:                api,
 		slackTeamName:      slackTeamName,
 		slackUserID:        slackUserID,
-		uninvitableEmail:   uninvitableEmail,
+		uninvitableDomain:  uninvitableDomain,
 		uninvitableMessage: uninvitableMessage,
 		auditLogChannelID:  auditLogChannelID,
 		clock:              clock,
@@ -82,12 +82,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		emailAddress := commandParams[0]
 
 		action = userInfoAction{
-			emailAddress:   emailAddress,
+			emailAddress: emailAddress,
 
 			api:                h.api,
-			requestingUser: commanderName,
+			requestingUser:     commanderName,
 			slackTeamName:      h.slackTeamName,
-			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableDomain:  h.uninvitableDomain,
 			uninvitableMessage: h.uninvitableMessage,
 			logger:             h.logger,
 		}
@@ -103,11 +103,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			lastName:     lastName,
 
 			api:                h.api,
-			channel:      channel,
-			invitingUser: commanderName,
+			channel:            channel,
+			invitingUser:       commanderName,
 			slackTeamName:      h.slackTeamName,
 			slackUserID:        h.slackUserID,
-			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableDomain:  h.uninvitableDomain,
 			uninvitableMessage: h.uninvitableMessage,
 			logger:             h.logger,
 		}
@@ -123,11 +123,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			lastName:     lastName,
 
 			api:                h.api,
-			channel:      channel,
-			invitingUser: commanderName,
+			channel:            channel,
+			invitingUser:       commanderName,
 			slackTeamName:      h.slackTeamName,
 			slackUserID:        h.slackUserID,
-			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableDomain:  h.uninvitableDomain,
 			uninvitableMessage: h.uninvitableMessage,
 			logger:             h.logger,
 		}

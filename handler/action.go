@@ -3,12 +3,13 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/pivotal-golang/lager"
 )
 
 var uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
-var uninvitableEmailErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
+var uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
 var userInfoMessageFmt = "%s %s (%s) is a Slack %s, with the username <@%s>."
 var userNotFoundMessageFmt = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
 var channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
@@ -38,15 +39,15 @@ type inviteGuestAction struct {
 	invitingUser       string
 	slackTeamName      string
 	slackUserID        string
-	uninvitableEmail   string
+	uninvitableDomain  string
 	uninvitableMessage string
 
 	logger lager.Logger
 }
 
 func (i inviteGuestAction) Check() error {
-	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
-		return uninvitableEmailErr(i.uninvitableEmail, i.uninvitableMessage)
+	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
+		return uninvitableEmailErr(i.uninvitableDomain, i.uninvitableMessage)
 	}
 
 	if !i.channel.Visible(i.api) {
@@ -91,24 +92,24 @@ func (i inviteGuestAction) AuditMessage() string {
 }
 
 type inviteRestrictedAction struct {
-	emailAddress       string
-	firstName          string
-	lastName           string
+	emailAddress string
+	firstName    string
+	lastName     string
 
 	api                SlackAPI
 	channel            *Channel
 	invitingUser       string
 	slackTeamName      string
 	slackUserID        string
-	uninvitableEmail   string
+	uninvitableDomain  string
 	uninvitableMessage string
 
 	logger lager.Logger
 }
 
 func (i inviteRestrictedAction) Check() error {
-	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
-		return uninvitableEmailErr(i.uninvitableEmail, i.uninvitableMessage)
+	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
+		return uninvitableEmailErr(i.uninvitableDomain, i.uninvitableMessage)
 	}
 
 	if !i.channel.Visible(i.api) {
@@ -151,14 +152,14 @@ func (i inviteRestrictedAction) AuditMessage() string {
 }
 
 type userInfoAction struct {
-	emailAddress       string
+	emailAddress string
 
-	api    SlackAPI
+	api                SlackAPI
 	requestingUser     string
 	slackTeamName      string
-	uninvitableEmail   string
+	uninvitableDomain  string
 	uninvitableMessage string
-	logger lager.Logger
+	logger             lager.Logger
 }
 
 func (i userInfoAction) Do() (string, error) {
@@ -192,7 +193,7 @@ func (i userInfoAction) Do() (string, error) {
 		}
 	}
 
-	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
+	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
 		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress, i.uninvitableMessage)
 	} else {
 		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress)
@@ -207,4 +208,12 @@ func (i userInfoAction) AuditMessage() string {
 
 func channelNotVisibleErr(slackUserID string) error {
 	return fmt.Errorf(channelNotVisibleErrFmt, slackUserID, slackUserID, slackUserID, slackUserID)
+}
+
+func uninvitableEmailErr(domain string, uninvitableMessage string) error {
+	return fmt.Errorf(uninvitableDomainErrFmt, domain, uninvitableMessage)
+}
+
+func uninvitableEmail(emailAddress string, uninvitableDomain string) bool {
+	return len(uninvitableDomain) > 0 && strings.HasSuffix(emailAddress, uninvitableDomain)
 }
