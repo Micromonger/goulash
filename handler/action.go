@@ -3,10 +3,17 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/pivotal-golang/lager"
 )
+
+var uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
+var userInfoMessageFmt = "%s %s (%s) is a Slack %s, with the username <@%s>."
+var userNotFoundMessageFmt = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
+
+var membershipFull = "full member"
+var membershipRestrictedAccount = "restricted account"
+var membershipSingleChannelGuest = "single-channel guest"
 
 // Action represents an action that is able to be performed by the server.
 type Action interface {
@@ -14,9 +21,7 @@ type Action interface {
 	AuditMessage() string
 }
 
-// GuardedAction is an Action with prerequisites. Use Guard() to return whether
-// the prerequisite(s) for the action are met, and GuardMessage() for the
-// message when the prerequisite(s) are not met.
+// GuardedAction is an Action with prerequisites described in Check().
 type GuardedAction interface {
 	Guard() bool
 	GuardMessage() string
@@ -165,15 +170,15 @@ func (i userInfoAction) Do() (string, error) {
 
 	for _, user := range users {
 		if user.Profile.Email == i.emailAddress {
-			membership := "full member"
+			membership := membershipFull
 			if user.IsRestricted {
-				membership = "restricted account"
+				membership = membershipRestrictedAccount
 			}
 			if user.IsUltraRestricted {
-				membership = "single-channel guest"
+				membership = membershipSingleChannelGuest
 			}
 			result = fmt.Sprintf(
-				"%s %s (%s) is a Slack %s, with the username <@%s>.",
+				userInfoMessageFmt,
 				user.Profile.FirstName,
 				user.Profile.LastName,
 				user.Profile.Email,
@@ -184,17 +189,10 @@ func (i userInfoAction) Do() (string, error) {
 		}
 	}
 
-	if len(i.uninvitableDomain) > 0 && strings.HasSuffix(i.emailAddress, i.uninvitableDomain) {
-		result = fmt.Sprintf(
-			"There is no user here with the email address '%s'. %s",
-			i.emailAddress,
-			i.uninvitableDomainMessage,
-		)
+	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
+		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress, i.uninvitableMessage)
 	} else {
-		result = fmt.Sprintf(
-			"There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
-			i.emailAddress,
-		)
+		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress)
 	}
 
 	return result, errors.New("user_not_found")
