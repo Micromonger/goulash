@@ -47,7 +47,7 @@ type inviteGuestAction struct {
 
 func (i inviteGuestAction) Check() error {
 	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
-		return uninvitableEmailErr(i.uninvitableDomain, i.uninvitableMessage)
+		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
 
 	if !i.channel.Visible(i.api) {
@@ -109,7 +109,7 @@ type inviteRestrictedAction struct {
 
 func (i inviteRestrictedAction) Check() error {
 	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
-		return uninvitableEmailErr(i.uninvitableDomain, i.uninvitableMessage)
+		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
 
 	if !i.channel.Visible(i.api) {
@@ -208,10 +208,6 @@ func (i userInfoAction) AuditMessage() string {
 
 func channelNotVisibleErr(slackUserID string) error {
 	return fmt.Errorf(channelNotVisibleErrFmt, slackUserID, slackUserID, slackUserID, slackUserID)
-}
-
-func uninvitableEmailErr(domain string, uninvitableMessage string) error {
-	return fmt.Errorf(uninvitableDomainErrFmt, domain, uninvitableMessage)
 }
 
 func uninvitableEmail(emailAddress string, uninvitableDomain string) bool {
