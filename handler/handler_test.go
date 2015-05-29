@@ -182,6 +182,28 @@ var _ = Describe("Handler", func() {
 			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels or private groups it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel or private group you would like <@butler-user-id> to invite people to."))
 		})
 
+		It("responds to Slack when an email with an uninvitable domain is invited", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {handler.PrivateGroupName},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			h := handler.New(&fakes.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /butler. uninvitable-domain-message"))
+		})
+
 		It("posts a message to the configured audit log channel on success", func() {
 			v := url.Values{
 				"token":        {"some-token"},
@@ -328,6 +350,28 @@ var _ = Describe("Handler", func() {
 			Ω(actualFirstName).Should(Equal("Tom"))
 			Ω(actualLastName).Should(Equal("Smith"))
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))
+		})
+
+		It("responds to Slack when an email with an uninvitable domain is invited", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {handler.PrivateGroupName},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com Tom Smith"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			h := handler.New(&fakes.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /butler. uninvitable-domain-message"))
 		})
 
 		It("responds to Slack when it isn't a member of a private group", func() {

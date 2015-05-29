@@ -22,12 +22,12 @@ const (
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api                      SlackAPI
-	slackTeamName            string
-	slackUserID              string
-	uninvitableDomain        string
-	uninvitableDomainMessage string
-	auditLogChannelID        string
+	api                SlackAPI
+	slackTeamName      string
+	slackUserID        string
+	uninvitableEmail   string
+	uninvitableMessage string
+	auditLogChannelID  string
 
 	clock  clock.Clock
 	logger lager.Logger
@@ -38,21 +38,21 @@ func New(
 	api SlackAPI,
 	slackTeamName string,
 	slackUserID string,
-	uninvitableDomain string,
-	uninvitableDomainMessage string,
+	uninvitableEmail string,
+	uninvitableMessage string,
 	auditLogChannelID string,
 	clock clock.Clock,
 	logger lager.Logger,
 ) *Handler {
 	return &Handler{
-		api:                      api,
-		slackTeamName:            slackTeamName,
-		slackUserID:              slackUserID,
-		uninvitableDomain:        uninvitableDomain,
-		uninvitableDomainMessage: uninvitableDomainMessage,
-		auditLogChannelID:        auditLogChannelID,
-		clock:                    clock,
-		logger:                   logger,
+		api:                api,
+		slackTeamName:      slackTeamName,
+		slackUserID:        slackUserID,
+		uninvitableEmail:   uninvitableEmail,
+		uninvitableMessage: uninvitableMessage,
+		auditLogChannelID:  auditLogChannelID,
+		clock:              clock,
+		logger:             logger,
 	}
 }
 
@@ -86,11 +86,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			emailAddress:   emailAddress,
 			requestingUser: commanderName,
 
-			uninvitableDomain:        h.uninvitableDomain,
-			uninvitableDomainMessage: h.uninvitableDomainMessage,
-			api:           h.api,
-			slackTeamName: h.slackTeamName,
-			logger:        h.logger,
+			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableMessage: h.uninvitableMessage,
+			api:                h.api,
+			slackTeamName:      h.slackTeamName,
+			logger:             h.logger,
 		}
 
 	case "invite-guest":
@@ -105,10 +105,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			firstName:    firstName,
 			lastName:     lastName,
 
-			api:           h.api,
-			slackTeamName: h.slackTeamName,
-			slackUserID:   h.slackUserID,
-			logger:        h.logger,
+			api:                h.api,
+			slackTeamName:      h.slackTeamName,
+			slackUserID:        h.slackUserID,
+			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableMessage: h.uninvitableMessage,
+			logger:             h.logger,
 		}
 
 	case "invite-restricted":
@@ -123,10 +125,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			firstName:    firstName,
 			lastName:     lastName,
 
-			api:           h.api,
-			slackTeamName: h.slackTeamName,
-			slackUserID:   h.slackUserID,
-			logger:        h.logger,
+			api:                h.api,
+			slackTeamName:      h.slackTeamName,
+			slackUserID:        h.slackUserID,
+			uninvitableEmail:   h.uninvitableEmail,
+			uninvitableMessage: h.uninvitableMessage,
+			logger:             h.logger,
 		}
 
 	default:

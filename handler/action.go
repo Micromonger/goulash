@@ -8,8 +8,10 @@ import (
 )
 
 var uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
+var uninvitableEmailErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
 var userInfoMessageFmt = "%s %s (%s) is a Slack %s, with the username <@%s>."
 var userNotFoundMessageFmt = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
+var channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 
 var membershipFull = "full member"
 var membershipRestrictedAccount = "restricted account"
@@ -27,19 +29,26 @@ type GuardedAction interface {
 }
 
 type inviteGuestAction struct {
-	api           SlackAPI
-	slackTeamName string
-	slackUserID   string
-	channel       *Channel
-	invitingUser  string
-	emailAddress  string
-	firstName     string
-	lastName      string
+	api                SlackAPI
+	slackTeamName      string
+	slackUserID        string
+	uninvitableMessage string
+	uninvitableEmail   string
+	channel            *Channel
+	invitingUser       string
+
+	emailAddress string
+	firstName    string
+	lastName     string
 
 	logger lager.Logger
 }
 
 func (i inviteGuestAction) Check() error {
+	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
+		return uninvitableEmailErr(i.uninvitableEmail, i.uninvitableMessage)
+	}
+
 	if !i.channel.Visible(i.api) {
 		return channelNotVisibleErr(i.slackUserID)
 	}
@@ -82,19 +91,25 @@ func (i inviteGuestAction) AuditMessage() string {
 }
 
 type inviteRestrictedAction struct {
-	api           SlackAPI
-	slackTeamName string
-	slackUserID   string
-	channel       *Channel
-	invitingUser  string
-	emailAddress  string
-	firstName     string
-	lastName      string
+	api                SlackAPI
+	slackTeamName      string
+	slackUserID        string
+	channel            *Channel
+	invitingUser       string
+	emailAddress       string
+	uninvitableEmail   string
+	uninvitableMessage string
+	firstName          string
+	lastName           string
 
 	logger lager.Logger
 }
 
 func (i inviteRestrictedAction) Check() error {
+	if uninvitableEmail(i.emailAddress, i.uninvitableEmail) {
+		return uninvitableEmailErr(i.uninvitableEmail, i.uninvitableMessage)
+	}
+
 	if !i.channel.Visible(i.api) {
 		return channelNotVisibleErr(i.slackUserID)
 	}
@@ -135,11 +150,11 @@ func (i inviteRestrictedAction) AuditMessage() string {
 }
 
 type userInfoAction struct {
-	emailAddress             string
-	requestingUser           string
-	slackTeamName            string
-	uninvitableDomainMessage string
-	uninvitableDomain        string
+	emailAddress       string
+	requestingUser     string
+	slackTeamName      string
+	uninvitableMessage string
+	uninvitableEmail   string
 
 	api    SlackAPI
 	logger lager.Logger
@@ -190,11 +205,5 @@ func (i userInfoAction) AuditMessage() string {
 }
 
 func channelNotVisibleErr(slackUserID string) error {
-	return fmt.Errorf(
-		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
-		slackUserID,
-		slackUserID,
-		slackUserID,
-		slackUserID,
-	)
+	return fmt.Errorf(channelNotVisibleErrFmt, slackUserID, slackUserID, slackUserID, slackUserID)
 }
