@@ -68,7 +68,7 @@ type FakeSlackAPI struct {
 	GetUsersStub        func() ([]slack.User, error)
 	getUsersMutex       sync.RWMutex
 	getUsersArgsForCall []struct{}
-	getUsersReturns struct {
+	getUsersReturns     struct {
 		result1 []slack.User
 		result2 error
 	}

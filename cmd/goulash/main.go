@@ -15,21 +15,25 @@ import (
 const (
 	defaultlistenPort = "8080"
 
-	listenPortVar        = "VCAP_APP_PORT"
-	tokenVar             = "SLACK_AUTH_TOKEN"
-	teamNameVar          = "SLACK_TEAM_NAME"
-	auditLogChannelIDVar = "SLACK_AUDIT_LOG_CHANNEL_ID"
-	slackUserIDVar       = "SLACK_USER_ID"
+	listenPortVar               = "VCAP_APP_PORT"
+	tokenVar                    = "SLACK_AUTH_TOKEN"
+	teamNameVar                 = "SLACK_TEAM_NAME"
+	auditLogChannelIDVar        = "SLACK_AUDIT_LOG_CHANNEL_ID"
+	slackUserIDVar              = "SLACK_USER_ID"
+	uninvitableDomainVar        = "UNINVITABLE_DOMAIN"
+	uninvitableDomainMessageVar = "UNINVITABLE_DOMAIN_MESSAGE"
 )
 
 var (
 	listenPort string
 	listenAddr string
 
-	slackAPI          *slack.Slack
-	slackTeamName     string
-	slackUserID       string
-	auditLogChannelID string
+	slackAPI                 *slack.Slack
+	slackTeamName            string
+	slackUserID              string
+	auditLogChannelID        string
+	uninvitableDomain        string
+	uninvitableDomainMessage string
 
 	timekeeper clock.Clock
 	logger     lager.Logger
@@ -45,6 +49,8 @@ func init() {
 	slackAPI = slack.New(os.Getenv(tokenVar))
 	slackTeamName = os.Getenv(teamNameVar)
 	slackUserID = os.Getenv(slackUserIDVar)
+	uninvitableDomain = os.Getenv(uninvitableDomainVar)
+	uninvitableDomainMessage = os.Getenv(uninvitableDomainMessageVar)
 	auditLogChannelID = os.Getenv(auditLogChannelIDVar)
 
 	timekeeper = clock.NewClock()
@@ -52,7 +58,16 @@ func init() {
 	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
 	logger.RegisterSink(sink)
 
-	h = handler.New(slackAPI, slackTeamName, slackUserID, auditLogChannelID, timekeeper, logger)
+	h = handler.New(
+		slackAPI,
+		slackTeamName,
+		slackUserID,
+		uninvitableDomain,
+		uninvitableDomainMessage,
+		auditLogChannelID,
+		timekeeper,
+		logger,
+	)
 }
 
 func main() {

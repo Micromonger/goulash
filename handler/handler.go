@@ -22,10 +22,12 @@ const (
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api               SlackAPI
-	slackTeamName     string
-	slackUserID       string
-	auditLogChannelID string
+	api                      SlackAPI
+	slackTeamName            string
+	slackUserID              string
+	uninvitableDomain        string
+	uninvitableDomainMessage string
+	auditLogChannelID        string
 
 	clock  clock.Clock
 	logger lager.Logger
@@ -36,17 +38,21 @@ func New(
 	api SlackAPI,
 	slackTeamName string,
 	slackUserID string,
+	uninvitableDomain string,
+	uninvitableDomainMessage string,
 	auditLogChannelID string,
 	clock clock.Clock,
 	logger lager.Logger,
 ) *Handler {
 	return &Handler{
-		api:               api,
-		slackTeamName:     slackTeamName,
-		slackUserID:       slackUserID,
-		auditLogChannelID: auditLogChannelID,
-		clock:             clock,
-		logger:            logger,
+		api:                      api,
+		slackTeamName:            slackTeamName,
+		slackUserID:              slackUserID,
+		uninvitableDomain:        uninvitableDomain,
+		uninvitableDomainMessage: uninvitableDomainMessage,
+		auditLogChannelID:        auditLogChannelID,
+		clock:                    clock,
+		logger:                   logger,
 	}
 }
 
@@ -80,6 +86,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			emailAddress:   emailAddress,
 			requestingUser: commanderName,
 
+			uninvitableDomain:        h.uninvitableDomain,
+			uninvitableDomainMessage: h.uninvitableDomainMessage,
 			api:           h.api,
 			slackTeamName: h.slackTeamName,
 			logger:        h.logger,

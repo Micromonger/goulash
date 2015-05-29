@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/pivotal-golang/lager"
 )
@@ -127,9 +128,11 @@ func (i inviteRestrictedAction) AuditMessage() string {
 }
 
 type userInfoAction struct {
-	emailAddress   string
-	requestingUser string
-	slackTeamName  string
+	emailAddress             string
+	requestingUser           string
+	slackTeamName            string
+	uninvitableDomainMessage string
+	uninvitableDomain        string
 
 	api    SlackAPI
 	logger lager.Logger
@@ -166,10 +169,18 @@ func (i userInfoAction) Do() (string, error) {
 		}
 	}
 
-	result = fmt.Sprintf(
-		"There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
-		i.emailAddress,
-	)
+	if len(i.uninvitableDomain) > 0 && strings.HasSuffix(i.emailAddress, i.uninvitableDomain) {
+		result = fmt.Sprintf(
+			"There is no user here with the email address '%s'. %s",
+			i.emailAddress,
+			i.uninvitableDomainMessage,
+		)
+	} else {
+		result = fmt.Sprintf(
+			"There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
+			i.emailAddress,
+		)
+	}
 
 	return result, errors.New("user_not_found")
 }
