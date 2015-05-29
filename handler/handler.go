@@ -28,7 +28,6 @@ type Handler struct {
 	uninvitableEmail   string
 	uninvitableMessage string
 	auditLogChannelID  string
-
 	clock  clock.Clock
 	logger lager.Logger
 }
@@ -84,12 +83,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		action = userInfoAction{
 			emailAddress:   emailAddress,
-			requestingUser: commanderName,
 
+			api:                h.api,
+			requestingUser: commanderName,
+			slackTeamName:      h.slackTeamName,
 			uninvitableEmail:   h.uninvitableEmail,
 			uninvitableMessage: h.uninvitableMessage,
-			api:                h.api,
-			slackTeamName:      h.slackTeamName,
 			logger:             h.logger,
 		}
 
@@ -99,13 +98,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		lastName := commandParams[2]
 
 		action = inviteGuestAction{
-			channel:      channel,
-			invitingUser: commanderName,
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
 
 			api:                h.api,
+			channel:      channel,
+			invitingUser: commanderName,
 			slackTeamName:      h.slackTeamName,
 			slackUserID:        h.slackUserID,
 			uninvitableEmail:   h.uninvitableEmail,
@@ -119,13 +118,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		lastName := commandParams[2]
 
 		action = inviteRestrictedAction{
-			channel:      channel,
-			invitingUser: commanderName,
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
 
 			api:                h.api,
+			channel:      channel,
+			invitingUser: commanderName,
 			slackTeamName:      h.slackTeamName,
 			slackUserID:        h.slackUserID,
 			uninvitableEmail:   h.uninvitableEmail,

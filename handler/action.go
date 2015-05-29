@@ -29,17 +29,17 @@ type GuardedAction interface {
 }
 
 type inviteGuestAction struct {
-	api                SlackAPI
-	slackTeamName      string
-	slackUserID        string
-	uninvitableMessage string
-	uninvitableEmail   string
-	channel            *Channel
-	invitingUser       string
-
 	emailAddress string
 	firstName    string
 	lastName     string
+
+	api                SlackAPI
+	channel            *Channel
+	invitingUser       string
+	slackTeamName      string
+	slackUserID        string
+	uninvitableEmail   string
+	uninvitableMessage string
 
 	logger lager.Logger
 }
@@ -91,16 +91,17 @@ func (i inviteGuestAction) AuditMessage() string {
 }
 
 type inviteRestrictedAction struct {
-	api                SlackAPI
-	slackTeamName      string
-	slackUserID        string
-	channel            *Channel
-	invitingUser       string
 	emailAddress       string
-	uninvitableEmail   string
-	uninvitableMessage string
 	firstName          string
 	lastName           string
+
+	api                SlackAPI
+	channel            *Channel
+	invitingUser       string
+	slackTeamName      string
+	slackUserID        string
+	uninvitableEmail   string
+	uninvitableMessage string
 
 	logger lager.Logger
 }
@@ -151,12 +152,12 @@ func (i inviteRestrictedAction) AuditMessage() string {
 
 type userInfoAction struct {
 	emailAddress       string
-	requestingUser     string
-	slackTeamName      string
-	uninvitableMessage string
-	uninvitableEmail   string
 
 	api    SlackAPI
+	requestingUser     string
+	slackTeamName      string
+	uninvitableEmail   string
+	uninvitableMessage string
 	logger lager.Logger
 }
 
