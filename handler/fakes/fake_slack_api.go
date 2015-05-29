@@ -65,6 +65,13 @@ type FakeSlackAPI struct {
 		result3 string
 		result4 error
 	}
+	GetUsersStub        func() ([]slack.User, error)
+	getUsersMutex       sync.RWMutex
+	getUsersArgsForCall []struct{}
+	getUsersReturns struct {
+		result1 []slack.User
+		result2 error
+	}
 }
 
 func (fake *FakeSlackAPI) PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error) {
@@ -241,6 +248,31 @@ func (fake *FakeSlackAPI) OpenIMChannelReturns(result1 bool, result2 bool, resul
 		result3 string
 		result4 error
 	}{result1, result2, result3, result4}
+}
+
+func (fake *FakeSlackAPI) GetUsers() ([]slack.User, error) {
+	fake.getUsersMutex.Lock()
+	fake.getUsersArgsForCall = append(fake.getUsersArgsForCall, struct{}{})
+	fake.getUsersMutex.Unlock()
+	if fake.GetUsersStub != nil {
+		return fake.GetUsersStub()
+	} else {
+		return fake.getUsersReturns.result1, fake.getUsersReturns.result2
+	}
+}
+
+func (fake *FakeSlackAPI) GetUsersCallCount() int {
+	fake.getUsersMutex.RLock()
+	defer fake.getUsersMutex.RUnlock()
+	return len(fake.getUsersArgsForCall)
+}
+
+func (fake *FakeSlackAPI) GetUsersReturns(result1 []slack.User, result2 error) {
+	fake.GetUsersStub = nil
+	fake.getUsersReturns = struct {
+		result1 []slack.User
+		result2 error
+	}{result1, result2}
 }
 
 var _ handler.SlackAPI = new(FakeSlackAPI)

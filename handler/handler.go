@@ -73,6 +73,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		respondWith(helpText(), w, h.logger)
 		return
 
+	case "info":
+		emailAddress := commandParams[0]
+
+		action = userInfoAction{
+			emailAddress:   emailAddress,
+			requestingUser: commanderName,
+
+			api:           h.api,
+			slackTeamName: h.slackTeamName,
+			logger:        h.logger,
+		}
+
 	case "invite-guest":
 		emailAddress := commandParams[0]
 		firstName := commandParams[1]

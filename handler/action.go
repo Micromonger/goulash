@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/pivotal-golang/lager"
@@ -123,4 +124,57 @@ func (i inviteRestrictedAction) AuditMessage() string {
 		i.channel.Name(i.api),
 		i.channel.ID,
 	)
+}
+
+type userInfoAction struct {
+	emailAddress   string
+	requestingUser string
+	slackTeamName  string
+
+	api    SlackAPI
+	logger lager.Logger
+}
+
+func (i userInfoAction) Do() (string, error) {
+	var result string
+
+	users, err := i.api.GetUsers()
+	if err != nil {
+		i.logger.Error("failed-getting-users", err)
+		result = fmt.Sprintf("Failed to look up user@example.com: %s", err.Error())
+		return result, err
+	}
+
+	for _, user := range users {
+		if user.Profile.Email == i.emailAddress {
+			membership := "full member"
+			if user.IsRestricted {
+				membership = "restricted account"
+			}
+			if user.IsUltraRestricted {
+				membership = "single-channel guest"
+			}
+			result = fmt.Sprintf(
+				"%s %s (%s) is a Slack %s, with the username <@%s>.",
+				user.Profile.FirstName,
+				user.Profile.LastName,
+				user.Profile.Email,
+				membership,
+				user.Name,
+			)
+			return result, nil
+		}
+	}
+
+	result = fmt.Sprintf(
+		"No user with email '%s' found for team '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information.",
+		i.emailAddress,
+		i.slackTeamName,
+	)
+
+	return result, errors.New("user_not_found")
+}
+
+func (i userInfoAction) AuditMessage() string {
+	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress)
 }

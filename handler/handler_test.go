@@ -471,4 +471,259 @@ var _ = Describe("Handler", func() {
 			Ω(w.Body.String()).ShouldNot(BeEmpty())
 		})
 	})
+
+	Describe("/butler info", func() {
+		It("asks Slack for the list of users", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.GetUsersCallCount()).To(Equal(1))
+		})
+
+		It("responds to Slack with a message about an unknown user", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("No user with email 'user@example.com' found for team 'fake-team-name'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."))
+		})
+
+		It("responds to Slack with a message about a full member", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					Name: "tsmith",
+					Profile: slack.UserProfile{
+						Email:     "user@example.com",
+						FirstName: "Tom",
+						LastName:  "Smith",
+					},
+					IsRestricted:      false,
+					IsUltraRestricted: false,
+				},
+			}, nil)
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
+		})
+
+		It("responds to Slack with a message about a restricted account", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					Name: "tsmith",
+					Profile: slack.UserProfile{
+						Email:     "user@example.com",
+						FirstName: "Tom",
+						LastName:  "Smith",
+					},
+					IsRestricted:      true,
+					IsUltraRestricted: false,
+				},
+			}, nil)
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
+		})
+
+		It("responds to Slack with a message about a single-channel guest", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					Name: "tsmith",
+					Profile: slack.UserProfile{
+						Email:     "user@example.com",
+						FirstName: "Tom",
+						LastName:  "Smith",
+					},
+					IsRestricted:      false,
+					IsUltraRestricted: true,
+				},
+			}, nil)
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
+		})
+
+		It("responds to Slack when it can't get the list of users", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(w.Body.String()).Should(Equal("Failed to look up user@example.com: network error"))
+		})
+
+		It("posts a message to the configured audit log channel on success", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					Name: "tsmith",
+					Profile: slack.UserProfile{
+						Email:     "user@example.com",
+						FirstName: "Tom",
+						LastName:  "Smith",
+					},
+					IsRestricted:      true,
+					IsUltraRestricted: true,
+				},
+			}, nil)
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user requested info on 'user@example.com' at 2014-01-31 10:59:53 +0000 UTC, which was successful."))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+
+		It("posts a message to the configured audit log channel on failure", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"info user@example.com"},
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakes.FakeSlackAPI{}
+			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
+
+			expectedParams := slack.NewPostMessageParameters()
+			expectedParams.AsUser = true
+			expectedParams.Parse = "full"
+
+			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
+			Ω(actualChannelID).Should(Equal("audit-log-channel-id"))
+			Ω(actualText).Should(Equal("@requesting_user requested info on 'user@example.com' at 2014-01-31 10:59:53 +0000 UTC, which failed with error: network error"))
+			Ω(actualParams).Should(Equal(expectedParams))
+		})
+	})
 })
