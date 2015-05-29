@@ -63,7 +63,7 @@ func (i inviteGuestAction) Do() (string, error) {
 
 func (i inviteGuestAction) GuardMessage() string {
 	return fmt.Sprintf(
-		"<@%s> can only invite people to channels it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel you would like <@%s> to invite people to.",
+		"<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to.",
 		i.slackUserID,
 		i.slackUserID,
 		i.slackUserID,

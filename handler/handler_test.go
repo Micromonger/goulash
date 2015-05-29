@@ -179,7 +179,7 @@ var _ = Describe("Handler", func() {
 
 			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
-			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel you would like <@butler-user-id> to invite people to."))
+			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels or private groups it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel or private group you would like <@butler-user-id> to invite people to."))
 		})
 
 		It("posts a message to the configured audit log channel on success", func() {
