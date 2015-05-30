@@ -1,4 +1,4 @@
-package handler
+package action
 
 // Channel represents a Channel or Private Group in Slack.
 type Channel struct {

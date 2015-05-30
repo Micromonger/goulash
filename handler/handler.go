@@ -3,26 +3,19 @@
 package handler
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/slack"
-)
-
-const (
-	// PrivateGroupName holds the name Slack provides for a Slash Command sent
-	// from a group which is private.
-	PrivateGroupName = "privategroup"
 )
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api                SlackAPI
+	api                action.SlackAPI
 	slackTeamName      string
 	slackUserID        string
 	uninvitableDomain  string
@@ -34,7 +27,7 @@ type Handler struct {
 
 // New returns a new Handler.
 func New(
-	api SlackAPI,
+	api action.SlackAPI,
 	slackTeamName string,
 	slackUserID string,
 	uninvitableDomain string,
@@ -56,27 +49,31 @@ func New(
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	channel, commanderName, commanderID, command, commandParams, err := params(r)
-	if err != nil {
+	channelID := r.PostFormValue("channel_id")
+	channelName := r.PostFormValue("channel_name")
+	commanderID := r.PostFormValue("user_id")
+	commanderName := r.PostFormValue("user_name")
+	text := r.PostFormValue("text")
+
+	if channelID == "" || text == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	h.logger.Info("started-processing-request", lager.Data{
-		"channelID":     channel.ID,
-		"channelName":   channel.Name(h.api),
-		"commanderName": commanderName,
+		"channelID":     channelID,
+		"channelName":   channelName,
 		"commanderID":   commanderID,
-		"command":       command,
-		"commandParams": commandParams,
+		"commanderName": commanderName,
+		"text":          text,
 	})
 
-	action := NewAction(
-		channel,
+	a := action.New(
+		channelID,
+		channelName,
 		commanderName,
-		command,
-		commandParams,
-		channel.Name(h.api),
+		commanderID,
+		text,
 
 		h.api,
 		h.slackTeamName,
@@ -86,19 +83,19 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.logger,
 	)
 
-	if action, ok := action.(GuardedAction); ok {
-		checkErr := action.Check()
+	if a, ok := a.(action.GuardedAction); ok {
+		checkErr := a.Check()
 		if checkErr != nil {
 			respondWith(checkErr.Error(), w, h.logger)
 			return
 		}
 	}
 
-	result, err := action.Do()
+	result, err := a.Do()
 
 	if h.auditLogChannelID != "" {
-		if action, ok := action.(AuditableAction); ok {
-			h.postAuditLogEntry(action.AuditMessage(), err)
+		if a, ok := a.(action.AuditableAction); ok {
+			h.postAuditLogEntry(a.AuditMessage(), err)
 		}
 	}
 
@@ -132,33 +129,6 @@ func (h *Handler) postAuditLogEntry(text string, err error) {
 	}
 
 	h.logger.Info("successfully-added-audit-log-entry")
-}
-
-func params(r *http.Request) (*Channel, string, string, string, []string, error) {
-	channelID := r.PostFormValue("channel_id")
-	text := r.PostFormValue("text")
-
-	if channelID == "" || text == "" {
-		return &Channel{}, "", "", "", []string{}, errors.New("Missing required attributes")
-	}
-
-	channel := &Channel{
-		RawName: r.PostFormValue("channel_name"),
-		ID:      channelID,
-	}
-	commanderName := r.PostFormValue("user_name")
-	commanderID := r.PostFormValue("user_id")
-
-	var command string
-	var commandParams []string
-	if commandSep := strings.IndexByte(text, 0x20); commandSep > 0 {
-		command = text[:commandSep]
-		commandParams = strings.Split(text[commandSep+1:], " ")
-	} else {
-		command = text
-	}
-
-	return channel, commanderName, commanderID, command, commandParams, nil
 }
 
 func respondWith(text string, w http.ResponseWriter, logger lager.Logger) {

@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/pivotalservices/goulash/handler"
+	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/slack"
 )
 
@@ -68,7 +68,7 @@ type FakeSlackAPI struct {
 	GetUsersStub        func() ([]slack.User, error)
 	getUsersMutex       sync.RWMutex
 	getUsersArgsForCall []struct{}
-	getUsersReturns     struct {
+	getUsersReturns struct {
 		result1 []slack.User
 		result2 error
 	}
@@ -275,4 +275,4 @@ func (fake *FakeSlackAPI) GetUsersReturns(result1 []slack.User, result2 error) {
 	}{result1, result2}
 }
 
-var _ handler.SlackAPI = new(FakeSlackAPI)
+var _ action.SlackAPI = new(FakeSlackAPI)

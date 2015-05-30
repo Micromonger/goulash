@@ -1,4 +1,4 @@
-package handler
+package action
 
 import "github.com/pivotalservices/slack"
 

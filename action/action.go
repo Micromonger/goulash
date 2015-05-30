@@ -1,4 +1,4 @@
-package handler
+package action
 
 import (
 	"errors"
@@ -6,6 +6,12 @@ import (
 	"strings"
 
 	"github.com/pivotal-golang/lager"
+)
+
+const (
+	// PrivateGroupName holds the name Slack provides for a Slash Command sent
+	// from a group which is private.
+	PrivateGroupName = "privategroup"
 )
 
 var uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
@@ -23,13 +29,23 @@ type Action interface {
 	Do() (string, error)
 }
 
-// NewAction creates a new Action based on the command provided.
-func NewAction(
-	channel *Channel,
-	commanderName string,
-	command string,
-	commandParams []string,
+// GuardedAction is an Action with prerequisites described in Check().
+type GuardedAction interface {
+	Check() error
+}
+
+// AuditableAction is an Action that should have an audit log entry created.
+type AuditableAction interface {
+	AuditMessage() string
+}
+
+// New creates a new Action based on the command provided.
+func New(
+	channelID string,
 	channelName string,
+	commanderName string,
+	commanderID string,
+	text string,
 
 	api SlackAPI,
 	slackTeamName string,
@@ -38,14 +54,21 @@ func NewAction(
 	uninvitableMessage string,
 	logger lager.Logger,
 ) Action {
+	channel := &Channel{
+		RawName: channelName,
+		ID:      channelID,
+	}
+
+	command, commandParams := commandAndParams(text)
+
 	switch command {
 	case "help":
-		return helpAction{}
+		return help{}
 
 	case "info":
 		emailAddress := commandParams[0]
 
-		return userInfoAction{
+		return userInfo{
 			emailAddress: emailAddress,
 
 			api:                api,
@@ -61,7 +84,7 @@ func NewAction(
 		firstName := commandParams[1]
 		lastName := commandParams[2]
 
-		return inviteGuestAction{
+		return inviteGuest{
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
@@ -81,7 +104,7 @@ func NewAction(
 		firstName := commandParams[1]
 		lastName := commandParams[2]
 
-		return inviteRestrictedAction{
+		return inviteRestricted{
 			emailAddress: emailAddress,
 			firstName:    firstName,
 			lastName:     lastName,
@@ -97,23 +120,26 @@ func NewAction(
 		}
 
 	default:
-		return helpAction{}
+		return help{}
 	}
 }
 
-// GuardedAction is an Action with prerequisites described in Check().
-type GuardedAction interface {
-	Check() error
+func commandAndParams(text string) (string, []string) {
+	var command string
+	var commandParams []string
+	if commandSep := strings.IndexByte(text, 0x20); commandSep > 0 {
+		command = text[:commandSep]
+		commandParams = strings.Split(text[commandSep+1:], " ")
+	} else {
+		command = text
+	}
+
+	return command, commandParams
 }
 
-// AuditableAction is an Action that should have an audit log entry created.
-type AuditableAction interface {
-	AuditMessage() string
-}
+type help struct{}
 
-type helpAction struct{}
-
-func (h helpAction) Do() (string, error) {
+func (h help) Do() (string, error) {
 	text := "*USAGE*\n" +
 		"`/butler [command] [args]`\n" +
 		"\n" +
@@ -128,7 +154,7 @@ func (h helpAction) Do() (string, error) {
 	return text, nil
 }
 
-type inviteGuestAction struct {
+type inviteGuest struct {
 	emailAddress string
 	firstName    string
 	lastName     string
@@ -144,7 +170,7 @@ type inviteGuestAction struct {
 	logger lager.Logger
 }
 
-func (i inviteGuestAction) Check() error {
+func (i inviteGuest) Check() error {
 	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
 		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
@@ -156,7 +182,7 @@ func (i inviteGuestAction) Check() error {
 	return nil
 }
 
-func (i inviteGuestAction) Do() (string, error) {
+func (i inviteGuest) Do() (string, error) {
 	var result string
 
 	err := i.api.InviteGuest(
@@ -178,7 +204,7 @@ func (i inviteGuestAction) Do() (string, error) {
 	return result, nil
 }
 
-func (i inviteGuestAction) AuditMessage() string {
+func (i inviteGuest) AuditMessage() string {
 	return fmt.Sprintf(
 		"@%s invited %s %s (%s) as a single-channel guest to '%s' (%s)",
 		i.invitingUser,
@@ -190,7 +216,7 @@ func (i inviteGuestAction) AuditMessage() string {
 	)
 }
 
-type inviteRestrictedAction struct {
+type inviteRestricted struct {
 	emailAddress string
 	firstName    string
 	lastName     string
@@ -206,7 +232,7 @@ type inviteRestrictedAction struct {
 	logger lager.Logger
 }
 
-func (i inviteRestrictedAction) Check() error {
+func (i inviteRestricted) Check() error {
 	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
 		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
@@ -218,7 +244,7 @@ func (i inviteRestrictedAction) Check() error {
 	return nil
 }
 
-func (i inviteRestrictedAction) Do() (string, error) {
+func (i inviteRestricted) Do() (string, error) {
 	var result string
 
 	err := i.api.InviteRestricted(
@@ -238,7 +264,7 @@ func (i inviteRestrictedAction) Do() (string, error) {
 	return result, nil
 }
 
-func (i inviteRestrictedAction) AuditMessage() string {
+func (i inviteRestricted) AuditMessage() string {
 	return fmt.Sprintf(
 		"@%s invited %s %s (%s) as a restricted account to '%s' (%s)",
 		i.invitingUser,
@@ -250,7 +276,7 @@ func (i inviteRestrictedAction) AuditMessage() string {
 	)
 }
 
-type userInfoAction struct {
+type userInfo struct {
 	emailAddress string
 
 	api                SlackAPI
@@ -261,7 +287,7 @@ type userInfoAction struct {
 	logger             lager.Logger
 }
 
-func (i userInfoAction) Do() (string, error) {
+func (i userInfo) Do() (string, error) {
 	var result string
 
 	users, err := i.api.GetUsers()
@@ -301,7 +327,7 @@ func (i userInfoAction) Do() (string, error) {
 	return result, errors.New("user_not_found")
 }
 
-func (i userInfoAction) AuditMessage() string {
+func (i userInfo) AuditMessage() string {
 	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress)
 }
 
