@@ -13,15 +13,18 @@ const (
 	PrivateGroupName = "privategroup"
 )
 
-var uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
-var uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
-var userInfoMessageFmt = "%s %s (%s) is a Slack %s, with the username <@%s>."
-var userNotFoundMessageFmt = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
-var channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
+var (
+	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
+	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 
-var membershipFull = "full member"
-var membershipRestrictedAccount = "restricted account"
-var membershipSingleChannelGuest = "single-channel guest"
+	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
+	userInfoMessageFmt                = "%s %s (%s) is a Slack %s, with the username <@%s>."
+	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
+
+	membershipFull               = "full member"
+	membershipRestrictedAccount  = "restricted account"
+	membershipSingleChannelGuest = "single-channel guest"
+)
 
 // Action represents an action that is able to be performed by the server.
 type Action interface {
