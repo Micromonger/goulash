@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/slackapi"
 )
 
 type userInfo struct {
 	params []string
 
-	api                SlackAPI
+	api                slackapi.SlackAPI
 	requestingUser     string
 	slackTeamName      string
 	uninvitableDomain  string

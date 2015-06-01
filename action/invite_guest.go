@@ -4,12 +4,13 @@ import (
 	"fmt"
 
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/slackapi"
 )
 
 type inviteGuest struct {
 	params []string
 
-	api                SlackAPI
+	api                slackapi.SlackAPI
 	channel            *Channel
 	invitingUser       string
 	slackTeamName      string

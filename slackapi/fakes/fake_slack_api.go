@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/slackapi"
 	"github.com/pivotalservices/slack"
 )
 
@@ -275,4 +275,4 @@ func (fake *FakeSlackAPI) GetUsersReturns(result1 []slack.User, result2 error) {
 	}{result1, result2}
 }
 
-var _ action.SlackAPI = new(FakeSlackAPI)
+var _ slackapi.SlackAPI = new(FakeSlackAPI)

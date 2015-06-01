@@ -1,6 +1,12 @@
-package action
+package slackapi
 
 import "github.com/pivotalservices/slack"
+
+const (
+	// PrivateGroupName holds the name Slack provides for a Slash Command sent
+	// from a group which is private.
+	PrivateGroupName = "privategroup"
+)
 
 //go:generate counterfeiter . SlackAPI
 

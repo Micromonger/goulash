@@ -8,7 +8,7 @@ import (
 
 	"github.com/pivotalservices/goulash/action"
 
-	fakeaction "github.com/pivotalservices/goulash/action/fakes"
+	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,12 +17,12 @@ import (
 var _ = Describe("UserInfo", func() {
 	Describe("Do", func() {
 		var (
-			fakeSlackAPI *fakeaction.FakeSlackAPI
+			fakeSlackAPI *fakeslackapi.FakeSlackAPI
 			logger       lager.Logger
 		)
 
 		BeforeEach(func() {
-			fakeSlackAPI = &fakeaction.FakeSlackAPI{}
+			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
 			logger = lager.NewLogger("testlogger")
 		})
 

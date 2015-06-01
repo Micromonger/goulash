@@ -5,12 +5,7 @@ import (
 	"strings"
 
 	"github.com/pivotal-golang/lager"
-)
-
-const (
-	// PrivateGroupName holds the name Slack provides for a Slash Command sent
-	// from a group which is private.
-	PrivateGroupName = "privategroup"
+	"github.com/pivotalservices/goulash/slackapi"
 )
 
 var (
@@ -49,7 +44,7 @@ func New(
 	commanderID string,
 	text string,
 
-	api SlackAPI,
+	api slackapi.SlackAPI,
 	slackTeamName string,
 	slackUserID string,
 	uninvitableDomain string,

@@ -10,12 +10,13 @@ import (
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/slackapi"
 	"github.com/pivotalservices/slack"
 )
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api                action.SlackAPI
+	api                slackapi.SlackAPI
 	slackTeamName      string
 	slackUserID        string
 	uninvitableDomain  string
@@ -27,7 +28,7 @@ type Handler struct {
 
 // New returns a new Handler.
 func New(
-	api action.SlackAPI,
+	api slackapi.SlackAPI,
 	slackTeamName string,
 	slackUserID string,
 	uninvitableDomain string,
