@@ -104,6 +104,36 @@ var _ = Describe("Handler", func() {
 			Ω(actualEmailAddress).Should(Equal("user@example.com"))
 		})
 
+		It("invites a single channel guest when first/last name are missing", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-guest user@example.com"}, // first/last names are missing
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakeaction.FakeSlackAPI{}
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
+
+			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteGuestArgsForCall(0)
+			Ω(actualTeamName).Should(Equal("fake-team-name"))
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualFirstName).Should(BeEmpty())
+			Ω(actualLastName).Should(BeEmpty())
+			Ω(actualEmailAddress).Should(Equal("user@example.com"))
+		})
+
 		It("responds to Slack with the result of the command on success", func() {
 			v := url.Values{
 				"token":        {"some-token"},
@@ -373,6 +403,36 @@ var _ = Describe("Handler", func() {
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /butler. uninvitable-domain-message"))
+		})
+
+		It("invites a restricted account when first/last name are missing", func() {
+			v := url.Values{
+				"token":        {"some-token"},
+				"channel_id":   {"C1234567890"},
+				"channel_name": {"channel-name"},
+				"command":      {"/butler"},
+				"text":         {"invite-restricted user@example.com"}, // first/last names are missing
+				"user_name":    {"requesting_user"},
+			}
+			reqBody := strings.NewReader(v.Encode())
+			r, err := http.NewRequest("POST", "http://localhost", reqBody)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
+
+			w := httptest.NewRecorder()
+			fakeSlackAPI := &fakeaction.FakeSlackAPI{}
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h.ServeHTTP(w, r)
+
+			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
+
+			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteRestrictedArgsForCall(0)
+			Ω(actualTeamName).Should(Equal("fake-team-name"))
+			Ω(actualChannelID).Should(Equal("C1234567890"))
+			Ω(actualFirstName).Should(BeEmpty())
+			Ω(actualLastName).Should(BeEmpty())
+			Ω(actualEmailAddress).Should(Equal("user@example.com"))
 		})
 
 		It("responds to Slack when it isn't a member of a private group", func() {

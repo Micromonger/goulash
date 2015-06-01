@@ -66,10 +66,8 @@ func New(
 		return help{}
 
 	case "info":
-		emailAddress := commandParams[0]
-
 		return userInfo{
-			emailAddress: emailAddress,
+			params: commandParams,
 
 			api:                api,
 			requestingUser:     commanderName,
@@ -80,14 +78,8 @@ func New(
 		}
 
 	case "invite-guest":
-		emailAddress := commandParams[0]
-		firstName := commandParams[1]
-		lastName := commandParams[2]
-
 		return inviteGuest{
-			emailAddress: emailAddress,
-			firstName:    firstName,
-			lastName:     lastName,
+			params: commandParams,
 
 			api:                api,
 			channel:            channel,
@@ -100,14 +92,8 @@ func New(
 		}
 
 	case "invite-restricted":
-		emailAddress := commandParams[0]
-		firstName := commandParams[1]
-		lastName := commandParams[2]
-
 		return inviteRestricted{
-			emailAddress: emailAddress,
-			firstName:    firstName,
-			lastName:     lastName,
+			params: commandParams,
 
 			api:                api,
 			channel:            channel,
@@ -158,9 +144,7 @@ func (h help) Do() (string, error) {
 }
 
 type inviteGuest struct {
-	emailAddress string
-	firstName    string
-	lastName     string
+	params []string
 
 	api                SlackAPI
 	channel            *Channel
@@ -173,8 +157,32 @@ type inviteGuest struct {
 	logger lager.Logger
 }
 
+func (i inviteGuest) emailAddress() string {
+	if len(i.params) > 0 {
+		return i.params[0]
+	}
+
+	return ""
+}
+
+func (i inviteGuest) firstName() string {
+	if len(i.params) > 1 {
+		return i.params[1]
+	}
+
+	return ""
+}
+
+func (i inviteGuest) lastName() string {
+	if len(i.params) > 2 {
+		return i.params[2]
+	}
+
+	return ""
+}
+
 func (i inviteGuest) Check() error {
-	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
+	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
 		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
 
@@ -191,19 +199,19 @@ func (i inviteGuest) Do() (string, error) {
 	err := i.api.InviteGuest(
 		i.slackTeamName,
 		i.channel.ID,
-		i.firstName,
-		i.lastName,
-		i.emailAddress,
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
 	)
 	if err != nil {
 		i.logger.Error("failed-inviting-single-channel-user", err)
-		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api), err.Error())
+		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api), err.Error())
 		return result, err
 	}
 
 	i.logger.Info("successfully-invited-single-channel-user")
 
-	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
+	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api))
 	return result, nil
 }
 
@@ -211,18 +219,16 @@ func (i inviteGuest) AuditMessage() string {
 	return fmt.Sprintf(
 		"@%s invited %s %s (%s) as a single-channel guest to '%s' (%s)",
 		i.invitingUser,
-		i.firstName,
-		i.lastName,
-		i.emailAddress,
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
 		i.channel.Name(i.api),
 		i.channel.ID,
 	)
 }
 
 type inviteRestricted struct {
-	emailAddress string
-	firstName    string
-	lastName     string
+	params []string
 
 	api                SlackAPI
 	channel            *Channel
@@ -235,8 +241,32 @@ type inviteRestricted struct {
 	logger lager.Logger
 }
 
+func (i inviteRestricted) emailAddress() string {
+	if len(i.params) > 0 {
+		return i.params[0]
+	}
+
+	return ""
+}
+
+func (i inviteRestricted) firstName() string {
+	if len(i.params) > 1 {
+		return i.params[1]
+	}
+
+	return ""
+}
+
+func (i inviteRestricted) lastName() string {
+	if len(i.params) > 2 {
+		return i.params[2]
+	}
+
+	return ""
+}
+
 func (i inviteRestricted) Check() error {
-	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
+	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
 		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
 	}
 
@@ -253,17 +283,17 @@ func (i inviteRestricted) Do() (string, error) {
 	err := i.api.InviteRestricted(
 		i.slackTeamName,
 		i.channel.ID,
-		i.firstName,
-		i.lastName,
-		i.emailAddress,
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
 	)
 	if err != nil {
 		i.logger.Error("failed-inviting-restricted-account", err)
-		result = fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s': %s", i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api), err.Error())
+		result = fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api), err.Error())
 		return result, err
 	}
 
-	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName, i.lastName, i.emailAddress, i.channel.Name(i.api))
+	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api))
 	return result, nil
 }
 
@@ -271,16 +301,16 @@ func (i inviteRestricted) AuditMessage() string {
 	return fmt.Sprintf(
 		"@%s invited %s %s (%s) as a restricted account to '%s' (%s)",
 		i.invitingUser,
-		i.firstName,
-		i.lastName,
-		i.emailAddress,
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
 		i.channel.Name(i.api),
 		i.channel.ID,
 	)
 }
 
 type userInfo struct {
-	emailAddress string
+	params []string
 
 	api                SlackAPI
 	requestingUser     string
@@ -288,6 +318,14 @@ type userInfo struct {
 	uninvitableDomain  string
 	uninvitableMessage string
 	logger             lager.Logger
+}
+
+func (i userInfo) emailAddress() string {
+	if len(i.params) >= 0 {
+		return i.params[0]
+	}
+
+	return ""
 }
 
 func (i userInfo) Do() (string, error) {
@@ -301,7 +339,7 @@ func (i userInfo) Do() (string, error) {
 	}
 
 	for _, user := range users {
-		if user.Profile.Email == i.emailAddress {
+		if user.Profile.Email == i.emailAddress() {
 			membership := membershipFull
 			if user.IsRestricted {
 				membership = membershipRestrictedAccount
@@ -321,17 +359,17 @@ func (i userInfo) Do() (string, error) {
 		}
 	}
 
-	if uninvitableEmail(i.emailAddress, i.uninvitableDomain) {
-		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress, i.uninvitableMessage)
+	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
+		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), i.uninvitableMessage)
 	} else {
-		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress)
+		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress())
 	}
 
 	return result, errors.New("user_not_found")
 }
 
 func (i userInfo) AuditMessage() string {
-	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress)
+	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress())
 }
 
 func channelNotVisibleErr(slackUserID string) error {
