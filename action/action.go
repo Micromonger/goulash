@@ -113,6 +113,7 @@ func New(
 func commandAndParams(text string) (string, []string) {
 	var command string
 	var commandParams []string
+
 	if commandSep := strings.IndexByte(text, 0x20); commandSep > 0 {
 		command = text[:commandSep]
 		commandParams = strings.Split(text[commandSep+1:], " ")
