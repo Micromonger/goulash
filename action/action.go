@@ -32,6 +32,7 @@ func New(
 	api slackapi.SlackAPI,
 	slackTeamName string,
 	slackUserID string,
+	slackSlashCommand string,
 	uninvitableDomain string,
 	uninvitableMessage string,
 	logger lager.Logger,
@@ -40,7 +41,9 @@ func New(
 
 	switch command {
 	case "help":
-		return help{}
+		return help{
+			slackSlashCommand: slackSlashCommand,
+		}
 
 	case "info":
 		return userInfo{
@@ -49,6 +52,7 @@ func New(
 			api:                api,
 			requestingUser:     commanderName,
 			slackTeamName:      slackTeamName,
+			slackSlashCommand:  slackSlashCommand,
 			uninvitableDomain:  uninvitableDomain,
 			uninvitableMessage: uninvitableMessage,
 			logger:             logger,
@@ -63,6 +67,7 @@ func New(
 			invitingUser:       commanderName,
 			slackTeamName:      slackTeamName,
 			slackUserID:        slackUserID,
+			slackSlashCommand:  slackSlashCommand,
 			uninvitableDomain:  uninvitableDomain,
 			uninvitableMessage: uninvitableMessage,
 			logger:             logger,
@@ -77,6 +82,7 @@ func New(
 			invitingUser:       commanderName,
 			slackTeamName:      slackTeamName,
 			slackUserID:        slackUserID,
+			slackSlashCommand:  slackSlashCommand,
 			uninvitableDomain:  uninvitableDomain,
 			uninvitableMessage: uninvitableMessage,
 			logger:             logger,

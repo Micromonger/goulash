@@ -19,6 +19,7 @@ type Handler struct {
 	api                slackapi.SlackAPI
 	slackTeamName      string
 	slackUserID        string
+	slackSlashCommand  string
 	uninvitableDomain  string
 	uninvitableMessage string
 	auditLogChannelID  string
@@ -31,6 +32,7 @@ func New(
 	api slackapi.SlackAPI,
 	slackTeamName string,
 	slackUserID string,
+	slackSlashCommand string,
 	uninvitableDomain string,
 	uninvitableMessage string,
 	auditLogChannelID string,
@@ -41,6 +43,7 @@ func New(
 		api:                api,
 		slackTeamName:      slackTeamName,
 		slackUserID:        slackUserID,
+		slackSlashCommand:  slackSlashCommand,
 		uninvitableDomain:  uninvitableDomain,
 		uninvitableMessage: uninvitableMessage,
 		auditLogChannelID:  auditLogChannelID,
@@ -79,6 +82,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		h.api,
 		h.slackTeamName,
 		h.slackUserID,
+		h.slackSlashCommand,
 		h.uninvitableDomain,
 		h.uninvitableMessage,
 		h.logger,

@@ -33,6 +33,7 @@ var _ = Describe("InviteGuest", func() {
 				fakeSlackAPI,
 				"slack-team-name",
 				"slack-user-id",
+				"/slack-slash-command",
 				"uninvitable-domain",
 				"uninvitable-message",
 				logger,
@@ -50,6 +51,7 @@ var _ = Describe("InviteGuest", func() {
 				fakeSlackAPI,
 				"slack-team-name",
 				"slack-user-id",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-message",
 				logger,
@@ -71,6 +73,7 @@ var _ = Describe("InviteGuest", func() {
 				fakeSlackAPI,
 				"slack-team-name",
 				"slack-user-id",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-message",
 				logger,
@@ -88,13 +91,14 @@ var _ = Describe("InviteGuest", func() {
 				fakeSlackAPI,
 				"slack-team-name",
 				"slack-user-id",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-message",
 				logger,
 			)
 			ga := a.(action.GuardedAction)
 			err := ga.Check()
-			Ω(err).Should(BeAssignableToTypeOf(action.NewMissingEmailParameterErr()))
+			Ω(err).Should(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
 		})
 	})
 })

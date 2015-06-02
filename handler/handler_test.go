@@ -34,7 +34,7 @@ var _ = Describe("Handler", func() {
 	It("returns 400 when given a request with a form not including a channel_id field", func() {
 		v := url.Values{
 			"token":     {"some-token"},
-			"command":   {"/butler"},
+			"command":   {"/slack-slash-command"},
 			"text":      {"invite-guest user@example.com Tom Smith"},
 			"user_name": {"requesting_user"},
 		}
@@ -46,7 +46,7 @@ var _ = Describe("Handler", func() {
 
 		w := httptest.NewRecorder()
 		fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
 		Ω(w.Code).Should(Equal(http.StatusBadRequest))
@@ -56,7 +56,7 @@ var _ = Describe("Handler", func() {
 		v := url.Values{
 			"token":      {"some-token"},
 			"channel_id": {"C1234567890"},
-			"command":    {"/butler"},
+			"command":    {"/slack-slash-command"},
 			"user_name":  {"requesting_user"},
 		}
 		reqBody := strings.NewReader(v.Encode())
@@ -67,19 +67,19 @@ var _ = Describe("Handler", func() {
 
 		w := httptest.NewRecorder()
 		fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+		h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
 		Ω(w.Code).Should(Equal(http.StatusBadRequest))
 	})
 
-	Describe("/butler invite-guest", func() {
+	Describe("invite-guest", func() {
 		It("invites a single channel guest", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -91,7 +91,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
@@ -109,7 +109,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com"}, // first/last names are missing
 				"user_name":    {"requesting_user"},
 			}
@@ -121,7 +121,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
@@ -139,7 +139,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -151,7 +151,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a guest to 'channel-name'"))
 		})
@@ -161,7 +161,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -175,7 +175,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': failed to invite user"))
 		})
@@ -185,7 +185,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {slackapi.PrivateGroupName},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -208,7 +208,7 @@ var _ = Describe("Handler", func() {
 				},
 			}, nil)
 
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels or private groups it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel or private group you would like <@butler-user-id> to invite people to."))
 		})
@@ -218,7 +218,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {slackapi.PrivateGroupName},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -229,10 +229,10 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			h := handler.New(&fakeslackapi.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(&fakeslackapi.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "/slack-slash-command", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /butler. uninvitable-domain-message"))
+			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /slack-slash-command. uninvitable-domain-message"))
 		})
 
 		It("posts a message to the configured audit log channel on success", func() {
@@ -240,7 +240,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -253,7 +253,7 @@ var _ = Describe("Handler", func() {
 
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -273,7 +273,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {slackapi.PrivateGroupName},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -301,7 +301,7 @@ var _ = Describe("Handler", func() {
 			}, nil)
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -321,7 +321,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-guest user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -336,7 +336,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -352,13 +352,13 @@ var _ = Describe("Handler", func() {
 		})
 	})
 
-	Describe("/butler invite-restricted", func() {
+	Describe("invite-restricted", func() {
 		It("invites a restricted account", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -370,7 +370,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
@@ -388,7 +388,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {slackapi.PrivateGroupName},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -399,10 +399,10 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			h := handler.New(&fakeslackapi.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(&fakeslackapi.FakeSlackAPI{}, "fake-team-name", "butler-user-id", "/slack-slash-command", "example.com", "uninvitable-domain-message", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /butler. uninvitable-domain-message"))
+			Ω(w.Body.String()).Should(Equal("Users for the 'example.com' domain are unable to be invited through /slack-slash-command. uninvitable-domain-message"))
 		})
 
 		It("invites a restricted account when first/last name are missing", func() {
@@ -410,7 +410,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com"}, // first/last names are missing
 				"user_name":    {"requesting_user"},
 			}
@@ -422,7 +422,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
@@ -440,7 +440,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {slackapi.PrivateGroupName},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -463,7 +463,7 @@ var _ = Describe("Handler", func() {
 				},
 			}, nil)
 
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("<@butler-user-id> can only invite people to channels or private groups it is a member of. You can invite <@butler-user-id> by typing `/invite @butler-user-id` from the channel or private group you would like <@butler-user-id> to invite people to."))
 		})
@@ -473,7 +473,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -485,7 +485,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
@@ -496,7 +496,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -510,7 +510,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Failed to invite Tom Smith (user@example.com) as a restricted account to 'channel-name': failed to invite user"))
@@ -521,7 +521,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -534,7 +534,7 @@ var _ = Describe("Handler", func() {
 
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -554,7 +554,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"invite-restricted user@example.com Tom Smith"},
 				"user_name":    {"requesting_user"},
 			}
@@ -569,7 +569,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -585,13 +585,13 @@ var _ = Describe("Handler", func() {
 		})
 	})
 
-	Describe("/butler help", func() {
+	Describe("help", func() {
 		It("responds to Slack with the help text", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"help"},
 				"user_name":    {"requesting_user"},
 			}
@@ -603,20 +603,20 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).ShouldNot(BeEmpty())
 		})
 	})
 
-	Describe("/butler info", func() {
+	Describe("info", func() {
 		It("asks Slack for the list of users", func() {
 			v := url.Values{
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -628,7 +628,7 @@ var _ = Describe("Handler", func() {
 
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.GetUsersCallCount()).To(Equal(1))
@@ -639,7 +639,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -652,10 +652,10 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."))
+			Ω(w.Body.String()).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
 		})
 
 		It("responds to Slack with a message about an unknown user with an uninvitable domain", func() {
@@ -663,7 +663,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@uninvitable-domain.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -676,7 +676,7 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "uninvitable-domain.com", "Uninvitable domain message.", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "uninvitable-domain.com", "Uninvitable domain message.", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("There is no user here with the email address 'user@uninvitable-domain.com'. Uninvitable domain message."))
@@ -687,7 +687,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -711,7 +711,7 @@ var _ = Describe("Handler", func() {
 					IsUltraRestricted: false,
 				},
 			}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
@@ -722,7 +722,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -746,7 +746,7 @@ var _ = Describe("Handler", func() {
 					IsUltraRestricted: false,
 				},
 			}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
@@ -757,7 +757,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -781,7 +781,7 @@ var _ = Describe("Handler", func() {
 					IsUltraRestricted: true,
 				},
 			}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
@@ -792,7 +792,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -805,7 +805,7 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(w.Body.String()).Should(Equal("Failed to look up user@example.com: network error"))
@@ -816,7 +816,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -840,7 +840,7 @@ var _ = Describe("Handler", func() {
 					IsUltraRestricted: true,
 				},
 			}, nil)
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
@@ -860,7 +860,7 @@ var _ = Describe("Handler", func() {
 				"token":        {"some-token"},
 				"channel_id":   {"C1234567890"},
 				"channel_name": {"channel-name"},
-				"command":      {"/butler"},
+				"command":      {"/slack-slash-command"},
 				"text":         {"info user@example.com"},
 				"user_name":    {"requesting_user"},
 			}
@@ -873,7 +873,7 @@ var _ = Describe("Handler", func() {
 			w := httptest.NewRecorder()
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
-			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
+			h := handler.New(fakeSlackAPI, "fake-team-name", "butler-user-id", "/slack-slash-command", "", "", "audit-log-channel-id", fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))

@@ -15,6 +15,7 @@ type inviteGuest struct {
 	invitingUser       string
 	slackTeamName      string
 	slackUserID        string
+	slackSlashCommand  string
 	uninvitableDomain  string
 	uninvitableMessage string
 
@@ -47,11 +48,15 @@ func (i inviteGuest) lastName() string {
 
 func (i inviteGuest) Check() error {
 	if i.emailAddress() == "" {
-		return NewMissingEmailParameterErr()
+		return NewMissingEmailParameterErr(i.slackSlashCommand)
 	}
 
 	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
-		return NewUninvitableDomainErr(i.uninvitableDomain, i.uninvitableMessage)
+		return NewUninvitableDomainErr(
+			i.uninvitableDomain,
+			i.uninvitableMessage,
+			i.slackSlashCommand,
+		)
 	}
 
 	if !i.channel.Visible(i.api) {

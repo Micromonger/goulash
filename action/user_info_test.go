@@ -37,6 +37,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -57,6 +58,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -79,6 +81,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -87,7 +90,7 @@ var _ = Describe("UserInfo", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			result, err := a.Do()
 			Ω(err).To(HaveOccurred())
-			Ω(result).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."))
+			Ω(result).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
 		})
 
 		It("returns a result for a user with an uninvitable domain", func() {
@@ -100,6 +103,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -121,6 +125,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -154,6 +159,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,
@@ -187,6 +193,7 @@ var _ = Describe("UserInfo", func() {
 				fakeSlackAPI,
 				"requesting_user",
 				"slack-team-name",
+				"/slack-slash-command",
 				"uninvitable-domain.com",
 				"uninvitable-domain-message",
 				logger,

@@ -11,7 +11,7 @@ import (
 var (
 	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
 	userInfoMessageFmt                = "%s %s (%s) is a Slack %s, with the username <@%s>."
-	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
+	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `%s help` for more information."
 
 	membershipFull               = "full member"
 	membershipRestrictedAccount  = "restricted account"
@@ -24,6 +24,7 @@ type userInfo struct {
 	api                slackapi.SlackAPI
 	requestingUser     string
 	slackTeamName      string
+	slackSlashCommand  string
 	uninvitableDomain  string
 	uninvitableMessage string
 	logger             lager.Logger
@@ -71,7 +72,7 @@ func (i userInfo) Do() (string, error) {
 	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
 		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), i.uninvitableMessage)
 	} else {
-		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress())
+		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), i.slackSlashCommand)
 	}
 
 	return result, errors.New("user_not_found")

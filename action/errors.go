@@ -4,8 +4,8 @@ import "fmt"
 
 var (
 	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
-	missingParameterErrFmt  = "Missing required %s parameter. See `/butler help` for more information."
-	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
+	missingParameterErrFmt  = "Missing required %s parameter. See `%s help` for more information."
+	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through %s. %s"
 )
 
 // ChannelNotVisibleErr is an error.
@@ -28,28 +28,38 @@ func (e ChannelNotVisibleErr) Error() string {
 type UninvitableDomainErr struct {
 	uninvitableDomain  string
 	uninvitableMessage string
+	slackSlashCommand  string
 }
 
 // NewUninvitableDomainErr returns a new UninvitableDomainErr.
-func NewUninvitableDomainErr(uninvitableDomain string, uninvitableMessage string) UninvitableDomainErr {
+func NewUninvitableDomainErr(
+	uninvitableDomain string,
+	uninvitableMessage string,
+	slackSlashCommand string,
+) UninvitableDomainErr {
 	return UninvitableDomainErr{
 		uninvitableDomain:  uninvitableDomain,
 		uninvitableMessage: uninvitableMessage,
+		slackSlashCommand:  slackSlashCommand,
 	}
 }
 
 func (e UninvitableDomainErr) Error() string {
-	return fmt.Sprintf(uninvitableDomainErrFmt, e.uninvitableDomain, e.uninvitableMessage)
+	return fmt.Sprintf(uninvitableDomainErrFmt, e.uninvitableDomain, e.slackSlashCommand, e.uninvitableMessage)
 }
 
 // MissingEmailParameterErr is an error.
-type MissingEmailParameterErr struct{}
+type MissingEmailParameterErr struct {
+	slackSlashCommand string
+}
 
 // NewMissingEmailParameterErr returns a new MissingEmailParameterErr.
-func NewMissingEmailParameterErr() MissingEmailParameterErr {
-	return MissingEmailParameterErr{}
+func NewMissingEmailParameterErr(slackSlashCommand string) MissingEmailParameterErr {
+	return MissingEmailParameterErr{
+		slackSlashCommand: slackSlashCommand,
+	}
 }
 
 func (e MissingEmailParameterErr) Error() string {
-	return fmt.Sprintf(missingParameterErrFmt, "email address")
+	return fmt.Sprintf(missingParameterErrFmt, "email address", e.slackSlashCommand)
 }

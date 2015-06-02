@@ -15,6 +15,7 @@ type inviteRestricted struct {
 	invitingUser       string
 	slackTeamName      string
 	slackUserID        string
+	slackSlashCommand  string
 	uninvitableDomain  string
 	uninvitableMessage string
 
@@ -47,7 +48,11 @@ func (i inviteRestricted) lastName() string {
 
 func (i inviteRestricted) Check() error {
 	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
-		return NewUninvitableDomainErr(i.uninvitableDomain, i.uninvitableMessage)
+		return NewUninvitableDomainErr(
+			i.uninvitableDomain,
+			i.uninvitableMessage,
+			i.slackSlashCommand,
+		)
 	}
 
 	if !i.channel.Visible(i.api) {
