@@ -6,6 +6,8 @@ type channel struct {
 	id      string
 }
 
+//go:generate counterfeiter . Channel
+
 // Channel represents a Channel or Private Group in Slack.
 type Channel interface {
 	Name(SlackAPI) string

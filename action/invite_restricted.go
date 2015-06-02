@@ -51,7 +51,7 @@ func (i inviteRestricted) Check() error {
 	}
 
 	if !i.channel.Visible(i.api) {
-		return channelNotVisibleErr(i.slackUserID)
+		return NewChannelNotVisibleErr(i.slackUserID)
 	}
 
 	return nil
