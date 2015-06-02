@@ -3,6 +3,7 @@ package action
 import "fmt"
 
 var (
+	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
 )
 

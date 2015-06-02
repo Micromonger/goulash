@@ -8,8 +8,6 @@ import (
 )
 
 var (
-	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
-
 	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
 	userInfoMessageFmt                = "%s %s (%s) is a Slack %s, with the username <@%s>."
 	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
