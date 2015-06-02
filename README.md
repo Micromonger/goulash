@@ -27,7 +27,7 @@ $ go get github.com/tools/godep
 ### Get the source:
 
 ```
-$ go get github.com/pivotalservices/goulash.git
+$ go get -t github.com/pivotalservices/goulash/...
 
 // If you plan on deploying to Cloud Foundry
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
