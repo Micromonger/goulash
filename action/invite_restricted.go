@@ -11,7 +11,7 @@ type inviteRestricted struct {
 	params []string
 
 	api                slackapi.SlackAPI
-	channel            *Channel
+	channel            slackapi.Channel
 	invitingUser       string
 	slackTeamName      string
 	slackUserID        string
@@ -62,7 +62,7 @@ func (i inviteRestricted) Do() (string, error) {
 
 	err := i.api.InviteRestricted(
 		i.slackTeamName,
-		i.channel.ID,
+		i.channel.ID(),
 		i.firstName(),
 		i.lastName(),
 		i.emailAddress(),
@@ -85,6 +85,6 @@ func (i inviteRestricted) AuditMessage() string {
 		i.lastName(),
 		i.emailAddress(),
 		i.channel.Name(i.api),
-		i.channel.ID,
+		i.channel.ID(),
 	)
 }

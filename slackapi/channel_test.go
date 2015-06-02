@@ -1,9 +1,8 @@
-package action_test
+package slackapi_test
 
 import (
 	"github.com/pivotalservices/slack"
 
-	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/goulash/slackapi"
 
 	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
@@ -15,15 +14,15 @@ import (
 var _ = Describe("Channel", func() {
 	Describe("Name", func() {
 		var fakeSlackAPI *fakeslackapi.FakeSlackAPI
-		var channel action.Channel
+		var channel slackapi.Channel
 
 		BeforeEach(func() {
 			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
 		})
 
-		Describe("when the group's name is action.PrivateGroupName", func() {
+		Describe("when the group's name is slackapi.PrivateGroupName", func() {
 			BeforeEach(func() {
-				channel = action.Channel{RawName: slackapi.PrivateGroupName, ID: "C1234"}
+				channel = slackapi.NewChannel(slackapi.PrivateGroupName, "C1234")
 			})
 
 			It("tries to find the group's name in Slack, excluding archived groups", func() {
@@ -59,15 +58,15 @@ var _ = Describe("Channel", func() {
 					}, nil)
 				})
 
-				It("returns action.PrivateGroupName", func() {
+				It("returns slackapi.PrivateGroupName", func() {
 					Ω(channel.Name(fakeSlackAPI)).To(Equal(slackapi.PrivateGroupName))
 				})
 			})
 		})
 
-		Describe("when the group's name is not action.PrivateGroupName", func() {
+		Describe("when the group's name is not slackapi.PrivateGroupName", func() {
 			BeforeEach(func() {
-				channel = action.Channel{RawName: "channel-name"}
+				channel = slackapi.NewChannel("channel-name", "C1234")
 			})
 
 			It("returns the name", func() {

@@ -51,10 +51,7 @@ func New(
 	uninvitableMessage string,
 	logger lager.Logger,
 ) Action {
-	channel := &Channel{
-		RawName: channelName,
-		ID:      channelID,
-	}
+	channel := slackapi.NewChannel(channelName, channelID)
 
 	command, commandParams := commandAndParams(text)
 
