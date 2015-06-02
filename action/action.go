@@ -7,16 +7,6 @@ import (
 	"github.com/pivotalservices/goulash/slackapi"
 )
 
-var (
-	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
-	userInfoMessageFmt                = "%s %s (%s) is a Slack %s, with the username <@%s>."
-	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `/butler help` for more information."
-
-	membershipFull               = "full member"
-	membershipRestrictedAccount  = "restricted account"
-	membershipSingleChannelGuest = "single-channel guest"
-)
-
 // Action represents an action that is able to be performed by the server.
 type Action interface {
 	Do() (string, error)
