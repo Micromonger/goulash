@@ -78,5 +78,23 @@ var _ = Describe("InviteGuest", func() {
 			ga := a.(action.GuardedAction)
 			Ω(ga.Check()).To(BeAssignableToTypeOf(action.ChannelNotVisibleErr{}))
 		})
+
+		It("returns an error when the email address is missing", func() {
+			a = action.New(
+				slackapi.NewChannel("channel-id", "channel-name"),
+				"commander-name",
+				"commander-id",
+				"invite-guest",
+				fakeSlackAPI,
+				"slack-team-name",
+				"slack-user-id",
+				"uninvitable-domain.com",
+				"uninvitable-message",
+				logger,
+			)
+			ga := a.(action.GuardedAction)
+			err := ga.Check()
+			Ω(err).Should(BeAssignableToTypeOf(action.NewMissingEmailParameterErr()))
+		})
 	})
 })

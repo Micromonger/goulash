@@ -46,6 +46,10 @@ func (i inviteGuest) lastName() string {
 }
 
 func (i inviteGuest) Check() error {
+	if i.emailAddress() == "" {
+		return NewMissingEmailParameterErr()
+	}
+
 	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
 		return NewUninvitableDomainErr(i.uninvitableDomain, i.uninvitableMessage)
 	}
