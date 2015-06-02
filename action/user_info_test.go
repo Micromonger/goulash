@@ -7,6 +7,7 @@ import (
 	"github.com/pivotalservices/slack"
 
 	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/slackapi"
 
 	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
 
@@ -28,8 +29,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("asks Slack for the list of users", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",
@@ -49,8 +49,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("returns an error when it can't get the list of users from Slack", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",
@@ -72,8 +71,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("returns a result for an unknown user", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",
@@ -94,8 +92,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("returns a result for a user with an uninvitable domain", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@uninvitable-domain.com",
@@ -116,8 +113,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("returns a result for a Slack 'full' member", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",
@@ -150,8 +146,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("responds to Slack with a message about a restricted account", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",
@@ -184,8 +179,7 @@ var _ = Describe("UserInfo", func() {
 
 		It("responds to Slack with a message about a single-channel guest", func() {
 			a := action.New(
-				"channel-id",
-				"channel-name",
+				slackapi.NewChannel("channel-id", "channel-name"),
 				"commander-name",
 				"commander-id",
 				"info user@example.com",

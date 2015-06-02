@@ -69,9 +69,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		"text":          text,
 	})
 
+	channel := slackapi.NewChannel(channelName, channelID)
 	a := action.New(
-		channelID,
-		channelName,
+		channel,
 		commanderName,
 		commanderID,
 		text,

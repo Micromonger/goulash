@@ -38,8 +38,7 @@ type AuditableAction interface {
 
 // New creates a new Action based on the command provided.
 func New(
-	channelID string,
-	channelName string,
+	channel slackapi.Channel,
 	commanderName string,
 	commanderID string,
 	text string,
@@ -51,8 +50,6 @@ func New(
 	uninvitableMessage string,
 	logger lager.Logger,
 ) Action {
-	channel := slackapi.NewChannel(channelName, channelID)
-
 	command, commandParams := commandAndParams(text)
 
 	switch command {
