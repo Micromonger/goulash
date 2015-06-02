@@ -47,7 +47,7 @@ func (i inviteRestricted) lastName() string {
 
 func (i inviteRestricted) Check() error {
 	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
-		return fmt.Errorf(uninvitableDomainErrFmt, i.uninvitableDomain, i.uninvitableMessage)
+		return NewUninvitableDomainErr(i.uninvitableDomain, i.uninvitableMessage)
 	}
 
 	if !i.channel.Visible(i.api) {

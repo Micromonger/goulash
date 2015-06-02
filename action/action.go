@@ -8,7 +8,6 @@ import (
 )
 
 var (
-	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through /butler. %s"
 	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 
 	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
