@@ -83,7 +83,7 @@ $ ./goulash
 **Goulash** can be run on [Cloud Foundry](http://pivotal.io/platform-as-a-service/pivotal-cloud-foundry) without making any changes as it is already set up to listen on `VCAP_APP_PORT`. Simply set your environment via `cf set-env` with all of the required environment variables above (except `VCAP_APP_PORT`, of course), and `cf push` the app: 
 
 ```
-$ cf push my_app -b https://github.com/cloudfoundry/go-buildpack.git
+$ cf push your-app-name -b https://github.com/cloudfoundry/go-buildpack.git
 ```
 
 Don't have your own Cloud Foundry? Take a look at [Pivotal Web Services](http://run.pivotal.io).
@@ -92,28 +92,24 @@ Don't have your own Cloud Foundry? Take a look at [Pivotal Web Services](http://
 
 If you're using Cloud Foundry, you may choose to use a [User-Provided Service](http://docs.cloudfoundry.org/devguide/services/user-provided.html) to store your Slack auth token.
 
-First, create the user-provided service with 'slack-auth-token' as the credential name:
+First, create the user-provided service with 'slack-auth-token' as the credential name and bind it to your app:
 
 ```
 $ cf create-user-provided-service your-service-name -p "slack-auth-token"
+$ cf bind-service your-app-name your-service-name
 ```
 
-Create an environment variable, `CONFIG_SERVICE_NAME`, that contains the name of the service:
+Create an environment variable, `CONFIG_SERVICE_NAME`, that contains the name of the service, and remove one that contained the auth token:
 
 ```
-$ cf set-env my_app CONFIG_SERVICE_NAME=your-service-name
-```
-
-Remove the environment variable that stored the token previously:
-
-```
-$ cf unset-env my_app SLACK_AUTH_TOKEN
+$ cf set-env your-app-name CONFIG_SERVICE_NAME=your-service-name
+$ cf unset-env your-app-name SLACK_AUTH_TOKEN
 ```
 
 Restage the app to apply the changes:
 
 ```
-$ cf restage my_app
+$ cf restage your-app-name
 ```
 
 ## Contributing
