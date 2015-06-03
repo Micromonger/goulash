@@ -54,6 +54,7 @@ $ export SLACK_SLASH_COMMAND="/slack-slash-command"
 $ export SLACK_AUDIT_LOG_CHANNEL_ID=G00000000
 $ export UNINVITABLE_DOMAIN=example.com
 $ export UNINVITABLE_DOMAIN_MESSAGE="Invites for this domain are forbidden."
+$ export CONFIG_SERVICE_NAME=config-service
 ```
 
 |Name|Required|Description|
@@ -66,6 +67,7 @@ $ export UNINVITABLE_DOMAIN_MESSAGE="Invites for this domain are forbidden."
 |SLACK_AUDIT_LOG_CHANNEL_ID|no|ID of channel to use as audit log. See note below.
 |UNINVITABLE_DOMAIN|no|Email addresses with this domain will be prohibited from being invited.
 |UNINVITABLE_DOMAIN_MESSAGE|no|The message to show a user when they try to invite someone from an uninvitable domain.
+|CONFIG_SERVICE_NAME|no|The name of a Cloud Foundry User-Provided Service that will provide the Slack auth token.
 
 *You can get the ID of a channel by clicking its name from within Slack, and then choosing "Add a service integration". The ID is at the end of the URL.*
 
@@ -85,6 +87,34 @@ $ cf push my_app -b https://github.com/cloudfoundry/go-buildpack.git
 ```
 
 Don't have your own Cloud Foundry? Take a look at [Pivotal Web Services](http://run.pivotal.io).
+
+#### Using a Cloud Foundry User-Provided Service for Slack Auth Token Storage
+
+If you're using Cloud Foundry, you may choose to use a [User-Provided Service](http://docs.cloudfoundry.org/devguide/services/user-provided.html) to store your Slack auth token.
+
+First, create the user-provided service with 'slack-auth-token' as the credential name:
+
+```
+$ cf create-user-provided-service your-service-name -p "slack-auth-token"
+```
+
+Create an environment variable, `CONFIG_SERVICE_NAME`, that contains the name of the service:
+
+```
+$ cf set-env my_app CONFIG_SERVICE_NAME=your-service-name
+```
+
+Remove the environment variable that stored the token previously:
+
+```
+$ cf unset-env my_app SLACK_AUTH_TOKEN
+```
+
+Restage the app to apply the changes:
+
+```
+$ cf restage my_app
+```
 
 ## Contributing
 Pull requests are welcomed. Any PR must include test coverage and pass [gometalinter](https://github.com/alecthomas/gometalinter).

@@ -6,6 +6,15 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/cloudfoundry-community/go-cfenv",
+			"Comment": "v1.12",
+			"Rev": "c682e189b94b0b2ec6edf12363df2eecf29d7256"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "bb4fbaf540ca2f7057d3adb5765784d24d9fd801"
+		},
+		{
 			"ImportPath": "github.com/onsi/ginkgo",
 			"Comment": "v1.2.0-beta-9-gfbb6632",
 			"Rev": "fbb663242655b700c623e9629d7781db98957501"

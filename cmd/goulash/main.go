@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/cloudfoundry-community/go-cfenv"
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
@@ -24,6 +25,7 @@ const (
 	slackUserIDVar              = "SLACK_USER_ID"
 	uninvitableDomainMessageVar = "UNINVITABLE_DOMAIN_MESSAGE"
 	uninvitableDomainVar        = "UNINVITABLE_DOMAIN"
+	configServiceNameVar        = "CONFIG_SERVICE_NAME"
 )
 
 var (
@@ -43,7 +45,10 @@ func init() {
 	}
 	listenAddr = fmt.Sprintf(":%s", listenPort)
 
+	app, _ := cfenv.Current()
 	c = config.NewEnvConfig(
+		app,
+		configServiceNameVar,
 		slackAuditLogChannelIDVar,
 		slackAuthTokenVar,
 		slackSlashCommandVar,

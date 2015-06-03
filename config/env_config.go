@@ -1,8 +1,18 @@
 package config
 
-import "os"
+import (
+	"os"
+
+	"github.com/cloudfoundry-community/go-cfenv"
+)
+
+const (
+	slackAuthTokenCredentialKey = "slack-auth-token"
+)
 
 type envConfig struct {
+	app                         *cfenv.App
+	configServiceNameVar        string
 	slackAuditLogChannelIDVar   string
 	slackAuthTokenVar           string
 	slackSlashCommandVar        string
@@ -15,6 +25,8 @@ type envConfig struct {
 // NewEnvConfig returns a new Config which will use environment variables as
 // its source.
 func NewEnvConfig(
+	app *cfenv.App,
+	configServiceNameVar string,
 	slackAuditLogChannelIDVar string,
 	slackAuthTokenVar string,
 	slackSlashCommandVar string,
@@ -24,6 +36,8 @@ func NewEnvConfig(
 	uninvitableDomainVar string,
 ) Config {
 	return &envConfig{
+		app:                         app,
+		configServiceNameVar:        configServiceNameVar,
 		slackAuditLogChannelIDVar:   slackAuditLogChannelIDVar,
 		slackAuthTokenVar:           slackAuthTokenVar,
 		slackSlashCommandVar:        slackSlashCommandVar,
@@ -39,7 +53,40 @@ func (c envConfig) AuditLogChannelID() string {
 }
 
 func (c envConfig) SlackAuthToken() string {
-	return os.Getenv(c.slackAuthTokenVar)
+	if c.configServiceNameVar == "" {
+		return os.Getenv(c.slackAuthTokenVar)
+	}
+
+	configServiceNameVar := os.Getenv(c.configServiceNameVar)
+	if configServiceNameVar == "" {
+		return ""
+	}
+
+	configServiceName := os.Getenv(configServiceNameVar)
+	if configServiceName == "" {
+		return ""
+	}
+
+	if c.app == nil {
+		return ""
+	}
+
+	service, err := c.app.Services.WithName(configServiceName)
+	if err != nil {
+		return ""
+	}
+
+	slackAuthToken, ok := service.Credentials[slackAuthTokenCredentialKey]
+	if !ok {
+		return ""
+	}
+
+	slackAuthTokenString, ok := slackAuthToken.(string)
+	if !ok {
+		return ""
+	}
+
+	return slackAuthTokenString
 }
 
 func (c envConfig) SlackTeamName() string {
