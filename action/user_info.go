@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 )
 
@@ -19,15 +20,12 @@ var (
 )
 
 type userInfo struct {
-	params []string
+	params         []string
+	requestingUser string
 
-	api                slackapi.SlackAPI
-	requestingUser     string
-	slackTeamName      string
-	slackSlashCommand  string
-	uninvitableDomain  string
-	uninvitableMessage string
-	logger             lager.Logger
+	config config.Config
+	api    slackapi.SlackAPI
+	logger lager.Logger
 }
 
 func (i userInfo) emailAddress() string {
@@ -69,10 +67,10 @@ func (i userInfo) Do() (string, error) {
 		}
 	}
 
-	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
-		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), i.uninvitableMessage)
+	if uninvitableEmail(i.emailAddress(), i.config.UninvitableDomain()) {
+		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), i.config.UninvitableMessage())
 	} else {
-		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), i.slackSlashCommand)
+		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), i.config.SlackSlashCommand())
 	}
 
 	return result, errors.New("user_not_found")

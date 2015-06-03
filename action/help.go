@@ -1,9 +1,13 @@
 package action
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/pivotalservices/goulash/config"
+)
 
 type help struct {
-	slackSlashCommand string
+	config config.Config
 }
 
 func (h help) Do() (string, error) {
@@ -21,7 +25,7 @@ func (h help) Do() (string, error) {
 			"\n"+
 			"`info <email>`\n"+
 			"_Get information on a Slack user_\n",
-		h.slackSlashCommand,
+		h.config.SlackSlashCommand(),
 	)
 
 	return text, nil

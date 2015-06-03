@@ -7,6 +7,7 @@ import (
 	"github.com/pivotalservices/slack"
 
 	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 
 	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
@@ -18,6 +19,7 @@ import (
 var _ = Describe("UserInfo", func() {
 	Describe("Do", func() {
 		var (
+			c            config.Config
 			fakeSlackAPI *fakeslackapi.FakeSlackAPI
 			logger       lager.Logger
 		)
@@ -25,6 +27,15 @@ var _ = Describe("UserInfo", func() {
 		BeforeEach(func() {
 			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
 			logger = lager.NewLogger("testlogger")
+			c = config.NewLocalConfig(
+				"slack-auth-token",
+				"/slack-slash-command",
+				"slack-team-name",
+				"slack-user-id",
+				"",
+				"uninvitable-domain.com",
+				"uninvitable-domain-message",
+			)
 		})
 
 		It("asks Slack for the list of users", func() {
@@ -34,12 +45,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -55,12 +62,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -78,12 +81,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -100,12 +99,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@uninvitable-domain.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -122,12 +117,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -156,12 +147,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 
@@ -190,12 +177,8 @@ var _ = Describe("UserInfo", func() {
 				"commander-id",
 				"info user@example.com",
 
+				c,
 				fakeSlackAPI,
-				"requesting_user",
-				"slack-team-name",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-domain-message",
 				logger,
 			)
 

@@ -3,6 +3,7 @@ package action_test
 import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 
 	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
@@ -15,12 +16,23 @@ var _ = Describe("InviteGuest", func() {
 	Describe("Check", func() {
 		var (
 			a            action.Action
+			c            config.Config
 			fakeSlackAPI *fakeslackapi.FakeSlackAPI
 			logger       lager.Logger
 		)
 
 		BeforeEach(func() {
 			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+			c = config.NewLocalConfig(
+				"slack-auth-token",
+				"/slack-slash-command",
+				"slack-team-name",
+				"slack-user-id",
+				"audit-log-channel-id",
+				"uninvitable-domain.com",
+				"uninvitable-domain-message",
+			)
+
 			logger = lager.NewLogger("testlogger")
 		})
 
@@ -30,12 +42,8 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com",
+				c,
 				fakeSlackAPI,
-				"slack-team-name",
-				"slack-user-id",
-				"/slack-slash-command",
-				"uninvitable-domain",
-				"uninvitable-message",
 				logger,
 			)
 			ga := a.(action.GuardedAction)
@@ -48,12 +56,8 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@uninvitable-domain.com",
+				c,
 				fakeSlackAPI,
-				"slack-team-name",
-				"slack-user-id",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-message",
 				logger,
 			)
 			ga := a.(action.GuardedAction)
@@ -70,12 +74,8 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com",
+				c,
 				fakeSlackAPI,
-				"slack-team-name",
-				"slack-user-id",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-message",
 				logger,
 			)
 			ga := a.(action.GuardedAction)
@@ -88,12 +88,8 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest",
+				c,
 				fakeSlackAPI,
-				"slack-team-name",
-				"slack-user-id",
-				"/slack-slash-command",
-				"uninvitable-domain.com",
-				"uninvitable-message",
 				logger,
 			)
 			ga := a.(action.GuardedAction)

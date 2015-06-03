@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 )
 
@@ -29,12 +30,8 @@ func New(
 	commanderID string,
 	text string,
 
+	config config.Config,
 	api slackapi.SlackAPI,
-	slackTeamName string,
-	slackUserID string,
-	slackSlashCommand string,
-	uninvitableDomain string,
-	uninvitableMessage string,
 	logger lager.Logger,
 ) Action {
 	command, commandParams := commandAndParams(text)
@@ -42,50 +39,39 @@ func New(
 	switch command {
 	case "help":
 		return help{
-			slackSlashCommand: slackSlashCommand,
+			config: config,
 		}
 
 	case "info":
 		return userInfo{
-			params: commandParams,
+			params:         commandParams,
+			requestingUser: commanderName,
 
-			api:                api,
-			requestingUser:     commanderName,
-			slackTeamName:      slackTeamName,
-			slackSlashCommand:  slackSlashCommand,
-			uninvitableDomain:  uninvitableDomain,
-			uninvitableMessage: uninvitableMessage,
-			logger:             logger,
+			config: config,
+			api:    api,
+			logger: logger,
 		}
 
 	case "invite-guest":
 		return inviteGuest{
-			params: commandParams,
+			params:       commandParams,
+			channel:      channel,
+			invitingUser: commanderName,
 
-			api:                api,
-			channel:            channel,
-			invitingUser:       commanderName,
-			slackTeamName:      slackTeamName,
-			slackUserID:        slackUserID,
-			slackSlashCommand:  slackSlashCommand,
-			uninvitableDomain:  uninvitableDomain,
-			uninvitableMessage: uninvitableMessage,
-			logger:             logger,
+			config: config,
+			api:    api,
+			logger: logger,
 		}
 
 	case "invite-restricted":
 		return inviteRestricted{
-			params: commandParams,
+			params:       commandParams,
+			channel:      channel,
+			invitingUser: commanderName,
 
-			api:                api,
-			channel:            channel,
-			invitingUser:       commanderName,
-			slackTeamName:      slackTeamName,
-			slackUserID:        slackUserID,
-			slackSlashCommand:  slackSlashCommand,
-			uninvitableDomain:  uninvitableDomain,
-			uninvitableMessage: uninvitableMessage,
-			logger:             logger,
+			config: config,
+			api:    api,
+			logger: logger,
 		}
 
 	default:

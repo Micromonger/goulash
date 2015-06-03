@@ -10,45 +10,31 @@ import (
 	"github.com/pivotal-golang/clock"
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/action"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 	"github.com/pivotalservices/slack"
 )
 
 // Handler is an HTTP handler.
 type Handler struct {
-	api                slackapi.SlackAPI
-	slackTeamName      string
-	slackUserID        string
-	slackSlashCommand  string
-	uninvitableDomain  string
-	uninvitableMessage string
-	auditLogChannelID  string
-	clock              clock.Clock
-	logger             lager.Logger
+	config config.Config
+	api    slackapi.SlackAPI
+	clock  clock.Clock
+	logger lager.Logger
 }
 
 // New returns a new Handler.
 func New(
+	config config.Config,
 	api slackapi.SlackAPI,
-	slackTeamName string,
-	slackUserID string,
-	slackSlashCommand string,
-	uninvitableDomain string,
-	uninvitableMessage string,
-	auditLogChannelID string,
 	clock clock.Clock,
 	logger lager.Logger,
 ) *Handler {
 	return &Handler{
-		api:                api,
-		slackTeamName:      slackTeamName,
-		slackUserID:        slackUserID,
-		slackSlashCommand:  slackSlashCommand,
-		uninvitableDomain:  uninvitableDomain,
-		uninvitableMessage: uninvitableMessage,
-		auditLogChannelID:  auditLogChannelID,
-		clock:              clock,
-		logger:             logger,
+		api:    api,
+		config: config,
+		clock:  clock,
+		logger: logger,
 	}
 }
 
@@ -79,12 +65,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		commanderID,
 		text,
 
+		h.config,
 		h.api,
-		h.slackTeamName,
-		h.slackUserID,
-		h.slackSlashCommand,
-		h.uninvitableDomain,
-		h.uninvitableMessage,
 		h.logger,
 	)
 
@@ -98,7 +80,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	result, err := a.Do()
 
-	if h.auditLogChannelID != "" {
+	if h.config.AuditLogChannelID() != "" {
 		if a, ok := a.(action.AuditableAction); ok {
 			h.postAuditLogEntry(a.AuditMessage(), err)
 		}
@@ -127,7 +109,7 @@ func (h *Handler) postAuditLogEntry(text string, err error) {
 	postMessageParameters.AsUser = true
 	postMessageParameters.Parse = "full"
 
-	_, _, err = h.api.PostMessage(h.auditLogChannelID, message, postMessageParameters)
+	_, _, err = h.api.PostMessage(h.config.AuditLogChannelID(), message, postMessageParameters)
 	if err != nil {
 		h.logger.Error("failed-to-add-audit-log-entry", err)
 		return

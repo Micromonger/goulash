@@ -4,21 +4,17 @@ import (
 	"fmt"
 
 	"github.com/pivotal-golang/lager"
+	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
 )
 
 type inviteRestricted struct {
-	params []string
+	params       []string
+	channel      slackapi.Channel
+	invitingUser string
 
-	api                slackapi.SlackAPI
-	channel            slackapi.Channel
-	invitingUser       string
-	slackTeamName      string
-	slackUserID        string
-	slackSlashCommand  string
-	uninvitableDomain  string
-	uninvitableMessage string
-
+	api    slackapi.SlackAPI
+	config config.Config
 	logger lager.Logger
 }
 
@@ -47,16 +43,16 @@ func (i inviteRestricted) lastName() string {
 }
 
 func (i inviteRestricted) Check() error {
-	if uninvitableEmail(i.emailAddress(), i.uninvitableDomain) {
+	if uninvitableEmail(i.emailAddress(), i.config.UninvitableDomain()) {
 		return NewUninvitableDomainErr(
-			i.uninvitableDomain,
-			i.uninvitableMessage,
-			i.slackSlashCommand,
+			i.config.UninvitableDomain(),
+			i.config.UninvitableMessage(),
+			i.config.SlackSlashCommand(),
 		)
 	}
 
 	if !i.channel.Visible(i.api) {
-		return NewChannelNotVisibleErr(i.slackUserID)
+		return NewChannelNotVisibleErr(i.config.SlackUserID())
 	}
 
 	return nil
@@ -66,7 +62,7 @@ func (i inviteRestricted) Do() (string, error) {
 	var result string
 
 	err := i.api.InviteRestricted(
-		i.slackTeamName,
+		i.config.SlackTeamName(),
 		i.channel.ID(),
 		i.firstName(),
 		i.lastName(),
