@@ -45,6 +45,10 @@ func init() {
 	}
 	listenAddr = fmt.Sprintf(":%s", listenPort)
 
+	logger = lager.NewLogger("handler")
+	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
+	logger.RegisterSink(sink)
+
 	app, _ := cfenv.Current()
 	c = config.NewEnvConfig(
 		app,
@@ -56,13 +60,11 @@ func init() {
 		slackUserIDVar,
 		uninvitableDomainMessageVar,
 		uninvitableDomainVar,
+		logger,
 	)
 
 	slackAPI = slack.New(c.SlackAuthToken())
 	timekeeper = clock.NewClock()
-	logger = lager.NewLogger("handler")
-	sink := lager.NewReconfigurableSink(lager.NewWriterSink(os.Stdout, lager.DEBUG), lager.DEBUG)
-	logger.RegisterSink(sink)
 
 	h = handler.New(c, slackAPI, timekeeper, logger)
 }

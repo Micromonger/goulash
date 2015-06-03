@@ -2,6 +2,7 @@ package config_test
 
 import (
 	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
 
 	"os"
@@ -12,6 +13,12 @@ import (
 
 var _ = Describe("EnvConfig", func() {
 	Describe("SlackAuthToken", func() {
+		var logger lager.Logger
+
+		BeforeEach(func() {
+			logger = lager.NewLogger("testlogger")
+		})
+
 		AfterEach(func() {
 			os.Unsetenv("GOULASH_TEST_CONFIG_SERVICE_NAME")
 			os.Unsetenv("GOULASH_TEST_SLACK_AUTH_TOKEN")
@@ -44,6 +51,7 @@ var _ = Describe("EnvConfig", func() {
 				"",
 				"",
 				"",
+				logger,
 			)
 
 			Ω(c.SlackAuthToken()).Should(Equal("slack-auth-token-value"))
@@ -52,7 +60,7 @@ var _ = Describe("EnvConfig", func() {
 		It("returns an env-based audit log channel id", func() {
 			app, err := cfenv.New(cfenv.Env([]string{`VCAP_APPLICATION={}`, `VCAP_SERVICES={}`}))
 			Ω(err).ShouldNot(HaveOccurred())
-			c := config.NewEnvConfig(app, "", "", "GOULASH_TEST_SLACK_AUTH_TOKEN", "", "", "", "", "")
+			c := config.NewEnvConfig(app, "", "", "GOULASH_TEST_SLACK_AUTH_TOKEN", "", "", "", "", "", logger)
 			err = os.Setenv("GOULASH_TEST_SLACK_AUTH_TOKEN", "slack-auth-token-value")
 			Ω(err).ShouldNot(HaveOccurred())
 

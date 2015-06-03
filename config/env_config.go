@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/pivotal-golang/lager"
 )
 
 const (
@@ -20,6 +21,8 @@ type envConfig struct {
 	slackUserIDVar              string
 	uninvitableDomainMessageVar string
 	uninvitableDomainVar        string
+
+	logger lager.Logger
 }
 
 // NewEnvConfig returns a new Config which will use environment variables as
@@ -34,6 +37,8 @@ func NewEnvConfig(
 	slackUserIDVar string,
 	uninvitableDomainMessageVar string,
 	uninvitableDomainVar string,
+
+	logger lager.Logger,
 ) Config {
 	return &envConfig{
 		app:                         app,
@@ -45,6 +50,8 @@ func NewEnvConfig(
 		slackUserIDVar:              slackUserIDVar,
 		uninvitableDomainMessageVar: uninvitableDomainMessageVar,
 		uninvitableDomainVar:        uninvitableDomainVar,
+
+		logger: logger,
 	}
 }
 
@@ -53,33 +60,49 @@ func (c envConfig) AuditLogChannelID() string {
 }
 
 func (c envConfig) SlackAuthToken() string {
+	logger := c.logger.Session("slack-auth-token")
+
 	if c.configServiceNameVar == "" {
+		logger.Info("successfully-found")
 		return os.Getenv(c.slackAuthTokenVar)
 	}
 
 	configServiceName := os.Getenv(c.configServiceNameVar)
 	if configServiceName == "" {
+		logger.Error("failed-to-find-config-service-name", nil, lager.Data{
+			"configServiceName": configServiceName,
+		})
 		return ""
 	}
 
 	if c.app == nil {
+		logger.Error("no-app-given", nil)
 		return ""
 	}
 
 	service, err := c.app.Services.WithName(configServiceName)
 	if err != nil {
+		logger.Error("failed-to-find-service", nil, lager.Data{
+			"configServiceName": configServiceName,
+		})
 		return ""
 	}
 
 	slackAuthToken, ok := service.Credentials[slackAuthTokenCredentialKey]
 	if !ok {
+		logger.Error("failed-to-find-service-credential", nil, lager.Data{
+			"slackAuthTokenCredentialKey": slackAuthTokenCredentialKey,
+		})
 		return ""
 	}
 
 	slackAuthTokenString, ok := slackAuthToken.(string)
 	if !ok {
+		logger.Error("failed-to-convert-slack-auth-token-to-string", nil)
 		return ""
 	}
+
+	logger.Info("successfully-found")
 
 	return slackAuthTokenString
 }
