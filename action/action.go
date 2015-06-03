@@ -49,7 +49,7 @@ func New(
 
 			config: config,
 			api:    api,
-			logger: logger,
+			logger: logger.Session("info"),
 		}
 
 	case "invite-guest":
@@ -60,7 +60,7 @@ func New(
 
 			config: config,
 			api:    api,
-			logger: logger,
+			logger: logger.Session("invite-guest"),
 		}
 
 	case "invite-restricted":
@@ -71,7 +71,7 @@ func New(
 
 			config: config,
 			api:    api,
-			logger: logger,
+			logger: logger.Session("invite-restricted"),
 		}
 
 	default:

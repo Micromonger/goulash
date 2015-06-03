@@ -43,7 +43,13 @@ func (i inviteRestricted) lastName() string {
 }
 
 func (i inviteRestricted) Check() error {
+	logger := i.logger.Session("check")
+
 	if uninvitableEmail(i.emailAddress(), i.config.UninvitableDomain()) {
+		logger.Info("uninvitable-email", lager.Data{
+			"emailAddress":      i.emailAddress(),
+			"uninvitableDomain": i.config.UninvitableDomain(),
+		})
 		return NewUninvitableDomainErr(
 			i.config.UninvitableDomain(),
 			i.config.UninvitableMessage(),
@@ -52,6 +58,10 @@ func (i inviteRestricted) Check() error {
 	}
 
 	if !i.channel.Visible(i.api) {
+		logger.Info("channel-not-visible", lager.Data{
+			"slack_user_id": i.config.SlackUserID(),
+			"channelID":     i.channel.ID(),
+		})
 		return NewChannelNotVisibleErr(i.config.SlackUserID())
 	}
 
@@ -61,6 +71,8 @@ func (i inviteRestricted) Check() error {
 func (i inviteRestricted) Do() (string, error) {
 	var result string
 
+	logger := i.logger.Session("do")
+
 	err := i.api.InviteRestricted(
 		i.config.SlackTeamName(),
 		i.channel.ID(),
@@ -69,10 +81,12 @@ func (i inviteRestricted) Do() (string, error) {
 		i.emailAddress(),
 	)
 	if err != nil {
-		i.logger.Error("failed-inviting-restricted-account", err)
+		logger.Error("failed-inviting-restricted-account", err)
 		result = fmt.Sprintf("Failed to invite %s %s (%s) as a restricted account to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api), err.Error())
 		return result, err
 	}
+
+	logger.Info("successfully-invited-restricted-account")
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a restricted account to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api))
 	return result, nil

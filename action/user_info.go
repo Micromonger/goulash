@@ -39,9 +39,11 @@ func (i userInfo) emailAddress() string {
 func (i userInfo) Do() (string, error) {
 	var result string
 
+	logger := i.logger.Session("do")
+
 	users, err := i.api.GetUsers()
 	if err != nil {
-		i.logger.Error("failed-getting-users", err)
+		logger.Error("failed-getting-users", err)
 		result = fmt.Sprintf("Failed to look up user@example.com: %s", err.Error())
 		return result, err
 	}
@@ -55,6 +57,7 @@ func (i userInfo) Do() (string, error) {
 			if user.IsUltraRestricted {
 				membership = membershipSingleChannelGuest
 			}
+			logger.Info("successfully-found-user")
 			result = fmt.Sprintf(
 				userInfoMessageFmt,
 				user.Profile.FirstName,
@@ -73,7 +76,10 @@ func (i userInfo) Do() (string, error) {
 		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), i.config.SlackSlashCommand())
 	}
 
-	return result, errors.New("user_not_found")
+	err = errors.New(result)
+	logger.Error("failed-to-find-user", err)
+
+	return result, err
 }
 
 func (i userInfo) AuditMessage() string {

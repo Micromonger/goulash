@@ -43,11 +43,18 @@ func (i inviteGuest) lastName() string {
 }
 
 func (i inviteGuest) Check() error {
+	logger := i.logger.Session("check")
+
 	if i.emailAddress() == "" {
+		logger.Info("missing-email-address")
 		return NewMissingEmailParameterErr(i.config.SlackSlashCommand())
 	}
 
 	if uninvitableEmail(i.emailAddress(), i.config.UninvitableDomain()) {
+		logger.Info("uninvitable-email", lager.Data{
+			"emailAddress":      i.emailAddress(),
+			"uninvitableDomain": i.config.UninvitableDomain(),
+		})
 		return NewUninvitableDomainErr(
 			i.config.UninvitableDomain(),
 			i.config.UninvitableMessage(),
@@ -56,6 +63,10 @@ func (i inviteGuest) Check() error {
 	}
 
 	if !i.channel.Visible(i.api) {
+		logger.Info("channel-not-visible", lager.Data{
+			"slack_user_id": i.config.SlackUserID(),
+			"channelID":     i.channel.ID(),
+		})
 		return NewChannelNotVisibleErr(i.config.SlackUserID())
 	}
 
@@ -65,6 +76,8 @@ func (i inviteGuest) Check() error {
 func (i inviteGuest) Do() (string, error) {
 	var result string
 
+	logger := i.logger.Session("do")
+
 	err := i.api.InviteGuest(
 		i.config.SlackTeamName(),
 		i.channel.ID(),
@@ -73,12 +86,12 @@ func (i inviteGuest) Do() (string, error) {
 		i.emailAddress(),
 	)
 	if err != nil {
-		i.logger.Error("failed-inviting-single-channel-user", err)
+		logger.Error("failed-inviting-single-channel-user", err)
 		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api), err.Error())
 		return result, err
 	}
 
-	i.logger.Info("successfully-invited-single-channel-user")
+	logger.Info("successfully-invited-single-channel-user")
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api))
 	return result, nil
