@@ -57,12 +57,7 @@ func (c envConfig) SlackAuthToken() string {
 		return os.Getenv(c.slackAuthTokenVar)
 	}
 
-	configServiceNameVar := os.Getenv(c.configServiceNameVar)
-	if configServiceNameVar == "" {
-		return ""
-	}
-
-	configServiceName := os.Getenv(configServiceNameVar)
+	configServiceName := os.Getenv(c.configServiceNameVar)
 	if configServiceName == "" {
 		return ""
 	}

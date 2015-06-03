@@ -13,15 +13,12 @@ import (
 var _ = Describe("EnvConfig", func() {
 	Describe("SlackAuthToken", func() {
 		AfterEach(func() {
-			os.Unsetenv("GOULASH_TEST_CONFIG_SERVICE_NAME_VAR")
 			os.Unsetenv("GOULASH_TEST_CONFIG_SERVICE_NAME")
 			os.Unsetenv("GOULASH_TEST_SLACK_AUTH_TOKEN")
 		})
 
 		It("returns a service-based audit log channel id", func() {
-			err := os.Setenv("GOULASH_TEST_CONFIG_SERVICE_NAME_VAR", "GOULASH_TEST_CONFIG_SERVICE_NAME")
-			Ω(err).ShouldNot(HaveOccurred())
-			err = os.Setenv("GOULASH_TEST_CONFIG_SERVICE_NAME", "config-service-name")
+			err := os.Setenv("GOULASH_TEST_CONFIG_SERVICE_NAME", "config-service-name")
 			Ω(err).ShouldNot(HaveOccurred())
 
 			env := []string{
@@ -39,7 +36,7 @@ var _ = Describe("EnvConfig", func() {
 
 			c := config.NewEnvConfig(
 				app,
-				"GOULASH_TEST_CONFIG_SERVICE_NAME_VAR",
+				"GOULASH_TEST_CONFIG_SERVICE_NAME",
 				"",
 				"slack-auth-token",
 				"",
