@@ -2,48 +2,62 @@ package config
 
 import "os"
 
-const (
-	slackAuditLogChannelIDVar   = "SLACK_AUDIT_LOG_CHANNEL_ID"
-	slackAuthTokenVar           = "SLACK_AUTH_TOKEN"
-	slackSlashCommandVar        = "SLACK_SLASH_COMMAND"
-	slackTeamNameVar            = "SLACK_TEAM_NAME"
-	slackUserIDVar              = "SLACK_USER_ID"
-	uninvitableDomainMessageVar = "UNINVITABLE_DOMAIN_MESSAGE"
-	uninvitableDomainVar        = "UNINVITABLE_DOMAIN"
-)
-
-type envConfig struct{}
+type envConfig struct {
+	slackAuditLogChannelIDVar   string
+	slackAuthTokenVar           string
+	slackSlashCommandVar        string
+	slackTeamNameVar            string
+	slackUserIDVar              string
+	uninvitableDomainMessageVar string
+	uninvitableDomainVar        string
+}
 
 // NewEnvConfig returns a new Config which will use environment variables as
 // its source.
-func NewEnvConfig() Config {
-	return &envConfig{}
+func NewEnvConfig(
+	slackAuditLogChannelIDVar string,
+	slackAuthTokenVar string,
+	slackSlashCommandVar string,
+	slackTeamNameVar string,
+	slackUserIDVar string,
+	uninvitableDomainMessageVar string,
+	uninvitableDomainVar string,
+) Config {
+	return &envConfig{
+		slackAuditLogChannelIDVar:   slackAuditLogChannelIDVar,
+		slackAuthTokenVar:           slackAuthTokenVar,
+		slackSlashCommandVar:        slackSlashCommandVar,
+		slackTeamNameVar:            slackTeamNameVar,
+		slackUserIDVar:              slackUserIDVar,
+		uninvitableDomainMessageVar: uninvitableDomainMessageVar,
+		uninvitableDomainVar:        uninvitableDomainVar,
+	}
 }
 
 func (c envConfig) AuditLogChannelID() string {
-	return os.Getenv(slackAuditLogChannelIDVar)
+	return os.Getenv(c.slackAuditLogChannelIDVar)
 }
 
 func (c envConfig) SlackAuthToken() string {
-	return os.Getenv(slackAuthTokenVar)
+	return os.Getenv(c.slackAuthTokenVar)
 }
 
 func (c envConfig) SlackTeamName() string {
-	return os.Getenv(slackTeamNameVar)
+	return os.Getenv(c.slackTeamNameVar)
 }
 
 func (c envConfig) SlackUserID() string {
-	return os.Getenv(slackUserIDVar)
+	return os.Getenv(c.slackUserIDVar)
 }
 
 func (c envConfig) SlackSlashCommand() string {
-	return os.Getenv(slackSlashCommandVar)
+	return os.Getenv(c.slackSlashCommandVar)
 }
 
 func (c envConfig) UninvitableDomain() string {
-	return os.Getenv(uninvitableDomainVar)
+	return os.Getenv(c.uninvitableDomainVar)
 }
 
 func (c envConfig) UninvitableMessage() string {
-	return os.Getenv(uninvitableDomainMessageVar)
+	return os.Getenv(c.uninvitableDomainMessageVar)
 }

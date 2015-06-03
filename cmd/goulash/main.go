@@ -16,6 +16,14 @@ import (
 const (
 	defaultlistenPort = "8080"
 	listenPortVar     = "VCAP_APP_PORT"
+
+	slackAuditLogChannelIDVar   = "SLACK_AUDIT_LOG_CHANNEL_ID"
+	slackAuthTokenVar           = "SLACK_AUTH_TOKEN"
+	slackSlashCommandVar        = "SLACK_SLASH_COMMAND"
+	slackTeamNameVar            = "SLACK_TEAM_NAME"
+	slackUserIDVar              = "SLACK_USER_ID"
+	uninvitableDomainMessageVar = "UNINVITABLE_DOMAIN_MESSAGE"
+	uninvitableDomainVar        = "UNINVITABLE_DOMAIN"
 )
 
 var (
@@ -35,7 +43,16 @@ func init() {
 	}
 	listenAddr = fmt.Sprintf(":%s", listenPort)
 
-	c = config.NewEnvConfig()
+	c = config.NewEnvConfig(
+		slackAuditLogChannelIDVar,
+		slackAuthTokenVar,
+		slackSlashCommandVar,
+		slackTeamNameVar,
+		slackUserIDVar,
+		uninvitableDomainMessageVar,
+		uninvitableDomainVar,
+	)
+
 	slackAPI = slack.New(c.SlackAuthToken())
 	timekeeper = clock.NewClock()
 	logger = lager.NewLogger("handler")
