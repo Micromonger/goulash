@@ -86,12 +86,12 @@ func (i inviteGuest) Do() (string, error) {
 		i.emailAddress(),
 	)
 	if err != nil {
-		logger.Error("failed-inviting-single-channel-user", err)
+		logger.Error("failed-inviting-single-channel-guest", err)
 		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api), err.Error())
 		return result, err
 	}
 
-	logger.Info("successfully-invited-single-channel-user")
+	logger.Info("successfully-invited-single-channel-guest")
 
 	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(i.api))
 	return result, nil
