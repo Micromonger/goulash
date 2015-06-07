@@ -38,10 +38,10 @@ var _ = Describe("InviteGuest", func() {
 
 		It("returns nil", func() {
 			a = action.New(
-				slackapi.NewChannel("channel-id", "channel-name"),
+				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
 				"commander-id",
-				"invite-guest user@example.com",
+				"invite-guest user@example.com Tom Smith",
 				c,
 				fakeSlackAPI,
 				logger,
@@ -52,10 +52,10 @@ var _ = Describe("InviteGuest", func() {
 
 		It("returns an error when the email has an uninvitable domain", func() {
 			a = action.New(
-				slackapi.NewChannel("channel-id", "channel-name"),
+				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
 				"commander-id",
-				"invite-guest user@uninvitable-domain.com",
+				"invite-guest user@uninvitable-domain.com Tom Smith",
 				c,
 				fakeSlackAPI,
 				logger,
@@ -73,7 +73,7 @@ var _ = Describe("InviteGuest", func() {
 				fakeChannel,
 				"commander-name",
 				"commander-id",
-				"invite-guest user@example.com",
+				"invite-guest user@example.com Tom Smith",
 				c,
 				fakeSlackAPI,
 				logger,
@@ -84,7 +84,7 @@ var _ = Describe("InviteGuest", func() {
 
 		It("returns an error when the email address is missing", func() {
 			a = action.New(
-				slackapi.NewChannel("channel-id", "channel-name"),
+				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
 				"commander-id",
 				"invite-guest",
