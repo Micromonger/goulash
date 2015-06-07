@@ -26,7 +26,7 @@ var _ = Describe("EnvConfig", func() {
 
 		It("returns a service-based audit log channel id", func() {
 			err := os.Setenv("GOULASH_TEST_CONFIG_SERVICE_NAME", "config-service-name")
-			Ω(err).ShouldNot(HaveOccurred())
+			Ω(err).ToNot(HaveOccurred())
 
 			env := []string{
 				`VCAP_APPLICATION={}`,
@@ -39,7 +39,7 @@ var _ = Describe("EnvConfig", func() {
 			}
 
 			app, err := cfenv.New(cfenv.Env(env))
-			Ω(err).ShouldNot(HaveOccurred())
+			Ω(err).ToNot(HaveOccurred())
 
 			c := config.NewEnvConfig(
 				app,
@@ -54,17 +54,17 @@ var _ = Describe("EnvConfig", func() {
 				logger,
 			)
 
-			Ω(c.SlackAuthToken()).Should(Equal("slack-auth-token-value"))
+			Ω(c.SlackAuthToken()).To(Equal("slack-auth-token-value"))
 		})
 
 		It("returns an env-based audit log channel id", func() {
 			app, err := cfenv.New(cfenv.Env([]string{`VCAP_APPLICATION={}`, `VCAP_SERVICES={}`}))
-			Ω(err).ShouldNot(HaveOccurred())
+			Ω(err).ToNot(HaveOccurred())
 			c := config.NewEnvConfig(app, "", "", "GOULASH_TEST_SLACK_AUTH_TOKEN", "", "", "", "", "", logger)
 			err = os.Setenv("GOULASH_TEST_SLACK_AUTH_TOKEN", "slack-auth-token-value")
-			Ω(err).ShouldNot(HaveOccurred())
+			Ω(err).ToNot(HaveOccurred())
 
-			Ω(c.SlackAuthToken()).Should(Equal("slack-auth-token-value"))
+			Ω(c.SlackAuthToken()).To(Equal("slack-auth-token-value"))
 		})
 	})
 })

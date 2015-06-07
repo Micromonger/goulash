@@ -94,7 +94,7 @@ var _ = Describe("InviteGuest", func() {
 			)
 			ga := a.(action.GuardedAction)
 			err := ga.Check()
-			Ω(err).Should(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
+			Ω(err).To(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
 		})
 	})
 })

@@ -71,7 +71,7 @@ var _ = Describe("UserInfo", func() {
 
 			result, err := a.Do()
 			Ω(err).To(HaveOccurred())
-			Ω(result).Should(Equal("Failed to look up user@example.com: network error"))
+			Ω(result).To(Equal("Failed to look up user@example.com: network error"))
 		})
 
 		It("returns a result for an unknown user", func() {
@@ -89,7 +89,7 @@ var _ = Describe("UserInfo", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			result, err := a.Do()
 			Ω(err).To(HaveOccurred())
-			Ω(result).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
+			Ω(result).To(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
 		})
 
 		It("returns a result for a user with an uninvitable domain", func() {
@@ -107,7 +107,7 @@ var _ = Describe("UserInfo", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			result, err := a.Do()
 			Ω(err).To(HaveOccurred())
-			Ω(result).Should(Equal("There is no user here with the email address 'user@uninvitable-domain.com'. uninvitable-domain-message"))
+			Ω(result).To(Equal("There is no user here with the email address 'user@uninvitable-domain.com'. uninvitable-domain-message"))
 		})
 
 		It("returns a result for a Slack 'full' member", func() {
@@ -137,7 +137,7 @@ var _ = Describe("UserInfo", func() {
 
 			result, err := a.Do()
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
+			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
 		})
 
 		It("responds to Slack with a message about a restricted account", func() {
@@ -167,7 +167,7 @@ var _ = Describe("UserInfo", func() {
 
 			result, err := a.Do()
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
+			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
 		})
 
 		It("responds to Slack with a message about a single-channel guest", func() {
@@ -197,7 +197,7 @@ var _ = Describe("UserInfo", func() {
 
 			result, err := a.Do()
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
+			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
 		})
 	})
 })
