@@ -64,25 +64,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		commanderName,
 		commanderID,
 		text,
-
-		h.config,
-		h.api,
-		h.logger,
 	)
 
 	if a, ok := a.(action.GuardedAction); ok {
-		checkErr := a.Check()
+		checkErr := a.Check(h.config, h.api, h.logger)
 		if checkErr != nil {
 			respondWith(checkErr.Error(), w, h.logger)
 			return
 		}
 	}
 
-	result, err := a.Do()
+	result, err := a.Do(h.config, h.api, h.logger)
 
 	if h.config.AuditLogChannelID() != "" {
 		if a, ok := a.(action.AuditableAction); ok {
-			h.postAuditLogEntry(a.AuditMessage(), err)
+			h.postAuditLogEntry(a.AuditMessage(h.api), err)
 		}
 	}
 

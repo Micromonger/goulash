@@ -3,14 +3,18 @@ package action
 import (
 	"fmt"
 
+	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
+	"github.com/pivotalservices/goulash/slackapi"
 )
 
-type help struct {
-	config config.Config
-}
+type help struct{}
 
-func (h help) Do() (string, error) {
+func (h help) Do(
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) (string, error) {
 	text := fmt.Sprintf(
 		"*USAGE*\n"+
 			"`%s [command] [args]`\n"+
@@ -25,7 +29,7 @@ func (h help) Do() (string, error) {
 			"\n"+
 			"`info <email>`\n"+
 			"_Get information on a Slack user_\n",
-		h.config.SlackSlashCommand(),
+		config.SlackSlashCommand(),
 	)
 
 	return text, nil

@@ -22,10 +22,6 @@ var (
 type userInfo struct {
 	params         []string
 	requestingUser string
-
-	config config.Config
-	api    slackapi.SlackAPI
-	logger lager.Logger
 }
 
 func (i userInfo) emailAddress() string {
@@ -36,12 +32,16 @@ func (i userInfo) emailAddress() string {
 	return ""
 }
 
-func (i userInfo) Do() (string, error) {
+func (i userInfo) Do(
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) (string, error) {
 	var result string
 
-	logger := i.logger.Session("do")
+	logger = logger.Session("do")
 
-	users, err := i.api.GetUsers()
+	users, err := api.GetUsers()
 	if err != nil {
 		logger.Error("failed-getting-users", err)
 		result = fmt.Sprintf("Failed to look up user@example.com: %s", err.Error())
@@ -70,10 +70,10 @@ func (i userInfo) Do() (string, error) {
 		}
 	}
 
-	if uninvitableEmail(i.emailAddress(), i.config.UninvitableDomain()) {
-		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), i.config.UninvitableMessage())
+	if uninvitableEmail(i.emailAddress(), config.UninvitableDomain()) {
+		result = fmt.Sprintf(uninvitableUserNotFoundMessageFmt, i.emailAddress(), config.UninvitableMessage())
 	} else {
-		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), i.config.SlackSlashCommand())
+		result = fmt.Sprintf(userNotFoundMessageFmt, i.emailAddress(), config.SlackSlashCommand())
 	}
 
 	err = errors.New(result)
@@ -82,6 +82,6 @@ func (i userInfo) Do() (string, error) {
 	return result, err
 }
 
-func (i userInfo) AuditMessage() string {
+func (i userInfo) AuditMessage(api slackapi.SlackAPI) string {
 	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress())
 }

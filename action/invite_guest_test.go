@@ -44,12 +44,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com Tom Smith",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 			ga := a.(action.GuardedAction)
-			Ω(ga.Check()).To(BeNil())
+			Ω(ga.Check(c, nil, logger)).To(BeNil())
 		})
 
 		It("returns an error when the email has an uninvitable domain", func() {
@@ -58,12 +55,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@uninvitable-domain.com Tom Smith",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 			ga := a.(action.GuardedAction)
-			err := ga.Check()
+			err := ga.Check(c, nil, logger)
 			Ω(err).To(HaveOccurred())
 		})
 
@@ -76,12 +70,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com Tom Smith",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 			ga := a.(action.GuardedAction)
-			Ω(ga.Check()).To(BeAssignableToTypeOf(action.ChannelNotVisibleErr{}))
+			Ω(ga.Check(c, nil, logger)).To(BeAssignableToTypeOf(action.ChannelNotVisibleErr{}))
 		})
 
 		It("returns an error when the email address is missing", func() {
@@ -90,12 +81,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 			ga := a.(action.GuardedAction)
-			err := ga.Check()
+			err := ga.Check(c, nil, logger)
 			Ω(err).To(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
 		})
 	})
@@ -134,12 +122,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com Tom Smith",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 
-			result, err := a.Do()
+			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(result).To(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': failed"))
 			Ω(err).To(HaveOccurred())
 			Ω(err.Error()).To(Equal("failed"))
@@ -153,12 +138,9 @@ var _ = Describe("InviteGuest", func() {
 				"commander-name",
 				"commander-id",
 				"invite-guest user@example.com Tom Smith",
-				c,
-				fakeSlackAPI,
-				logger,
 			)
 
-			result, err := a.Do()
+			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
 			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a guest to 'channel-name'"))
 		})

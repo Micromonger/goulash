@@ -10,17 +10,17 @@ import (
 
 // Action represents an action that is able to be performed by the server.
 type Action interface {
-	Do() (string, error)
+	Do(config.Config, slackapi.SlackAPI, lager.Logger) (string, error)
 }
 
 // GuardedAction is an Action with prerequisites described in Check().
 type GuardedAction interface {
-	Check() error
+	Check(config.Config, slackapi.SlackAPI, lager.Logger) error
 }
 
 // AuditableAction is an Action that should have an audit log entry created.
 type AuditableAction interface {
-	AuditMessage() string
+	AuditMessage(slackapi.SlackAPI) string
 }
 
 // New creates a new Action based on the command provided.
@@ -29,27 +29,17 @@ func New(
 	commanderName string,
 	commanderID string,
 	text string,
-
-	config config.Config,
-	api slackapi.SlackAPI,
-	logger lager.Logger,
 ) Action {
 	command, commandParams := commandAndParams(text)
 
 	switch command {
 	case "help":
-		return help{
-			config: config,
-		}
+		return help{}
 
 	case "info":
 		return userInfo{
 			params:         commandParams,
 			requestingUser: commanderName,
-
-			config: config,
-			api:    api,
-			logger: logger.Session("info"),
 		}
 
 	case "invite-guest":
@@ -57,10 +47,6 @@ func New(
 			params:       commandParams,
 			channel:      channel,
 			invitingUser: commanderName,
-
-			config: config,
-			api:    api,
-			logger: logger.Session("invite-guest"),
 		}
 
 	case "invite-restricted":
@@ -68,10 +54,6 @@ func New(
 			params:       commandParams,
 			channel:      channel,
 			invitingUser: commanderName,
-
-			config: config,
-			api:    api,
-			logger: logger.Session("invite-restricted"),
 		}
 
 	default:
