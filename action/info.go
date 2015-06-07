@@ -11,7 +11,7 @@ import (
 
 var (
 	uninvitableUserNotFoundMessageFmt = "There is no user here with the email address '%s'. %s"
-	userInfoMessageFmt                = "%s %s (%s) is a Slack %s, with the username <@%s>."
+	infoMessageFmt                    = "%s %s (%s) is a Slack %s, with the username <@%s>."
 	userNotFoundMessageFmt            = "There is no user here with the email address '%s'. You can invite them to Slack as a guest or a restricted account. Type `%s help` for more information."
 
 	membershipFull               = "full member"
@@ -19,12 +19,12 @@ var (
 	membershipSingleChannelGuest = "single-channel guest"
 )
 
-type userInfo struct {
+type info struct {
 	params         []string
 	requestingUser string
 }
 
-func (i userInfo) emailAddress() string {
+func (i info) emailAddress() string {
 	if len(i.params) >= 0 {
 		return i.params[0]
 	}
@@ -32,7 +32,7 @@ func (i userInfo) emailAddress() string {
 	return ""
 }
 
-func (i userInfo) Do(
+func (i info) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
 	logger lager.Logger,
@@ -59,7 +59,7 @@ func (i userInfo) Do(
 			}
 			logger.Info("successfully-found-user")
 			result = fmt.Sprintf(
-				userInfoMessageFmt,
+				infoMessageFmt,
 				user.Profile.FirstName,
 				user.Profile.LastName,
 				user.Profile.Email,
@@ -82,6 +82,6 @@ func (i userInfo) Do(
 	return result, err
 }
 
-func (i userInfo) AuditMessage(api slackapi.SlackAPI) string {
+func (i info) AuditMessage(api slackapi.SlackAPI) string {
 	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress())
 }

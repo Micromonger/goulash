@@ -32,7 +32,7 @@ func New(
 		return help{}
 
 	case "info":
-		return userInfo{
+		return info{
 			params:         commandParams,
 			requestingUser: commanderName,
 		}
