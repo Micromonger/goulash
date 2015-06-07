@@ -45,6 +45,11 @@ func (i inviteRestricted) Check(
 ) error {
 	logger = logger.Session("check")
 
+	if i.emailAddress() == "" {
+		logger.Info("missing-email-address")
+		return NewMissingEmailParameterErr(config.SlackSlashCommand())
+	}
+
 	if uninvitableEmail(i.emailAddress(), config.UninvitableDomain()) {
 		logger.Info("uninvitable-email", lager.Data{
 			"emailAddress":      i.emailAddress(),

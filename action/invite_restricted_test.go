@@ -74,6 +74,18 @@ var _ = Describe("InviteRestricted", func() {
 			ga := a.(action.GuardedAction)
 			Ω(ga.Check(c, nil, logger)).To(BeAssignableToTypeOf(action.ChannelNotVisibleErr{}))
 		})
+
+		It("returns an error when the email address is missing", func() {
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"invite-restricted",
+			)
+			ga := a.(action.GuardedAction)
+			err := ga.Check(c, nil, logger)
+			Ω(err).To(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
+		})
 	})
 
 	Describe("Do", func() {
