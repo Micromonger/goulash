@@ -56,14 +56,14 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
 			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 			Ω(fakeSlackAPI.DisableUserCallCount()).Should(Equal(1))
 
 			actualSlackTeamName, actualID := fakeSlackAPI.DisableUserArgsForCall(0)
-			Ω(actualSlackTeamName).To(Equal("slack-team-name"))
-			Ω(actualID).To(Equal("U1234"))
+			Ω(actualSlackTeamName).Should(Equal("slack-team-name"))
+			Ω(actualID).Should(Equal("U1234"))
 		})
 
 		It("attempts to disable the user if they can be found by email", func() {
@@ -85,14 +85,14 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
 			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 			Ω(fakeSlackAPI.DisableUserCallCount()).Should(Equal(1))
 
 			actualSlackTeamName, actualID := fakeSlackAPI.DisableUserArgsForCall(0)
-			Ω(actualSlackTeamName).To(Equal("slack-team-name"))
-			Ω(actualID).To(Equal("U1234"))
+			Ω(actualSlackTeamName).Should(Equal("slack-team-name"))
+			Ω(actualID).Should(Equal("U1234"))
 		})
 
 		It("returns an error if the GetUsers call fails", func() {
@@ -106,9 +106,9 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("error"))
-			Ω(result).To(Equal("Failed to disable user 'user@example.com': error"))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("error"))
+			Ω(result).Should(Equal("Failed to disable user 'user@example.com': error"))
 		})
 
 		It("returns an error if the user cannot be found", func() {
@@ -122,9 +122,9 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Unable to find user matching 'user@example.com'."))
-			Ω(result).To(Equal("Failed to disable user 'user@example.com': Unable to find user matching 'user@example.com'."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Unable to find user matching 'user@example.com'."))
+			Ω(result).Should(Equal("Failed to disable user 'user@example.com': Unable to find user matching 'user@example.com'."))
 		})
 
 		It("returns an error when disabling the user fails", func() {
@@ -148,9 +148,9 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(result).To(Equal("Failed to disable user 'user@example.com': failed"))
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("failed"))
+			Ω(result).Should(Equal("Failed to disable user 'user@example.com': failed"))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("failed"))
 		})
 
 		It("returns nil on success", func() {
@@ -172,8 +172,8 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Successfully disabled user 'user@example.com'"))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Successfully disabled user 'user@example.com'"))
 		})
 
 		It("returns an error if the user is a full user", func() {
@@ -204,8 +204,8 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("Failed to disable user 'user@example.com': Full users cannot be disabled."))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("Failed to disable user 'user@example.com': Full users cannot be disabled."))
 		})
 
 		It("does not return an error if another user is a full user", func() {
@@ -236,7 +236,7 @@ var _ = Describe("DisableUser", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 		})
 	})
 

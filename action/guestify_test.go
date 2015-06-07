@@ -48,11 +48,11 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("error"))
-			Ω(result).To(Equal("Failed to guestify user 'user@example.com': error"))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("error"))
+			Ω(result).Should(Equal("Failed to guestify user 'user@example.com': error"))
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user cannot be found", func() {
@@ -66,11 +66,11 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Unable to find user matching 'user@example.com'."))
-			Ω(result).To(Equal("Failed to guestify user 'user@example.com': Unable to find user matching 'user@example.com'."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Unable to find user matching 'user@example.com'."))
+			Ω(result).Should(Equal("Failed to guestify user 'user@example.com': Unable to find user matching 'user@example.com'."))
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user is a full user", func() {
@@ -91,11 +91,11 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Full users cannot be guestified."))
-			Ω(result).To(Equal("Failed to guestify user '@tsmith': Full users cannot be guestified."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Full users cannot be guestified."))
+			Ω(result).Should(Equal("Failed to guestify user '@tsmith': Full users cannot be guestified."))
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user is already a single-channel guest", func() {
@@ -116,11 +116,11 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("User is already a single-channel guest."))
-			Ω(result).To(Equal("Failed to guestify user '@tsmith': User is already a single-channel guest."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("User is already a single-channel guest."))
+			Ω(result).Should(Equal("Failed to guestify user '@tsmith': User is already a single-channel guest."))
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the request comes from a direct message", func() {
@@ -132,11 +132,11 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Cannot guestify from a direct message. Try again from a channel or group."))
-			Ω(result).To(Equal("Failed to guestify user '@tsmith': Cannot guestify from a direct message. Try again from a channel or group."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Cannot guestify from a direct message. Try again from a channel or group."))
+			Ω(result).Should(Equal("Failed to guestify user '@tsmith': Cannot guestify from a direct message. Try again from a channel or group."))
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("attempts to guestify the user if they can be found by name", func() {
@@ -156,14 +156,14 @@ var _ = Describe("Guestify", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(1))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(1))
 
 			actualTeamName, actualUserID, actualChannel := fakeSlackAPI.SetUltraRestrictedArgsForCall(0)
-			Ω(actualTeamName).To(Equal("slack-team-name"))
-			Ω(actualUserID).To(Equal("U1234"))
-			Ω(actualChannel).To(Equal("channel-id"))
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualUserID).Should(Equal("U1234"))
+			Ω(actualChannel).Should(Equal("channel-id"))
 		})
 
 		It("attempts to guestify the user if they can be found by email", func() {
@@ -185,14 +185,14 @@ var _ = Describe("Guestify", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(1))
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).Should(Equal(1))
 
 			actualTeamName, actualUserID, actualChannel := fakeSlackAPI.SetUltraRestrictedArgsForCall(0)
-			Ω(actualTeamName).To(Equal("slack-team-name"))
-			Ω(actualUserID).To(Equal("U1234"))
-			Ω(actualChannel).To(Equal("channel-id"))
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualUserID).Should(Equal("U1234"))
+			Ω(actualChannel).Should(Equal("channel-id"))
 		})
 
 		It("returns an error when guestifying fails", func() {
@@ -214,8 +214,8 @@ var _ = Describe("Guestify", func() {
 			fakeSlackAPI.SetUltraRestrictedReturns(errors.New("failed"))
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("Failed to guestify user '@tsmith': failed"))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("Failed to guestify user '@tsmith': failed"))
 		})
 
 		It("returns nil when guestifying succeeds", func() {
@@ -235,8 +235,8 @@ var _ = Describe("Guestify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Successfully guestified user @tsmith"))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Successfully guestified user @tsmith"))
 		})
 	})
 

@@ -48,11 +48,11 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("error"))
-			Ω(result).To(Equal("Failed to restrictify user 'user@example.com': error"))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("error"))
+			Ω(result).Should(Equal("Failed to restrictify user 'user@example.com': error"))
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user cannot be found", func() {
@@ -66,11 +66,11 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Unable to find user matching 'user@example.com'."))
-			Ω(result).To(Equal("Failed to restrictify user 'user@example.com': Unable to find user matching 'user@example.com'."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Unable to find user matching 'user@example.com'."))
+			Ω(result).Should(Equal("Failed to restrictify user 'user@example.com': Unable to find user matching 'user@example.com'."))
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user is a full user", func() {
@@ -91,11 +91,11 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Full users cannot be restrictified."))
-			Ω(result).To(Equal("Failed to restrictify user '@tsmith': Full users cannot be restrictified."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Full users cannot be restrictified."))
+			Ω(result).Should(Equal("Failed to restrictify user '@tsmith': Full users cannot be restrictified."))
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the user is already a restricted account", func() {
@@ -116,11 +116,11 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("User is already a restricted account."))
-			Ω(result).To(Equal("Failed to restrictify user '@tsmith': User is already a restricted account."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("User is already a restricted account."))
+			Ω(result).Should(Equal("Failed to restrictify user '@tsmith': User is already a restricted account."))
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error if the request comes from a direct message", func() {
@@ -132,11 +132,11 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err.Error()).To(Equal("Cannot restrictify from a direct message. Try again from a channel or group."))
-			Ω(result).To(Equal("Failed to restrictify user '@tsmith': Cannot restrictify from a direct message. Try again from a channel or group."))
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Cannot restrictify from a direct message. Try again from a channel or group."))
+			Ω(result).Should(Equal("Failed to restrictify user '@tsmith': Cannot restrictify from a direct message. Try again from a channel or group."))
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(0))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(0))
 		})
 
 		It("attempts to restrictify the user if they can be found by name", func() {
@@ -156,13 +156,13 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(1))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(1))
 
 			actualTeamName, actualUserID := fakeSlackAPI.SetRestrictedArgsForCall(0)
-			Ω(actualTeamName).To(Equal("slack-team-name"))
-			Ω(actualUserID).To(Equal("U1234"))
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualUserID).Should(Equal("U1234"))
 		})
 
 		It("attempts to restrictify the user if they can be found by email", func() {
@@ -184,13 +184,13 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			_, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
+			Ω(err).ShouldNot(HaveOccurred())
 
-			Ω(fakeSlackAPI.SetRestrictedCallCount()).To(Equal(1))
+			Ω(fakeSlackAPI.SetRestrictedCallCount()).Should(Equal(1))
 
 			actualTeamName, actualUserID := fakeSlackAPI.SetRestrictedArgsForCall(0)
-			Ω(actualTeamName).To(Equal("slack-team-name"))
-			Ω(actualUserID).To(Equal("U1234"))
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualUserID).Should(Equal("U1234"))
 		})
 
 		It("returns an error when restrictifying fails", func() {
@@ -212,8 +212,8 @@ var _ = Describe("Restrictify", func() {
 			fakeSlackAPI.SetRestrictedReturns(errors.New("failed"))
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("Failed to restrictify user '@tsmith': failed"))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("Failed to restrictify user '@tsmith': failed"))
 		})
 
 		It("returns nil when restrictifying succeeds", func() {
@@ -233,8 +233,8 @@ var _ = Describe("Restrictify", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Successfully restrictified user @tsmith"))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Successfully restrictified user @tsmith"))
 		})
 	})
 

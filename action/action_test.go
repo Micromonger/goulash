@@ -20,7 +20,7 @@ var _ = Describe("Action", func() {
 				"info user@example.com",
 			)
 
-			Ω(a).To(Equal(action.NewInfo([]string{"user@example.com"}, "commander-name")))
+			Ω(a).Should(Equal(action.NewInfo([]string{"user@example.com"}, "commander-name")))
 		})
 
 		It("supports creating an invite-guest action", func() {
@@ -32,7 +32,7 @@ var _ = Describe("Action", func() {
 				"invite-guest user@example.com Tom Smith",
 			)
 
-			Ω(a).To(Equal(action.NewInvite(
+			Ω(a).Should(Equal(action.NewInvite(
 				[]string{"user@example.com", "Tom", "Smith"},
 				"invite-guest",
 				expectedChannel,
@@ -49,7 +49,7 @@ var _ = Describe("Action", func() {
 				"invite-restricted user@example.com Tom Smith",
 			)
 
-			Ω(a).To(Equal(action.NewInvite(
+			Ω(a).Should(Equal(action.NewInvite(
 				[]string{"user@example.com", "Tom", "Smith"},
 				"invite-restricted",
 				expectedChannel,
@@ -65,7 +65,7 @@ var _ = Describe("Action", func() {
 				"disable-user user@example.com",
 			)
 
-			Ω(a).To(Equal(action.NewDisableUser([]string{"user@example.com"}, "commander-name")))
+			Ω(a).Should(Equal(action.NewDisableUser([]string{"user@example.com"}, "commander-name")))
 		})
 
 		It("supports creating a guestify action", func() {
@@ -77,7 +77,7 @@ var _ = Describe("Action", func() {
 				"guestify user@example.com",
 			)
 
-			Ω(a).To(Equal(action.NewGuestify([]string{"user@example.com"}, channel, "commander-name")))
+			Ω(a).Should(Equal(action.NewGuestify([]string{"user@example.com"}, channel, "commander-name")))
 		})
 
 		It("supports creating a restrictify action", func() {
@@ -89,7 +89,7 @@ var _ = Describe("Action", func() {
 				"restrictify user@example.com",
 			)
 
-			Ω(a).To(Equal(action.NewRestrictify([]string{"user@example.com"}, channel, "commander-name")))
+			Ω(a).Should(Equal(action.NewRestrictify([]string{"user@example.com"}, channel, "commander-name")))
 		})
 	})
 })

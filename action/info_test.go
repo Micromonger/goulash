@@ -48,7 +48,7 @@ var _ = Describe("UserInfo", func() {
 
 			a.Do(c, fakeSlackAPI, logger)
 
-			Ω(fakeSlackAPI.GetUsersCallCount()).To(Equal(1))
+			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 		})
 
 		It("returns an error when it can't get the list of users from Slack", func() {
@@ -62,8 +62,8 @@ var _ = Describe("UserInfo", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("Failed to look up user@example.com: network error"))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("Failed to look up user@example.com: network error"))
 		})
 
 		It("returns an error when no email address was given", func() {
@@ -90,9 +90,9 @@ var _ = Describe("UserInfo", func() {
 			}, nil)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(err).To(BeAssignableToTypeOf(expectedErr))
-			Ω(result).To(Equal(expectedErr.Error()))
+			Ω(err).Should(HaveOccurred())
+			Ω(err).Should(BeAssignableToTypeOf(expectedErr))
+			Ω(result).Should(Equal(expectedErr.Error()))
 		})
 
 		It("returns a result for an unknown user", func() {
@@ -105,8 +105,8 @@ var _ = Describe("UserInfo", func() {
 
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("There is no user here with the email address 'user@example.com'. You can invite them to Slack as a guest or a restricted account. Type `/slack-slash-command help` for more information."))
 		})
 
 		It("returns a result for a user with an uninvitable domain", func() {
@@ -119,8 +119,8 @@ var _ = Describe("UserInfo", func() {
 
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).To(HaveOccurred())
-			Ω(result).To(Equal("There is no user here with the email address 'user@uninvitable-domain.com'. uninvitable-domain-message"))
+			Ω(err).Should(HaveOccurred())
+			Ω(result).Should(Equal("There is no user here with the email address 'user@uninvitable-domain.com'. uninvitable-domain-message"))
 		})
 
 		It("returns a result for a Slack 'full' member", func() {
@@ -145,8 +145,8 @@ var _ = Describe("UserInfo", func() {
 			}, nil)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack full member, with the username <@tsmith>."))
 		})
 
 		It("responds to Slack with a message about a restricted account", func() {
@@ -171,8 +171,8 @@ var _ = Describe("UserInfo", func() {
 			}, nil)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack restricted account, with the username <@tsmith>."))
 		})
 
 		It("responds to Slack with a message about a single-channel guest", func() {
@@ -197,8 +197,8 @@ var _ = Describe("UserInfo", func() {
 			}, nil)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Tom Smith (user@example.com) is a Slack single-channel guest, with the username <@tsmith>."))
 		})
 	})
 })

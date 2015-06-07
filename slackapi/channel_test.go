@@ -27,16 +27,16 @@ var _ = Describe("Channel", func() {
 
 			It("tries to find the group's name in Slack, excluding archived groups", func() {
 				channel.Name(fakeSlackAPI)
-				Ω(fakeSlackAPI.GetGroupsCallCount()).To(Equal(1))
+				Ω(fakeSlackAPI.GetGroupsCallCount()).Should(Equal(1))
 
 				excludeArchived := fakeSlackAPI.GetGroupsArgsForCall(0)
-				Ω(excludeArchived).To(BeTrue())
+				Ω(excludeArchived).Should(BeTrue())
 			})
 
 			It("only hits the Slack API once", func() {
 				channel.Name(fakeSlackAPI)
 				channel.Name(fakeSlackAPI)
-				Ω(fakeSlackAPI.GetGroupsCallCount()).To(Equal(1))
+				Ω(fakeSlackAPI.GetGroupsCallCount()).Should(Equal(1))
 			})
 
 			Describe("when the group is found in Slack", func() {
@@ -48,7 +48,7 @@ var _ = Describe("Channel", func() {
 				})
 
 				It("returns the name associated with the found group", func() {
-					Ω(channel.Name(fakeSlackAPI)).To(Equal("channel-name"))
+					Ω(channel.Name(fakeSlackAPI)).Should(Equal("channel-name"))
 				})
 			})
 
@@ -61,7 +61,7 @@ var _ = Describe("Channel", func() {
 				})
 
 				It("returns slackapi.PrivateGroupName", func() {
-					Ω(channel.Name(fakeSlackAPI)).To(Equal(slackapi.PrivateGroupName))
+					Ω(channel.Name(fakeSlackAPI)).Should(Equal(slackapi.PrivateGroupName))
 				})
 			})
 		})
@@ -72,12 +72,12 @@ var _ = Describe("Channel", func() {
 			})
 
 			It("returns the name", func() {
-				Ω(channel.Name(fakeSlackAPI)).To(Equal("channel-name"))
+				Ω(channel.Name(fakeSlackAPI)).Should(Equal("channel-name"))
 			})
 
 			It("does not call Slack to find the group's name", func() {
 				channel.Name(fakeSlackAPI)
-				Ω(fakeSlackAPI.GetGroupsCallCount()).To(Equal(0))
+				Ω(fakeSlackAPI.GetGroupsCallCount()).Should(Equal(0))
 			})
 		})
 	})
