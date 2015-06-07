@@ -90,8 +90,6 @@ var _ = Describe("InviteRestricted", func() {
 
 	Describe("Do", func() {
 		It("attempts to invite a restricted account", func() {
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
@@ -131,8 +129,6 @@ var _ = Describe("InviteRestricted", func() {
 		})
 
 		It("returns nil on success", func() {
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",

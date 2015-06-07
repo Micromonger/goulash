@@ -90,8 +90,6 @@ var _ = Describe("InviteGuest", func() {
 
 	Describe("Do", func() {
 		It("attempts to invite a single-channel guest", func() {
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
@@ -114,7 +112,6 @@ var _ = Describe("InviteGuest", func() {
 		})
 
 		It("returns an error on failure", func() {
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed"))
 
 			a = action.New(
@@ -131,8 +128,6 @@ var _ = Describe("InviteGuest", func() {
 		})
 
 		It("returns nil on success", func() {
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
-
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
