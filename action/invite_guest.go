@@ -38,7 +38,52 @@ func (i inviteGuest) lastName() string {
 	return ""
 }
 
-func (i inviteGuest) Check(
+func (i inviteGuest) Do(
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) (string, error) {
+	var result string
+
+	logger = logger.Session("do")
+
+	checkErr := i.check(config, api, logger)
+	if checkErr != nil {
+		return checkErr.Error(), checkErr
+	}
+
+	err := api.InviteGuest(
+		config.SlackTeamName(),
+		i.channel.ID(),
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
+	)
+	if err != nil {
+		logger.Error("failed-inviting-single-channel-guest", err)
+		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(api), err.Error())
+		return result, err
+	}
+
+	logger.Info("successfully-invited-single-channel-guest")
+
+	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(api))
+	return result, nil
+}
+
+func (i inviteGuest) AuditMessage(api slackapi.SlackAPI) string {
+	return fmt.Sprintf(
+		"@%s invited %s %s (%s) as a single-channel guest to '%s' (%s)",
+		i.invitingUser,
+		i.firstName(),
+		i.lastName(),
+		i.emailAddress(),
+		i.channel.Name(api),
+		i.channel.ID(),
+	)
+}
+
+func (i inviteGuest) check(
 	config config.Config,
 	api slackapi.SlackAPI,
 	logger lager.Logger,
@@ -71,44 +116,4 @@ func (i inviteGuest) Check(
 	}
 
 	return nil
-}
-
-func (i inviteGuest) Do(
-	config config.Config,
-	api slackapi.SlackAPI,
-	logger lager.Logger,
-) (string, error) {
-	var result string
-
-	logger = logger.Session("do")
-
-	err := api.InviteGuest(
-		config.SlackTeamName(),
-		i.channel.ID(),
-		i.firstName(),
-		i.lastName(),
-		i.emailAddress(),
-	)
-	if err != nil {
-		logger.Error("failed-inviting-single-channel-guest", err)
-		result = fmt.Sprintf("Failed to invite %s %s (%s) as a guest to '%s': %s", i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(api), err.Error())
-		return result, err
-	}
-
-	logger.Info("successfully-invited-single-channel-guest")
-
-	result = fmt.Sprintf("@%s invited %s %s (%s) as a guest to '%s'", i.invitingUser, i.firstName(), i.lastName(), i.emailAddress(), i.channel.Name(api))
-	return result, nil
-}
-
-func (i inviteGuest) AuditMessage(api slackapi.SlackAPI) string {
-	return fmt.Sprintf(
-		"@%s invited %s %s (%s) as a single-channel guest to '%s' (%s)",
-		i.invitingUser,
-		i.firstName(),
-		i.lastName(),
-		i.emailAddress(),
-		i.channel.Name(api),
-		i.channel.ID(),
-	)
 }

@@ -13,11 +13,6 @@ type Action interface {
 	Do(config.Config, slackapi.SlackAPI, lager.Logger) (string, error)
 }
 
-// GuardedAction is an Action with prerequisites described in Check().
-type GuardedAction interface {
-	Check(config.Config, slackapi.SlackAPI, lager.Logger) error
-}
-
 // AuditableAction is an Action that should have an audit log entry created.
 type AuditableAction interface {
 	AuditMessage(slackapi.SlackAPI) string

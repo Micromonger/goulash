@@ -66,14 +66,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		text,
 	)
 
-	if a, ok := a.(action.GuardedAction); ok {
-		checkErr := a.Check(h.config, h.api, h.logger)
-		if checkErr != nil {
-			respondWith(checkErr.Error(), w, h.logger)
-			return
-		}
-	}
-
 	result, err := a.Do(h.config, h.api, h.logger)
 
 	if h.config.AuditLogChannelID() != "" {

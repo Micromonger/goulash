@@ -37,31 +37,27 @@ var _ = Describe("InviteGuest", func() {
 		logger = lager.NewLogger("testlogger")
 	})
 
-	Describe("Check", func() {
-		It("returns nil", func() {
-			a = action.New(
-				slackapi.NewChannel("channel-name", "channel-id"),
-				"commander-name",
-				"commander-id",
-				"invite-guest user@example.com Tom Smith",
-			)
-			ga := a.(action.GuardedAction)
-			Ω(ga.Check(c, nil, logger)).To(BeNil())
-		})
-
+	Describe("Do", func() {
 		It("returns an error when the email has an uninvitable domain", func() {
+			expectedErr := action.NewUninvitableDomainErr("uninvitable-domain.com", "uninvitable-domain-message", "/slack-slash-command")
+
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
 				"commander-id",
 				"invite-guest user@uninvitable-domain.com Tom Smith",
 			)
-			ga := a.(action.GuardedAction)
-			err := ga.Check(c, nil, logger)
-			Ω(err).To(HaveOccurred())
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).To(BeAssignableToTypeOf(expectedErr))
+			Ω(result).To(Equal(expectedErr.Error()))
+
+			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error when the channel is not visible", func() {
+			expectedErr := action.NewChannelNotVisibleErr("slack-user-id")
+
 			fakeChannel := &fakeslackapi.FakeChannel{}
 			fakeChannel.VisibleReturns(false)
 
@@ -71,24 +67,31 @@ var _ = Describe("InviteGuest", func() {
 				"commander-id",
 				"invite-guest user@example.com Tom Smith",
 			)
-			ga := a.(action.GuardedAction)
-			Ω(ga.Check(c, nil, logger)).To(BeAssignableToTypeOf(action.ChannelNotVisibleErr{}))
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).To(BeAssignableToTypeOf(expectedErr))
+			Ω(result).To(Equal(expectedErr.Error()))
+
+			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(0))
 		})
 
 		It("returns an error when the email address is missing", func() {
+			expectedErr := action.NewMissingEmailParameterErr("/slack-slash-command")
+
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
 				"commander-id",
 				"invite-guest",
 			)
-			ga := a.(action.GuardedAction)
-			err := ga.Check(c, nil, logger)
-			Ω(err).To(BeAssignableToTypeOf(action.NewMissingEmailParameterErr("/slack-slash-command")))
-		})
-	})
 
-	Describe("Do", func() {
+			result, err := a.Do(c, &fakeslackapi.FakeSlackAPI{}, logger)
+			Ω(err).To(BeAssignableToTypeOf(expectedErr))
+			Ω(result).To(Equal(expectedErr.Error()))
+
+			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(0))
+		})
+
 		It("attempts to invite a single-channel guest", func() {
 			a = action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
