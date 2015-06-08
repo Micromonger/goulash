@@ -14,7 +14,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("InviteGuest", func() {
+var _ = Describe("Invite", func() {
 	var (
 		a            action.Action
 		c            config.Config
@@ -102,11 +102,33 @@ var _ = Describe("InviteGuest", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a guest to 'channel-name'"))
+			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 
 			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
 
 			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteGuestArgsForCall(0)
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualChannelID).Should(Equal("channel-id"))
+			Ω(actualFirstName).Should(Equal("Tom"))
+			Ω(actualLastName).Should(Equal("Smith"))
+			Ω(actualEmailAddress).Should(Equal("user@example.com"))
+		})
+
+		It("attempts to invite a restricted account", func() {
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"invite-restricted user@example.com Tom Smith",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).NotTo(HaveOccurred())
+			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
+
+			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
+
+			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteRestrictedArgsForCall(0)
 			Ω(actualTeamName).Should(Equal("slack-team-name"))
 			Ω(actualChannelID).Should(Equal("channel-id"))
 			Ω(actualFirstName).Should(Equal("Tom"))
@@ -125,7 +147,7 @@ var _ = Describe("InviteGuest", func() {
 			)
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
-			Ω(result).To(Equal("Failed to invite Tom Smith (user@example.com) as a guest to 'channel-name': failed"))
+			Ω(result).To(Equal("Failed to invite Tom Smith (user@example.com) as a single-channel guest to 'channel-name': failed"))
 			Ω(err).To(HaveOccurred())
 			Ω(err.Error()).To(Equal("failed"))
 		})
@@ -140,7 +162,7 @@ var _ = Describe("InviteGuest", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a guest to 'channel-name'"))
+			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 		})
 	})
 })
