@@ -28,9 +28,6 @@ func New(
 	command, params := commandAndParams(text)
 
 	switch command {
-	case "help":
-		return help{}
-
 	case "info":
 		return NewInfo(params, commanderName)
 
