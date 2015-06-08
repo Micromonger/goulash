@@ -24,6 +24,22 @@ type info struct {
 	requestingUser string
 }
 
+// NewInfo returns a new info action
+func NewInfo(
+	params []string,
+	requestingUser string,
+) Action {
+	infoParams := make([]string, 1)
+	for i := range params {
+		infoParams[i] = params[i]
+	}
+
+	return &info{
+		params:         infoParams,
+		requestingUser: requestingUser,
+	}
+}
+
 func (i info) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
@@ -83,11 +99,7 @@ func (i info) AuditMessage(api slackapi.SlackAPI) string {
 }
 
 func (i info) emailAddress() string {
-	if len(i.params) > 0 {
-		return i.params[0]
-	}
-
-	return ""
+	return i.params[0]
 }
 
 func (i info) check(

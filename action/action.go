@@ -32,10 +32,7 @@ func New(
 		return help{}
 
 	case "info":
-		return info{
-			params:         params,
-			requestingUser: commanderName,
-		}
+		return NewInfo(params, commanderName)
 
 	case "invite-guest", "invite-restricted":
 		return NewInvite(params, command, channel, commanderName)
