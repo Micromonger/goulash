@@ -15,6 +15,26 @@ type invite struct {
 	invitingUser string
 }
 
+// NewInvite returns a new invite action
+func NewInvite(
+	params []string,
+	command string,
+	channel slackapi.Channel,
+	invitingUser string,
+) Action {
+	inviteParams := make([]string, 3)
+	for i := range params {
+		inviteParams[i] = params[i]
+	}
+
+	return &invite{
+		params:       inviteParams,
+		command:      command,
+		channel:      channel,
+		invitingUser: invitingUser,
+	}
+}
+
 func (i invite) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
@@ -132,27 +152,15 @@ func (i invite) check(
 }
 
 func (i invite) emailAddress() string {
-	if len(i.params) > 0 {
-		return i.params[0]
-	}
-
-	return ""
+	return i.params[0]
 }
 
 func (i invite) firstName() string {
-	if len(i.params) > 1 {
-		return i.params[1]
-	}
-
-	return ""
+	return i.params[1]
 }
 
 func (i invite) lastName() string {
-	if len(i.params) > 2 {
-		return i.params[2]
-	}
-
-	return ""
+	return i.params[2]
 }
 
 func (i invite) inviteeType() string {

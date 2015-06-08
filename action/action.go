@@ -38,12 +38,7 @@ func New(
 		}
 
 	case "invite-guest", "invite-restricted":
-		return invite{
-			params:       params,
-			command:      command,
-			channel:      channel,
-			invitingUser: commanderName,
-		}
+		return NewInvite(params, command, channel, commanderName)
 
 	default:
 		return help{}
