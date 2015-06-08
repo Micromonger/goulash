@@ -25,7 +25,7 @@ func New(
 	commanderID string,
 	text string,
 ) Action {
-	command, commandParams := commandAndParams(text)
+	command, params := commandAndParams(text)
 
 	switch command {
 	case "help":
@@ -33,13 +33,13 @@ func New(
 
 	case "info":
 		return info{
-			params:         commandParams,
+			params:         params,
 			requestingUser: commanderName,
 		}
 
 	case "invite-guest", "invite-restricted":
 		return invite{
-			params:       commandParams,
+			params:       params,
 			command:      command,
 			channel:      channel,
 			invitingUser: commanderName,
@@ -52,16 +52,16 @@ func New(
 
 func commandAndParams(text string) (string, []string) {
 	var command string
-	var commandParams []string
+	var params []string
 
 	if commandSep := strings.IndexByte(text, 0x20); commandSep > 0 {
 		command = text[:commandSep]
-		commandParams = strings.Split(text[commandSep+1:], " ")
+		params = strings.Split(text[commandSep+1:], " ")
 	} else {
 		command = text
 	}
 
-	return command, commandParams
+	return command, params
 }
 
 func uninvitableEmail(emailAddress string, uninvitableDomain string) bool {
