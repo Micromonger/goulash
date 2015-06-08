@@ -44,6 +44,8 @@ func (i info) check(
 		return NewMissingEmailParameterErr(config.SlackSlashCommand())
 	}
 
+	logger.Info("passed")
+
 	return nil
 }
 

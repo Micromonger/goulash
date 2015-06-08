@@ -161,5 +161,7 @@ func (i invite) check(
 		return NewChannelNotVisibleErr(config.SlackUserID())
 	}
 
+	logger.Info("passed")
+
 	return nil
 }
