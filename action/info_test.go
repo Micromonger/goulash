@@ -66,6 +66,35 @@ var _ = Describe("UserInfo", func() {
 			Ω(result).To(Equal("Failed to look up user@example.com: network error"))
 		})
 
+		It("returns an error when no email address was given", func() {
+			expectedErr := action.NewMissingEmailParameterErr("/slack-slash-command")
+
+			a := action.New(
+				slackapi.NewChannel("channel-id", "channel-name"),
+				"commander-name",
+				"commander-id",
+				"info",
+			)
+
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					Name: "tsmith",
+					Profile: slack.UserProfile{
+						Email:     "user@example.com",
+						FirstName: "Tom",
+						LastName:  "Smith",
+					},
+					IsRestricted:      false,
+					IsUltraRestricted: false,
+				},
+			}, nil)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).To(HaveOccurred())
+			Ω(err).To(BeAssignableToTypeOf(expectedErr))
+			Ω(result).To(Equal(expectedErr.Error()))
+		})
+
 		It("returns a result for an unknown user", func() {
 			a := action.New(
 				slackapi.NewChannel("channel-id", "channel-name"),

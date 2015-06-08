@@ -32,6 +32,21 @@ func (i info) emailAddress() string {
 	return ""
 }
 
+func (i info) check(
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) error {
+	logger = logger.Session("check")
+
+	if i.emailAddress() == "" {
+		logger.Info("missing-email-address")
+		return NewMissingEmailParameterErr(config.SlackSlashCommand())
+	}
+
+	return nil
+}
+
 func (i info) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
@@ -40,6 +55,10 @@ func (i info) Do(
 	var result string
 
 	logger = logger.Session("do")
+
+	if checkErr := i.check(config, api, logger); checkErr != nil {
+		return checkErr.Error(), checkErr
+	}
 
 	users, err := api.GetUsers()
 	if err != nil {
