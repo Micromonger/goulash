@@ -7,6 +7,7 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/slack"
 )
 
 var (
@@ -62,23 +63,8 @@ func (i info) Do(
 
 	for _, user := range users {
 		if user.Profile.Email == i.emailAddress() {
-			membership := membershipFull
-			if user.IsRestricted {
-				membership = membershipRestrictedAccount
-			}
-			if user.IsUltraRestricted {
-				membership = membershipSingleChannelGuest
-			}
 			logger.Info("successfully-found-user")
-			result = fmt.Sprintf(
-				infoMessageFmt,
-				user.Profile.FirstName,
-				user.Profile.LastName,
-				user.Profile.Email,
-				membership,
-				user.Name,
-			)
-			return result, nil
+			return i.infoMessage(user), nil
 		}
 	}
 
@@ -117,4 +103,22 @@ func (i info) check(
 	logger.Info("passed")
 
 	return nil
+}
+
+func (i info) infoMessage(user slack.User) string {
+	membership := membershipFull
+	if user.IsRestricted {
+		membership = membershipRestrictedAccount
+	}
+	if user.IsUltraRestricted {
+		membership = membershipSingleChannelGuest
+	}
+	return fmt.Sprintf(
+		infoMessageFmt,
+		user.Profile.FirstName,
+		user.Profile.LastName,
+		user.Profile.Email,
+		membership,
+		user.Name,
+	)
 }
