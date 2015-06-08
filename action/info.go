@@ -25,7 +25,7 @@ type info struct {
 }
 
 func (i info) emailAddress() string {
-	if len(i.params) >= 0 {
+	if len(i.params) > 0 {
 		return i.params[0]
 	}
 
