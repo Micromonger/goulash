@@ -15,41 +15,6 @@ type invite struct {
 	invitingUser string
 }
 
-func (i invite) emailAddress() string {
-	if len(i.params) > 0 {
-		return i.params[0]
-	}
-
-	return ""
-}
-
-func (i invite) firstName() string {
-	if len(i.params) > 1 {
-		return i.params[1]
-	}
-
-	return ""
-}
-
-func (i invite) lastName() string {
-	if len(i.params) > 2 {
-		return i.params[2]
-	}
-
-	return ""
-}
-
-func (i invite) inviteeType() string {
-	switch i.command {
-	case "invite-guest":
-		return "single-channel guest"
-	case "invite-restricted":
-		return "restricted account"
-	}
-
-	return "unknown"
-}
-
 func (i invite) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
@@ -164,4 +129,39 @@ func (i invite) check(
 	logger.Info("passed")
 
 	return nil
+}
+
+func (i invite) emailAddress() string {
+	if len(i.params) > 0 {
+		return i.params[0]
+	}
+
+	return ""
+}
+
+func (i invite) firstName() string {
+	if len(i.params) > 1 {
+		return i.params[1]
+	}
+
+	return ""
+}
+
+func (i invite) lastName() string {
+	if len(i.params) > 2 {
+		return i.params[2]
+	}
+
+	return ""
+}
+
+func (i invite) inviteeType() string {
+	switch i.command {
+	case "invite-guest":
+		return "single-channel guest"
+	case "invite-restricted":
+		return "restricted account"
+	}
+
+	return "unknown"
 }

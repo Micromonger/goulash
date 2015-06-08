@@ -24,31 +24,6 @@ type info struct {
 	requestingUser string
 }
 
-func (i info) emailAddress() string {
-	if len(i.params) > 0 {
-		return i.params[0]
-	}
-
-	return ""
-}
-
-func (i info) check(
-	config config.Config,
-	api slackapi.SlackAPI,
-	logger lager.Logger,
-) error {
-	logger = logger.Session("check")
-
-	if i.emailAddress() == "" {
-		logger.Info("missing-email-address")
-		return NewMissingEmailParameterErr(config.SlackSlashCommand())
-	}
-
-	logger.Info("passed")
-
-	return nil
-}
-
 func (i info) Do(
 	config config.Config,
 	api slackapi.SlackAPI,
@@ -105,4 +80,29 @@ func (i info) Do(
 
 func (i info) AuditMessage(api slackapi.SlackAPI) string {
 	return fmt.Sprintf("@%s requested info on '%s'", i.requestingUser, i.emailAddress())
+}
+
+func (i info) emailAddress() string {
+	if len(i.params) > 0 {
+		return i.params[0]
+	}
+
+	return ""
+}
+
+func (i info) check(
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) error {
+	logger = logger.Session("check")
+
+	if i.emailAddress() == "" {
+		logger.Info("missing-email-address")
+		return NewMissingEmailParameterErr(config.SlackSlashCommand())
+	}
+
+	logger.Info("passed")
+
+	return nil
 }
