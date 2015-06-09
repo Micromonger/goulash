@@ -92,8 +92,7 @@ func (i invite) AuditMessage(api slackapi.SlackAPI) string {
 
 func (i invite) successMessage(api slackapi.SlackAPI) string {
 	return fmt.Sprintf(
-		"@%s invited %s %s (%s) as a %s to '%s'",
-		i.invitingUser,
+		"Successfully invited %s %s (%s) as a %s to '%s'",
 		i.firstName(),
 		i.lastName(),
 		i.emailAddress(),

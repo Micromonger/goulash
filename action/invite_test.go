@@ -102,7 +102,7 @@ var _ = Describe("Invite", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
+			Ω(result).To(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 
 			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
 
@@ -124,7 +124,7 @@ var _ = Describe("Invite", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
+			Ω(result).To(Equal("Successfully invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
 
 			Ω(fakeSlackAPI.InviteRestrictedCallCount()).Should(Equal(1))
 
@@ -162,7 +162,7 @@ var _ = Describe("Invite", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).NotTo(HaveOccurred())
-			Ω(result).To(Equal("@commander-name invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
+			Ω(result).To(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 		})
 	})
 })

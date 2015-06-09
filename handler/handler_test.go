@@ -164,7 +164,7 @@ var _ = Describe("Handler", func() {
 			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
-			Ω(w.Body.String()).To(Equal("@requesting_user invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
+			Ω(w.Body.String()).To(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 		})
 
 		It("responds to Slack with the result of the command on failure", func() {
@@ -528,7 +528,7 @@ var _ = Describe("Handler", func() {
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
-			Ω(w.Body.String()).To(Equal("@requesting_user invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
+			Ω(w.Body.String()).To(Equal("Successfully invited Tom Smith (user@example.com) as a restricted account to 'channel-name'"))
 		})
 
 		It("responds to Slack with the result of the command on failure", func() {
