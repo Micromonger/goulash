@@ -117,7 +117,7 @@ Pull requests are welcomed. Any PR must include test coverage and pass [gometali
 
 ```
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
-$ gometalinter --exclude=(Godeps|fakes) ./...
+$ gometalinter --exclude="(Godeps|fakes)" ./...
 $ ginkgo *
 ```
 
@@ -127,7 +127,7 @@ Before submitting a PR it is recommended to use [Concourse](http://concourse.ci)
 $ vagrant init concourse/lite
 $ vagrant up
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
-$ fly -c ci/unit.yml
+$ fly execute --config ci/unit.yml
 ```
 
 ## Maintainers
