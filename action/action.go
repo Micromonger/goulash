@@ -36,6 +36,9 @@ func New(
 	case "invite-guest", "invite-restricted":
 		return NewInvite(params, command, channel, commanderName)
 
+	case "disable-user":
+		return NewDisableUser(params, commanderName)
+
 	default:
 		return help{}
 	}
