@@ -116,7 +116,7 @@ var _ = Describe("DisableUser", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).To(HaveOccurred())
 			Ω(err.Error()).To(Equal("Unable to find user matching 'user@example.com'."))
-			Ω(result).To(Equal("Failed to disable user: Unable to find user matching 'user@example.com'."))
+			Ω(result).To(Equal("Failed to disable user 'user@example.com': Unable to find user matching 'user@example.com'."))
 		})
 
 		It("returns an error when disabling the user fails", func() {

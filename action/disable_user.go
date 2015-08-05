@@ -42,18 +42,14 @@ func (du disableUser) Do(
 	users, err := api.GetUsers()
 	if err != nil {
 		logger.Error("failed", err)
-		message = fmt.Sprintf("Failed to disable user '%s': %s", du.searchParam(), err.Error())
-
-		return message, err
+		return du.failureMessage(err), err
 	}
 
 	var id string
 	for _, user := range users {
 		if !(user.IsRestricted || user.IsUltraRestricted) {
 			err = NewUserCannotBeDisabledErr()
-			message = fmt.Sprintf("Failed to disable user '%s': %s", du.searchParam(), err.Error())
-
-			return message, err
+			return du.failureMessage(err), err
 		}
 
 		if user.Profile.Email == du.searchParam() || fmt.Sprintf("@%s", user.Name) == du.searchParam() {
@@ -65,17 +61,13 @@ func (du disableUser) Do(
 	if len(id) == 0 {
 		logger.Error("failed", err)
 		err = NewUserNotFoundErr(du.searchParam())
-		message = fmt.Sprintf("Failed to disable user: %s", err.Error())
-
-		return message, err
+		return du.failureMessage(err), err
 	}
 
 	err = api.DisableUser(config.SlackTeamName(), du.searchParam())
 	if err != nil {
 		logger.Error("failed", err)
-		message = fmt.Sprintf("Failed to disable user '%s': %s", du.searchParam(), err.Error())
-
-		return message, err
+		return du.failureMessage(err), err
 	}
 
 	logger.Info("succeeded")
@@ -90,4 +82,8 @@ func (du disableUser) AuditMessage(api slackapi.SlackAPI) string {
 		du.disablingUser,
 		du.searchParam(),
 	)
+}
+
+func (du disableUser) failureMessage(err error) string {
+	return fmt.Sprintf("Failed to disable user '%s': %s", du.searchParam(), err.Error())
 }
