@@ -4,7 +4,7 @@ platform: linux
 image: docker:///golang#1.4.2-wheezy
 
 inputs:
-- name: goulash
+- name: goulash-develop
   path: go/src/github.com/pivotalservices/goulash
 
 run:
