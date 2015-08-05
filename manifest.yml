@@ -1,18 +1,17 @@
 ---
-applications:
-- name: the-butler
-  memory: 100M
-  instances: 1
-  domain: cfapps.pez.pivotal.io
-  buildpack: https://github.com/cloudfoundry/go-buildpack.git
-  services:
-    - butler-config
-  env:
-    CONFIG_SERVICE_NAME: butler-config
-    SLACK_AUDIT_LOG_CHANNEL_ID: "G050JMNB6"
-    SLACK_HANDLER_NAME: "thebutler"
-    SLACK_SLASH_COMMAND: "/butler"
-    SLACK_TEAM_NAME: "pivotalservices"
-    SLACK_USER_ID: "thebutler"
-    UNINVITABLE_DOMAIN: "pivotal.io"
-    UNINVITABLE_DOMAIN_MESSAGE: "To add them to Slack, you should send an email to ask@pivotal.io requesting access for that user. Pivotal users should not be added to Slack as restricted or guest users."
+name: the-butler
+memory: 100M
+instances: 1
+domain: cfapps.pez.pivotal.io
+buildpack: https://github.com/cloudfoundry/go-buildpack.git
+services:
+  - butler-config
+env:
+  CONFIG_SERVICE_NAME: butler-config
+  SLACK_AUDIT_LOG_CHANNEL_ID: "G050JMNB6"
+  SLACK_HANDLER_NAME: "thebutler"
+  SLACK_SLASH_COMMAND: "/butler"
+  SLACK_TEAM_NAME: "pivotalservices"
+  SLACK_USER_ID: "thebutler"
+  UNINVITABLE_DOMAIN: "pivotal.io"
+  UNINVITABLE_DOMAIN_MESSAGE: "To add them to Slack, you should send an email to ask@pivotal.io requesting access for that user. Pivotal users should not be added to Slack as restricted or guest users."
