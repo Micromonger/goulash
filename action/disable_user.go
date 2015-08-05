@@ -35,8 +35,6 @@ func (du disableUser) Do(
 	api slackapi.SlackAPI,
 	logger lager.Logger,
 ) (string, error) {
-	var message string
-
 	logger = logger.Session("do")
 
 	users, err := api.GetUsers()
@@ -73,9 +71,8 @@ func (du disableUser) Do(
 	}
 
 	logger.Info("succeeded")
-	message = fmt.Sprintf("Successfully disabled user '%s'", searchVal)
 
-	return message, nil
+	return fmt.Sprintf("Successfully disabled user '%s'", searchVal), nil
 }
 
 func (du disableUser) AuditMessage(api slackapi.SlackAPI) string {
