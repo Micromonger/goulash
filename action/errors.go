@@ -80,3 +80,15 @@ func NewUserNotFoundErr(searchParam string) UserNotFoundErr {
 func (e UserNotFoundErr) Error() string {
 	return fmt.Sprintf(userNotFoundErrFmt, e.searchParam)
 }
+
+// UserCannotBeDisabledErr is an error.
+type UserCannotBeDisabledErr struct{}
+
+// NewUserCannotBeDisabledErr returns a new UserCannotBeDisabledErr.
+func NewUserCannotBeDisabledErr() UserCannotBeDisabledErr {
+	return UserCannotBeDisabledErr{}
+}
+
+func (e UserCannotBeDisabledErr) Error() string {
+	return "Full users cannot be disabled."
+}

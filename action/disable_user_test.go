@@ -42,8 +42,9 @@ var _ = Describe("DisableUser", func() {
 		It("attempts to disable the user if they can be found by name", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
-					ID:   "U1234",
-					Name: "tsmith",
+					ID:           "U1234",
+					Name:         "tsmith",
+					IsRestricted: true,
 				},
 			}, nil)
 
@@ -64,7 +65,8 @@ var _ = Describe("DisableUser", func() {
 		It("attempts to disable the user if they can be found by email", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
-					ID: "U1234",
+					ID:           "U1234",
+					IsRestricted: true,
 					Profile: slack.UserProfile{
 						Email: "user@example.com",
 					},
@@ -120,7 +122,8 @@ var _ = Describe("DisableUser", func() {
 		It("returns an error when disabling the user fails", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
-					ID: "U1234",
+					ID:           "U1234",
+					IsRestricted: true,
 					Profile: slack.UserProfile{
 						Email: "user@example.com",
 					},
@@ -145,7 +148,8 @@ var _ = Describe("DisableUser", func() {
 		It("returns nil on success", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
-					ID: "U1234",
+					ID:           "U1234",
+					IsRestricted: true,
 					Profile: slack.UserProfile{
 						Email: "user@example.com",
 					},
@@ -164,6 +168,29 @@ var _ = Describe("DisableUser", func() {
 			Ω(result).To(Equal("Successfully disabled user 'user@example.com'"))
 		})
 
+		It("returns an error if the user is a full user", func() {
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					ID:                "U1234",
+					IsRestricted:      false,
+					IsUltraRestricted: false,
+					Profile: slack.UserProfile{
+						Email: "user@example.com",
+					},
+				},
+			}, nil)
+
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"disable-user user@example.com",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).To(HaveOccurred())
+			Ω(result).To(Equal("Failed to disable user 'user@example.com': Full users cannot be disabled."))
+		})
 	})
 
 	Describe("AuditMessage", func() {
