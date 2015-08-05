@@ -2,6 +2,7 @@ package action
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
@@ -69,6 +70,14 @@ func (i invite) Do(
 	}
 
 	if err != nil {
+		alreadyInvited, matchErr := regexp.MatchString("already_invited", err.Error())
+		if matchErr != nil {
+			return i.failureMessage(api, matchErr), matchErr
+		}
+		if alreadyInvited {
+			return i.successMessage(api), nil
+		}
+
 		logger.Error("failed", err)
 		return i.failureMessage(api, err), err
 	}

@@ -136,6 +136,21 @@ var _ = Describe("Invite", func() {
 			Ω(actualEmailAddress).To(Equal("user@example.com"))
 		})
 
+		It("returns alternate success on 'already_invited' error", func() {
+			fakeSlackAPI.InviteGuestReturns(errors.New("failed: already_invited"))
+
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"invite-guest user@example.com Tom Smith",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(result).To(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
+			Ω(err).NotTo(HaveOccurred())
+		})
+
 		It("returns an error on failure", func() {
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed"))
 
