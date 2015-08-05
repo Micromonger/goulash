@@ -171,6 +171,14 @@ var _ = Describe("DisableUser", func() {
 		It("returns an error if the user is a full user", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
+					ID:                "U9999",
+					IsRestricted:      false,
+					IsUltraRestricted: false,
+					Profile: slack.UserProfile{
+						Email: "jones@example.com",
+					},
+				},
+				{
 					ID:                "U1234",
 					IsRestricted:      false,
 					IsUltraRestricted: false,
@@ -190,6 +198,37 @@ var _ = Describe("DisableUser", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).To(HaveOccurred())
 			Ω(result).To(Equal("Failed to disable user 'user@example.com': Full users cannot be disabled."))
+		})
+
+		It("does not return an error if another user is a full user", func() {
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					ID:                "U9999",
+					IsRestricted:      false,
+					IsUltraRestricted: false,
+					Profile: slack.UserProfile{
+						Email: "jones@example.com",
+					},
+				},
+				{
+					ID:                "U1234",
+					IsRestricted:      false,
+					IsUltraRestricted: true,
+					Profile: slack.UserProfile{
+						Email: "user@example.com",
+					},
+				},
+			}, nil)
+
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"disable-user user@example.com",
+			)
+
+			_, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).NotTo(HaveOccurred())
 		})
 	})
 

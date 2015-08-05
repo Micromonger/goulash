@@ -47,12 +47,12 @@ func (du disableUser) Do(
 
 	var id string
 	for _, user := range users {
-		if !(user.IsRestricted || user.IsUltraRestricted) {
-			err = NewUserCannotBeDisabledErr()
-			return du.failureMessage(err), err
-		}
-
 		if user.Profile.Email == du.searchParam() || fmt.Sprintf("@%s", user.Name) == du.searchParam() {
+			if !(user.IsRestricted || user.IsUltraRestricted) {
+				err = NewUserCannotBeDisabledErr()
+				return du.failureMessage(err), err
+			}
+
 			id = user.ID
 			break
 		}
