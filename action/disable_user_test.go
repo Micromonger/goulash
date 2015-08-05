@@ -39,7 +39,29 @@ var _ = Describe("DisableUser", func() {
 	})
 
 	Describe("Do", func() {
-		It("attempts to disable the user if they can be found", func() {
+		It("attempts to disable the user if they can be found by name", func() {
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					ID:   "U1234",
+					Name: "tsmith",
+				},
+			}, nil)
+
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"disable-user @tsmith",
+			)
+
+			_, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).NotTo(HaveOccurred())
+
+			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
+			Ω(fakeSlackAPI.DisableUserCallCount()).Should(Equal(1))
+		})
+
+		It("attempts to disable the user if they can be found by email", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
 					ID: "U1234",

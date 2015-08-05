@@ -49,7 +49,7 @@ func (du disableUser) Do(
 
 	var id string
 	for _, user := range users {
-		if user.Profile.Email == du.searchParam() {
+		if user.Profile.Email == du.searchParam() || fmt.Sprintf("@%s", user.Name) == du.searchParam() {
 			id = user.ID
 			break
 		}
