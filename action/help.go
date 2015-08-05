@@ -28,7 +28,10 @@ func (h help) Do(
 			"_Invite a Restricted Account to the current channel/group_\n"+
 			"\n"+
 			"`info <email>`\n"+
-			"_Get information on a Slack user_\n",
+			"_Get information on a Slack user_\n"+
+			"\n"+
+			"`disable-user <email|@username>`\n"+
+			"_Disable a Slack user_\n",
 		config.SlackSlashCommand(),
 	)
 
