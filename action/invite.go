@@ -40,16 +40,17 @@ func (i invite) Do(
 	api slackapi.SlackAPI,
 	logger lager.Logger,
 ) (string, error) {
+	var err error
+
 	logger = logger.Session("do")
 
-	if checkErr := i.check(config, api, logger); checkErr != nil {
-		return checkErr.Error(), checkErr
+	if err = i.check(config, api, logger); err != nil {
+		return err.Error(), err
 	}
 
-	var inviteErr error
 	switch i.command {
 	case "invite-guest":
-		inviteErr = api.InviteGuest(
+		err = api.InviteGuest(
 			config.SlackTeamName(),
 			i.channel.ID(),
 			i.firstName(),
@@ -58,7 +59,7 @@ func (i invite) Do(
 		)
 
 	case "invite-restricted":
-		inviteErr = api.InviteRestricted(
+		err = api.InviteRestricted(
 			config.SlackTeamName(),
 			i.channel.ID(),
 			i.firstName(),
@@ -67,9 +68,9 @@ func (i invite) Do(
 		)
 	}
 
-	if inviteErr != nil {
-		logger.Error("failed", inviteErr)
-		return i.failureMessage(api, inviteErr), inviteErr
+	if err != nil {
+		logger.Error("failed", err)
+		return i.failureMessage(api, err), err
 	}
 
 	logger.Info("succeeded")
