@@ -47,7 +47,7 @@ func (du disableUser) Do(
 
 	var id string
 	for _, user := range users {
-		if user.Profile.Email == searchVal || fmt.Sprintf("@%s", user.Name) == searchVal {
+		if matches(searchVal, user.Profile.Email, fmt.Sprintf("@%s", user.Name)) {
 			if !(user.IsRestricted || user.IsUltraRestricted) {
 				err = NewUserCannotBeDisabledErr()
 				return du.failureMessage(err), err
@@ -84,5 +84,20 @@ func (du disableUser) AuditMessage(api slackapi.SlackAPI) string {
 }
 
 func (du disableUser) failureMessage(err error) string {
-	return fmt.Sprintf("Failed to disable user '%s': %s", du.searchVal(), err.Error())
+	return fmt.Sprintf(
+		"Failed to disable user '%s': %s",
+		du.searchVal(),
+		err.Error(),
+	)
+}
+
+func matches(searchVal string, candidates ...string) bool {
+	var match bool
+	for _, candidate := range candidates {
+		if searchVal == candidate {
+			match = true
+			break
+		}
+	}
+	return match
 }
