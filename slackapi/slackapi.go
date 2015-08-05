@@ -27,5 +27,6 @@ type SlackAPI interface {
 	OpenIMChannel(userID string) (bool, bool, string, error)
 
 	// users
+	DisableUser(teamName string, user string) error
 	GetUsers() ([]slack.User, error)
 }

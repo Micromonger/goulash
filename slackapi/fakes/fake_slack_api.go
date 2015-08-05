@@ -65,6 +65,15 @@ type FakeSlackAPI struct {
 		result3 string
 		result4 error
 	}
+	DisableUserStub        func(teamName string, user string) error
+	disableUserMutex       sync.RWMutex
+	disableUserArgsForCall []struct {
+		teamName string
+		user     string
+	}
+	disableUserReturns struct {
+		result1 error
+	}
 	GetUsersStub        func() ([]slack.User, error)
 	getUsersMutex       sync.RWMutex
 	getUsersArgsForCall []struct{}
@@ -248,6 +257,39 @@ func (fake *FakeSlackAPI) OpenIMChannelReturns(result1 bool, result2 bool, resul
 		result3 string
 		result4 error
 	}{result1, result2, result3, result4}
+}
+
+func (fake *FakeSlackAPI) DisableUser(teamName string, user string) error {
+	fake.disableUserMutex.Lock()
+	fake.disableUserArgsForCall = append(fake.disableUserArgsForCall, struct {
+		teamName string
+		user     string
+	}{teamName, user})
+	fake.disableUserMutex.Unlock()
+	if fake.DisableUserStub != nil {
+		return fake.DisableUserStub(teamName, user)
+	} else {
+		return fake.disableUserReturns.result1
+	}
+}
+
+func (fake *FakeSlackAPI) DisableUserCallCount() int {
+	fake.disableUserMutex.RLock()
+	defer fake.disableUserMutex.RUnlock()
+	return len(fake.disableUserArgsForCall)
+}
+
+func (fake *FakeSlackAPI) DisableUserArgsForCall(i int) (string, string) {
+	fake.disableUserMutex.RLock()
+	defer fake.disableUserMutex.RUnlock()
+	return fake.disableUserArgsForCall[i].teamName, fake.disableUserArgsForCall[i].user
+}
+
+func (fake *FakeSlackAPI) DisableUserReturns(result1 error) {
+	fake.DisableUserStub = nil
+	fake.disableUserReturns = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *FakeSlackAPI) GetUsers() ([]slack.User, error) {
