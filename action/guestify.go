@@ -9,8 +9,9 @@ import (
 )
 
 type guestify struct {
-	params  []string
-	channel slackapi.Channel
+	params          []string
+	channel         slackapi.Channel
+	guestifyingUser string
 }
 
 func (g guestify) searchVal() string {
@@ -30,8 +31,9 @@ func NewGuestify(
 	}
 
 	return &guestify{
-		params:  guestifyParams,
-		channel: channel,
+		params:          guestifyParams,
+		channel:         channel,
+		guestifyingUser: guestifyingUser,
 	}
 }
 
@@ -78,5 +80,13 @@ func (g guestify) failureMessage(err error) string {
 		"Failed to guestify user '%s': %s",
 		g.searchVal(),
 		err.Error(),
+	)
+}
+
+func (g guestify) AuditMessage(api slackapi.SlackAPI) string {
+	return fmt.Sprintf(
+		"@%s guestified user '%s'",
+		g.guestifyingUser,
+		g.searchVal(),
 	)
 }

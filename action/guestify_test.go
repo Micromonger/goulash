@@ -223,4 +223,28 @@ var _ = Describe("Guestify", func() {
 			Ω(result).To(Equal("Successfully guestified user @tsmith"))
 		})
 	})
+
+	Describe("AuditMessage", func() {
+		var (
+			fakeSlackAPI *fakeslackapi.FakeSlackAPI
+		)
+
+		BeforeEach(func() {
+			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+		})
+
+		It("exists", func() {
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"guestify user@example.com",
+			)
+
+			aa, ok := a.(action.AuditableAction)
+			Ω(ok).Should(BeTrue())
+
+			Ω(aa.AuditMessage(fakeSlackAPI)).Should(Equal("@commander-name guestified user 'user@example.com'"))
+		})
+	})
 })
