@@ -9,24 +9,22 @@ var (
 	userNotFoundErrFmt      = "Unable to find user matching '%s'."
 )
 
-// ChannelNotVisibleErr is an error.
-type ChannelNotVisibleErr struct {
+type channelNotVisibleErr struct {
 	slackUserID string
 }
 
 // NewChannelNotVisibleErr returns a new ChannelNotVisibleErr.
-func NewChannelNotVisibleErr(slackUserID string) ChannelNotVisibleErr {
-	return ChannelNotVisibleErr{
+func NewChannelNotVisibleErr(slackUserID string) error {
+	return channelNotVisibleErr{
 		slackUserID: slackUserID,
 	}
 }
 
-func (e ChannelNotVisibleErr) Error() string {
+func (e channelNotVisibleErr) Error() string {
 	return fmt.Sprintf(channelNotVisibleErrFmt, e.slackUserID, e.slackUserID, e.slackUserID, e.slackUserID)
 }
 
-// UninvitableDomainErr is an error.
-type UninvitableDomainErr struct {
+type uninvitableDomainErr struct {
 	uninvitableDomain  string
 	uninvitableMessage string
 	slackSlashCommand  string
@@ -37,58 +35,55 @@ func NewUninvitableDomainErr(
 	uninvitableDomain string,
 	uninvitableMessage string,
 	slackSlashCommand string,
-) UninvitableDomainErr {
-	return UninvitableDomainErr{
+) error {
+	return uninvitableDomainErr{
 		uninvitableDomain:  uninvitableDomain,
 		uninvitableMessage: uninvitableMessage,
 		slackSlashCommand:  slackSlashCommand,
 	}
 }
 
-func (e UninvitableDomainErr) Error() string {
+func (e uninvitableDomainErr) Error() string {
 	return fmt.Sprintf(uninvitableDomainErrFmt, e.uninvitableDomain, e.slackSlashCommand, e.uninvitableMessage)
 }
 
-// MissingEmailParameterErr is an error.
-type MissingEmailParameterErr struct {
+type missingEmailParameterErr struct {
 	slackSlashCommand string
 }
 
 // NewMissingEmailParameterErr returns a new MissingEmailParameterErr.
-func NewMissingEmailParameterErr(slackSlashCommand string) MissingEmailParameterErr {
-	return MissingEmailParameterErr{
+func NewMissingEmailParameterErr(slackSlashCommand string) error {
+	return missingEmailParameterErr{
 		slackSlashCommand: slackSlashCommand,
 	}
 }
 
-func (e MissingEmailParameterErr) Error() string {
+func (e missingEmailParameterErr) Error() string {
 	return fmt.Sprintf(missingParameterErrFmt, "email address", e.slackSlashCommand)
 }
 
-// UserNotFoundErr is an error.
-type UserNotFoundErr struct {
+type userNotFoundErr struct {
 	searchParam string
 }
 
 // NewUserNotFoundErr returns a new UserNotFoundErr.
-func NewUserNotFoundErr(searchParam string) UserNotFoundErr {
-	return UserNotFoundErr{
+func NewUserNotFoundErr(searchParam string) error {
+	return userNotFoundErr{
 		searchParam: searchParam,
 	}
 }
 
-func (e UserNotFoundErr) Error() string {
+func (e userNotFoundErr) Error() string {
 	return fmt.Sprintf(userNotFoundErrFmt, e.searchParam)
 }
 
-// UserCannotBeDisabledErr is an error.
-type UserCannotBeDisabledErr struct{}
+type userCannotBeDisabledErr struct{}
 
 // NewUserCannotBeDisabledErr returns a new UserCannotBeDisabledErr.
-func NewUserCannotBeDisabledErr() UserCannotBeDisabledErr {
-	return UserCannotBeDisabledErr{}
+func NewUserCannotBeDisabledErr() error {
+	return userCannotBeDisabledErr{}
 }
 
-func (e UserCannotBeDisabledErr) Error() string {
+func (e userCannotBeDisabledErr) Error() string {
 	return "Full users cannot be disabled."
 }
