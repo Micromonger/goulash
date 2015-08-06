@@ -64,7 +64,7 @@ func (du disableUser) Do(
 		return du.failureMessage(err), err
 	}
 
-	err = api.DisableUser(config.SlackTeamName(), searchVal)
+	err = api.DisableUser(config.SlackTeamName(), id)
 	if err != nil {
 		logger.Error("failed", err)
 		return du.failureMessage(err), err

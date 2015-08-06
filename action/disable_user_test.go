@@ -60,6 +60,10 @@ var _ = Describe("DisableUser", func() {
 
 			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 			Ω(fakeSlackAPI.DisableUserCallCount()).Should(Equal(1))
+
+			actualSlackTeamName, actualID := fakeSlackAPI.DisableUserArgsForCall(0)
+			Ω(actualSlackTeamName).To(Equal("slack-team-name"))
+			Ω(actualID).To(Equal("U1234"))
 		})
 
 		It("attempts to disable the user if they can be found by email", func() {
@@ -85,6 +89,10 @@ var _ = Describe("DisableUser", func() {
 
 			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 			Ω(fakeSlackAPI.DisableUserCallCount()).Should(Equal(1))
+
+			actualSlackTeamName, actualID := fakeSlackAPI.DisableUserArgsForCall(0)
+			Ω(actualSlackTeamName).To(Equal("slack-team-name"))
+			Ω(actualID).To(Equal("U1234"))
 		})
 
 		It("returns an error if the GetUsers call fails", func() {
