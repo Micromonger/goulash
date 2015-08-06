@@ -6,6 +6,7 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/slack"
 )
 
 type disableUser struct {
@@ -37,16 +38,10 @@ func (du disableUser) Do(
 ) (string, error) {
 	logger = logger.Session("do")
 
-	searchVal := du.searchVal()
-
-	user, err := findUser(searchVal, api)
+	user, err := du.check(du.searchVal(), config, api, logger)
 	if err != nil {
-		logger.Error("failed", err)
+		logger.Error("check-failed", err)
 		return du.failureMessage(err), err
-	}
-
-	if !(user.IsRestricted || user.IsUltraRestricted) {
-		return du.failureMessage(errUserCannotBeDisabled), errUserCannotBeDisabled
 	}
 
 	err = api.DisableUser(config.SlackTeamName(), user.ID)
@@ -57,7 +52,7 @@ func (du disableUser) Do(
 
 	logger.Info("succeeded")
 
-	return fmt.Sprintf("Successfully disabled user '%s'", searchVal), nil
+	return fmt.Sprintf("Successfully disabled user '%s'", du.searchVal()), nil
 }
 
 func (du disableUser) AuditMessage(api slackapi.SlackAPI) string {
@@ -74,4 +69,26 @@ func (du disableUser) failureMessage(err error) string {
 		du.searchVal(),
 		err.Error(),
 	)
+}
+
+func (du disableUser) check(
+	searchVal string,
+	config config.Config,
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) (slack.User, error) {
+	logger = logger.Session("check")
+
+	user, err := findUser(searchVal, api)
+	if err != nil {
+		logger.Error("failed", err)
+		return slack.User{}, err
+	}
+
+	if !(user.IsRestricted || user.IsUltraRestricted) {
+		logger.Error("failed", errUserCannotBeDisabled)
+		return slack.User{}, errUserCannotBeDisabled
+	}
+
+	return user, nil
 }
