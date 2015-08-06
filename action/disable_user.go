@@ -46,8 +46,7 @@ func (du disableUser) Do(
 	}
 
 	if !(user.IsRestricted || user.IsUltraRestricted) {
-		err = NewUserCannotBeDisabledErr()
-		return du.failureMessage(err), err
+		return du.failureMessage(errUserCannotBeDisabled), errUserCannotBeDisabled
 	}
 
 	err = api.DisableUser(config.SlackTeamName(), user.ID)

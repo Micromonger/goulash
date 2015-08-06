@@ -1,12 +1,17 @@
 package action
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 	missingParameterErrFmt  = "Missing required %s parameter. See `%s help` for more information."
 	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through %s. %s"
 	userNotFoundErrFmt      = "Unable to find user matching '%s'."
+
+	errUserCannotBeDisabled = errors.New("Full users cannot be disabled.")
 )
 
 type channelNotVisibleErr struct {
@@ -75,15 +80,4 @@ func NewUserNotFoundErr(searchParam string) error {
 
 func (e userNotFoundErr) Error() string {
 	return fmt.Sprintf(userNotFoundErrFmt, e.searchParam)
-}
-
-type userCannotBeDisabledErr struct{}
-
-// NewUserCannotBeDisabledErr returns a new UserCannotBeDisabledErr.
-func NewUserCannotBeDisabledErr() error {
-	return userCannotBeDisabledErr{}
-}
-
-func (e userCannotBeDisabledErr) Error() string {
-	return "Full users cannot be disabled."
 }
