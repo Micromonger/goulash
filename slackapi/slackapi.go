@@ -6,6 +6,10 @@ const (
 	// PrivateGroupName holds the name Slack provides for a Slash Command sent
 	// from a group which is private.
 	PrivateGroupName = "privategroup"
+
+	// DirectMessageGroupName holds the name Slack provides for a Slash Command sent
+	// from a direct message.
+	DirectMessageGroupName = "directmessage"
 )
 
 //go:generate counterfeiter . SlackAPI

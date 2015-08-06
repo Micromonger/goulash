@@ -11,9 +11,10 @@ var (
 	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through %s. %s"
 	userNotFoundErrFmt      = "Unable to find user matching '%s'."
 
-	errUserCannotBeDisabled         = errors.New("Full users cannot be disabled.")
-	errUserCannotBeGuestified       = errors.New("Full users cannot be guestified.")
-	errUserIsAlreadyUltraRestricted = errors.New("User is already a single-channel guest.")
+	errUserCannotBeDisabled            = errors.New("Full users cannot be disabled.")
+	errUserCannotBeGuestified          = errors.New("Full users cannot be guestified.")
+	errUserIsAlreadyUltraRestricted    = errors.New("User is already a single-channel guest.")
+	errCannotGuestifyFromDirectMessage = errors.New("Cannot guestify from a direct message. Try again from a channel or group.")
 )
 
 type channelNotVisibleErr struct {

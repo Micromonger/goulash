@@ -123,6 +123,22 @@ var _ = Describe("Guestify", func() {
 			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
 		})
 
+		It("returns an error if the request comes from a direct message", func() {
+			a := action.New(
+				slackapi.NewChannel(slackapi.DirectMessageGroupName, "channel-id"),
+				"commander-name",
+				"commander-id",
+				"guestify @tsmith",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).To(HaveOccurred())
+			Ω(err.Error()).To(Equal("Cannot guestify from a direct message. Try again from a channel or group."))
+			Ω(result).To(Equal("Failed to guestify user '@tsmith': Cannot guestify from a direct message. Try again from a channel or group."))
+
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(0))
+		})
+
 		It("attempts to guestify the user if they can be found by name", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
