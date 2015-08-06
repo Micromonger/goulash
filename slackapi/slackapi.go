@@ -19,6 +19,7 @@ type SlackAPI interface {
 	// admin
 	InviteGuest(teamname string, channelID string, firstName string, lastName string, emailAddress string) error
 	InviteRestricted(teamname, channelID, firstName, lastName, emailAddress string) error
+	DisableUser(teamName string, user string) error
 
 	// groups
 	GetGroups(excludeArchived bool) ([]slack.Group, error)
@@ -27,6 +28,5 @@ type SlackAPI interface {
 	OpenIMChannel(userID string) (bool, bool, string, error)
 
 	// users
-	DisableUser(teamName string, user string) error
 	GetUsers() ([]slack.User, error)
 }
