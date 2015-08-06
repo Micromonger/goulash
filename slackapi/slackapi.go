@@ -20,6 +20,7 @@ type SlackAPI interface {
 	InviteGuest(teamName string, channelID string, firstName string, lastName string, emailAddress string) error
 	InviteRestricted(teamName, channelID, firstName, lastName, emailAddress string) error
 	DisableUser(teamName string, user string) error
+	SetUltraRestricted(teamName string, user string, channel string) error
 
 	// groups
 	GetGroups(excludeArchived bool) ([]slack.Group, error)

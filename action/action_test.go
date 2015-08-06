@@ -67,5 +67,17 @@ var _ = Describe("Action", func() {
 
 			Ω(a).To(Equal(action.NewDisableUser([]string{"user@example.com"}, "commander-name")))
 		})
+
+		It("supports creating a guestify action", func() {
+			channel := slackapi.NewChannel("channel-name", "channel-id")
+			a = action.New(
+				channel,
+				"commander-name",
+				"commander-id",
+				"guestify user@example.com",
+			)
+
+			Ω(a).To(Equal(action.NewGuestify([]string{"user@example.com"}, channel, "commander-name")))
+		})
 	})
 })

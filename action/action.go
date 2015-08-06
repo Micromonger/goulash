@@ -41,6 +41,9 @@ func New(
 	case "disable-user":
 		return NewDisableUser(params, commanderName)
 
+	case "guestify":
+		return NewGuestify(params, channel, commanderName)
+
 	default:
 		return help{}
 	}
