@@ -1,11 +1,13 @@
 package action
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/slack"
 )
 
 // Action represents an action that is able to be performed by the server.
@@ -46,4 +48,37 @@ func New(
 
 func uninvitableEmail(emailAddress string, uninvitableDomain string) bool {
 	return len(uninvitableDomain) > 0 && strings.HasSuffix(emailAddress, uninvitableDomain)
+}
+
+func findUser(searchVal string, api slackapi.SlackAPI) (slack.User, error) {
+	users, err := api.GetUsers()
+	if err != nil {
+		return slack.User{}, err
+	}
+
+	var foundUser slack.User
+	for _, user := range users {
+		if matches(searchVal, user.Profile.Email, fmt.Sprintf("@%s", user.Name)) {
+			foundUser = user
+			break
+		}
+	}
+
+	if (foundUser == slack.User{}) {
+		err = NewUserNotFoundErr(searchVal)
+		return slack.User{}, err
+	}
+
+	return foundUser, nil
+}
+
+func matches(searchVal string, candidates ...string) bool {
+	var match bool
+	for _, candidate := range candidates {
+		if searchVal == candidate {
+			match = true
+			break
+		}
+	}
+	return match
 }

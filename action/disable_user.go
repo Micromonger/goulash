@@ -37,34 +37,20 @@ func (du disableUser) Do(
 ) (string, error) {
 	logger = logger.Session("do")
 
-	users, err := api.GetUsers()
+	searchVal := du.searchVal()
+
+	user, err := findUser(searchVal, api)
 	if err != nil {
 		logger.Error("failed", err)
 		return du.failureMessage(err), err
 	}
 
-	searchVal := du.searchVal()
-
-	var id string
-	for _, user := range users {
-		if matches(searchVal, user.Profile.Email, fmt.Sprintf("@%s", user.Name)) {
-			if !(user.IsRestricted || user.IsUltraRestricted) {
-				err = NewUserCannotBeDisabledErr()
-				return du.failureMessage(err), err
-			}
-
-			id = user.ID
-			break
-		}
-	}
-
-	if len(id) == 0 {
-		logger.Error("failed", err)
-		err = NewUserNotFoundErr(searchVal)
+	if !(user.IsRestricted || user.IsUltraRestricted) {
+		err = NewUserCannotBeDisabledErr()
 		return du.failureMessage(err), err
 	}
 
-	err = api.DisableUser(config.SlackTeamName(), id)
+	err = api.DisableUser(config.SlackTeamName(), user.ID)
 	if err != nil {
 		logger.Error("failed", err)
 		return du.failureMessage(err), err
@@ -89,15 +75,4 @@ func (du disableUser) failureMessage(err error) string {
 		du.searchVal(),
 		err.Error(),
 	)
-}
-
-func matches(searchVal string, candidates ...string) bool {
-	var match bool
-	for _, candidate := range candidates {
-		if searchVal == candidate {
-			match = true
-			break
-		}
-	}
-	return match
 }
