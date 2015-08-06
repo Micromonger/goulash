@@ -5,12 +5,14 @@ import (
 	"fmt"
 )
 
-var (
+const (
 	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
 	missingParameterErrFmt  = "Missing required %s parameter. See `%s help` for more information."
 	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through %s. %s"
 	userNotFoundErrFmt      = "Unable to find user matching '%s'."
+)
 
+var (
 	errUserCannotBeDisabled            = errors.New("Full users cannot be disabled.")
 	errUserCannotBeGuestified          = errors.New("Full users cannot be guestified.")
 	errUserIsAlreadyUltraRestricted    = errors.New("User is already a single-channel guest.")
