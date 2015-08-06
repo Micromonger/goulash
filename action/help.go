@@ -31,7 +31,10 @@ func (h help) Do(
 			"_Get information on a Slack user_\n"+
 			"\n"+
 			"`disable-user <email|@username>`\n"+
-			"_Disable a Slack user_\n",
+			"_Disable a Slack user_\n"+
+			"\n"+
+			"`guestify <email|@username>`\n"+
+			"_Convert a Restricted Account to a Single-Channel Guest\n",
 		config.SlackSlashCommand(),
 	)
 
