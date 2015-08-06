@@ -150,6 +150,35 @@ var _ = Describe("Guestify", func() {
 			Ω(actualChannel).To(Equal("channel-id"))
 		})
 
+		It("attempts to guestify the user if they can be found by email", func() {
+			fakeSlackAPI.GetUsersReturns([]slack.User{
+				{
+					ID:           "U1234",
+					IsRestricted: true,
+					Profile: slack.UserProfile{
+						Email: "user@example.com",
+					},
+				},
+			}, nil)
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"guestify user@example.com",
+			)
+
+			_, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).NotTo(HaveOccurred())
+
+			Ω(fakeSlackAPI.SetUltraRestrictedCallCount()).To(Equal(1))
+
+			actualTeamName, actualUserID, actualChannel := fakeSlackAPI.SetUltraRestrictedArgsForCall(0)
+			Ω(actualTeamName).To(Equal("slack-team-name"))
+			Ω(actualUserID).To(Equal("U1234"))
+			Ω(actualChannel).To(Equal("channel-id"))
+		})
+
 		It("returns an error when guestifying fails", func() {
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
