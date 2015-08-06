@@ -6,6 +6,7 @@ import (
 	"github.com/pivotal-golang/lager"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/slack"
 )
 
 type guestify struct {
@@ -44,25 +45,11 @@ func (g guestify) Do(
 ) (string, error) {
 	logger = logger.Session("do")
 
-	if err := g.check(config, api, logger); err != nil {
-		return g.failureMessage(err), err
-	}
-
 	searchVal := g.searchVal()
 
-	user, err := findUser(searchVal, api)
+	user, err := g.check(searchVal, config, api, logger)
 	if err != nil {
-		logger.Error("failed", err)
-		return g.failureMessage(err), err
-	}
-
-	if !(user.IsRestricted || user.IsUltraRestricted) {
-		err = errUserCannotBeGuestified
-		return g.failureMessage(err), err
-	}
-
-	if user.IsUltraRestricted {
-		err = errUserIsAlreadyUltraRestricted
+		logger.Error("check-failed", err)
 		return g.failureMessage(err), err
 	}
 
@@ -72,7 +59,7 @@ func (g guestify) Do(
 		g.channel.ID(),
 	)
 	if err != nil {
-		logger.Error("failed", err)
+		logger.Error("failed-guestifying", err)
 		return g.failureMessage(err), err
 	}
 
@@ -96,19 +83,31 @@ func (g guestify) AuditMessage(api slackapi.SlackAPI) string {
 }
 
 func (g guestify) check(
+	searchVal string,
 	config config.Config,
 	api slackapi.SlackAPI,
 	logger lager.Logger,
-) error {
+) (slack.User, error) {
 	logger = logger.Session("check")
 
 	if g.channel.Name(api) == slackapi.DirectMessageGroupName {
-		err := errCannotGuestifyFromDirectMessage
-		logger.Error("failed", err)
-		return err
+		return slack.User{}, errCannotGuestifyFromDirectMessage
+	}
+
+	user, err := findUser(searchVal, api)
+	if err != nil {
+		return slack.User{}, err
+	}
+
+	if !(user.IsRestricted || user.IsUltraRestricted) {
+		return slack.User{}, errUserCannotBeGuestified
+	}
+
+	if user.IsUltraRestricted {
+		return slack.User{}, errUserIsAlreadyUltraRestricted
 	}
 
 	logger.Info("passed")
 
-	return nil
+	return user, nil
 }
