@@ -16,7 +16,7 @@ type channelNotVisibleErr struct {
 	slackUserID string
 }
 
-// NewChannelNotVisibleErr returns a new ChannelNotVisibleErr.
+// NewChannelNotVisibleErr returns an error
 func NewChannelNotVisibleErr(slackUserID string) error {
 	return channelNotVisibleErr{
 		slackUserID: slackUserID,
@@ -33,7 +33,7 @@ type uninvitableDomainErr struct {
 	slackSlashCommand  string
 }
 
-// NewUninvitableDomainErr returns a new UninvitableDomainErr.
+// NewUninvitableDomainErr returns an error
 func NewUninvitableDomainErr(
 	uninvitableDomain string,
 	uninvitableMessage string,
@@ -54,7 +54,7 @@ type missingEmailParameterErr struct {
 	slackSlashCommand string
 }
 
-// NewMissingEmailParameterErr returns a new MissingEmailParameterErr.
+// NewMissingEmailParameterErr returns an error
 func NewMissingEmailParameterErr(slackSlashCommand string) error {
 	return missingEmailParameterErr{
 		slackSlashCommand: slackSlashCommand,
@@ -69,7 +69,7 @@ type userNotFoundErr struct {
 	searchParam string
 }
 
-// NewUserNotFoundErr returns a new UserNotFoundErr.
+// NewUserNotFoundErr returns an error
 func NewUserNotFoundErr(searchParam string) error {
 	return userNotFoundErr{
 		searchParam: searchParam,
@@ -84,7 +84,7 @@ type fullUserCannotBeErr struct {
 	verb string
 }
 
-// NewFullUserCannotBeErr returns a new FullUserCannotBeErr.
+// NewFullUserCannotBeErr returns an error
 func NewFullUserCannotBeErr(verb string) error {
 	return fullUserCannotBeErr{
 		verb: verb,
@@ -99,7 +99,7 @@ type userIsAlreadyErr struct {
 	noun string
 }
 
-// NewUserIsAlreadyErr returns a new UserIsAlreadyErr.
+// NewUserIsAlreadyErr returns an error
 func NewUserIsAlreadyErr(noun string) error {
 	return userIsAlreadyErr{
 		noun: noun,
@@ -114,7 +114,7 @@ type cannotFromDirectMessageErr struct {
 	verb string
 }
 
-// NewCannotFromDirectMessageErr returns a new CannotFromDirectMessageErr.
+// NewCannotFromDirectMessageErr returns an error
 func NewCannotFromDirectMessageErr(verb string) error {
 	return cannotFromDirectMessageErr{
 		verb: verb,
