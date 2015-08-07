@@ -34,14 +34,14 @@ func (g groups) Do(
 	err := g.check(api, logger)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err, c), err
+		return g.failureMessage(err, c), err
 	}
 
 	excludeArchived := true
 	groups, err := api.GetGroups(excludeArchived)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err, c), err
+		return g.failureMessage(err, c), err
 	}
 
 	var groupNames []string
@@ -62,13 +62,13 @@ func (g groups) Do(
 	_, _, dmID, err := api.OpenIMChannel(g.commanderID)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err, c), err
+		return g.failureMessage(err, c), err
 	}
 
 	_, _, err = api.PostMessage(dmID, messageText, postMessageParams)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err, c), err
+		return g.failureMessage(err, c), err
 	}
 
 	logger.Info("succeeded")
@@ -87,7 +87,7 @@ func (g groups) AuditMessage(
 	return fmt.Sprintf("@%s requested groups", g.commanderName)
 }
 
-func failureMessage(
+func (g groups) failureMessage(
 	err error,
 	config config.Config,
 ) string {
