@@ -55,7 +55,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("Sorry, you don't have access to that function."))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: Sorry, you don't have access to that function."))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: Sorry, you don't have access to that function."))
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
 		})
@@ -77,7 +77,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("Sorry, you don't have access to that function."))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: Sorry, you don't have access to that function."))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: Sorry, you don't have access to that function."))
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
 		})
@@ -95,7 +95,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("get-user-info-err"))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: get-user-info-err"))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: get-user-info-err"))
 
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
 		})
@@ -114,7 +114,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("open-im-channel-err"))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: open-im-channel-err"))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: open-im-channel-err"))
 		})
 
 		It("attempts to get groups", func() {
@@ -176,7 +176,7 @@ var _ = Describe("Groups", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("dm-id"))
-			Ω(actualText).Should(Equal("I'm in the following groups:\n\ngroup-1\ngroup-2\ngroup-3"))
+			Ω(actualText).Should(Equal("slack-user-id is in the following groups:\n\ngroup-1\ngroup-2\ngroup-3"))
 			Ω(actualParams.AsUser).Should(BeTrue())
 		})
 
@@ -195,7 +195,7 @@ var _ = Describe("Groups", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal("Successfully sent a list of the groups I'm in as a direct message."))
+			Ω(result).Should(Equal("Successfully sent a list of the groups slack-user-id is in as a direct message."))
 		})
 
 		It("returns an error if the PostMessage call fails", func() {
@@ -218,7 +218,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("failed"))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: failed"))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: failed"))
 		})
 
 		It("returns an error if the GetGroups call fails", func() {
@@ -235,7 +235,7 @@ var _ = Describe("Groups", func() {
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).Should(HaveOccurred())
 			Ω(err.Error()).Should(Equal("failed"))
-			Ω(result).Should(Equal("Failed to list the groups I'm in: failed"))
+			Ω(result).Should(Equal("Failed to list the groups slack-user-id is in: failed"))
 		})
 	})
 
@@ -251,7 +251,7 @@ var _ = Describe("Groups", func() {
 			aa, ok := a.(action.AuditableAction)
 			Ω(ok).Should(BeTrue())
 
-			Ω(aa.AuditMessage(fakeSlackAPI)).Should(Equal("@commander-name requested the groups that I'm in"))
+			Ω(aa.AuditMessage(fakeSlackAPI)).Should(Equal("@commander-name requested groups"))
 		})
 	})
 })

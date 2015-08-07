@@ -34,14 +34,14 @@ func (g groups) Do(
 	err := g.check(api, logger)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err), err
+		return failureMessage(err, c), err
 	}
 
 	excludeArchived := true
 	groups, err := api.GetGroups(excludeArchived)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err), err
+		return failureMessage(err, c), err
 	}
 
 	var groupNames []string
@@ -51,7 +51,7 @@ func (g groups) Do(
 
 	sort.Strings(groupNames)
 
-	messageText := "I'm in the following groups:\n"
+	messageText := fmt.Sprintf("%s is in the following groups:\n", c.SlackUserID())
 	for _, groupName := range groupNames {
 		messageText = messageText + fmt.Sprintf("\n%s", groupName)
 	}
@@ -62,26 +62,40 @@ func (g groups) Do(
 	_, _, dmID, err := api.OpenIMChannel(g.commanderID)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err), err
+		return failureMessage(err, c), err
 	}
 
 	_, _, err = api.PostMessage(dmID, messageText, postMessageParams)
 	if err != nil {
 		logger.Error("failed", err)
-		return failureMessage(err), err
+		return failureMessage(err, c), err
 	}
 
 	logger.Info("succeeded")
 
-	return "Successfully sent a list of the groups I'm in as a direct message.", nil
+	result := fmt.Sprintf(
+		"Successfully sent a list of the groups %s is in as a direct message.",
+		c.SlackUserID(),
+	)
+
+	return result, nil
 }
 
-func (g groups) AuditMessage(api slackapi.SlackAPI) string {
-	return fmt.Sprintf("@%s requested the groups that I'm in", g.commanderName)
+func (g groups) AuditMessage(
+	api slackapi.SlackAPI,
+) string {
+	return fmt.Sprintf("@%s requested groups", g.commanderName)
 }
 
-func failureMessage(err error) string {
-	return fmt.Sprintf("Failed to list the groups I'm in: %s", err.Error())
+func failureMessage(
+	err error,
+	config config.Config,
+) string {
+	return fmt.Sprintf(
+		"Failed to list the groups %s is in: %s",
+		config.SlackUserID(),
+		err.Error(),
+	)
 }
 
 func (g groups) check(
