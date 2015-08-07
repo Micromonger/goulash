@@ -59,7 +59,13 @@ func (g groups) Do(
 	postMessageParams := slack.NewPostMessageParameters()
 	postMessageParams.AsUser = true
 
-	_, _, err = api.PostMessage(g.commanderName, messageText, postMessageParams)
+	_, _, dmID, err := api.OpenIMChannel(g.commanderID)
+	if err != nil {
+		logger.Error("failed", err)
+		return failureMessage(err), err
+	}
+
+	_, _, err = api.PostMessage(dmID, messageText, postMessageParams)
 	if err != nil {
 		logger.Error("failed", err)
 		return failureMessage(err), err

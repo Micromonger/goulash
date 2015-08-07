@@ -100,6 +100,23 @@ var _ = Describe("Groups", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
 		})
 
+		It("returns an error if the OpenIMChannel call fails", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
+			fakeSlackAPI.OpenIMChannelReturns(false, false, "", errors.New("open-im-channel-err"))
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("open-im-channel-err"))
+			Ω(result).Should(Equal("Failed to list the groups I'm in: open-im-channel-err"))
+		})
+
 		It("attempts to get groups", func() {
 			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 
@@ -118,6 +135,24 @@ var _ = Describe("Groups", func() {
 			Ω(actualExcludeArchived).Should(BeTrue())
 		})
 
+		It("attempts to open a direct message to the commander", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			_, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(fakeSlackAPI.OpenIMChannelCallCount()).Should(Equal(1))
+			actualUserID := fakeSlackAPI.OpenIMChannelArgsForCall(0)
+			Ω(actualUserID).Should(Equal("commander-id"))
+		})
+
 		It("attempts to send a direct message with a sorted list of the returned groups", func() {
 			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
@@ -125,6 +160,7 @@ var _ = Describe("Groups", func() {
 				newGroup("group-1", "slack-user-id"),
 				newGroup("group-3", "slack-user-id"),
 			}, nil)
+			fakeSlackAPI.OpenIMChannelReturns(false, false, "dm-id", nil)
 
 			a := action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
@@ -139,7 +175,7 @@ var _ = Describe("Groups", func() {
 			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(1))
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
-			Ω(actualChannelID).Should(Equal("commander-name"))
+			Ω(actualChannelID).Should(Equal("dm-id"))
 			Ω(actualText).Should(Equal("I'm in the following groups:\n\ngroup-1\ngroup-2\ngroup-3"))
 			Ω(actualParams.AsUser).Should(BeTrue())
 		})
