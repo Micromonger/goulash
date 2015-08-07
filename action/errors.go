@@ -13,10 +13,13 @@ const (
 )
 
 var (
-	errUserCannotBeDisabled            = errors.New("Full users cannot be disabled.")
-	errUserCannotBeGuestified          = errors.New("Full users cannot be guestified.")
-	errUserIsAlreadyUltraRestricted    = errors.New("User is already a single-channel guest.")
-	errCannotGuestifyFromDirectMessage = errors.New("Cannot guestify from a direct message. Try again from a channel or group.")
+	errUserCannotBeDisabled               = errors.New("Full users cannot be disabled.")
+	errUserCannotBeGuestified             = errors.New("Full users cannot be guestified.")
+	errUserCannotBeRestrictified          = errors.New("Full users cannot be restrictified.")
+	errUserIsAlreadyUltraRestricted       = errors.New("User is already a single-channel guest.")
+	errUserIsAlreadyRestricted            = errors.New("User is already a restricted account.")
+	errCannotGuestifyFromDirectMessage    = errors.New("Cannot guestify from a direct message. Try again from a channel or group.")
+	errCannotRestrictifyFromDirectMessage = errors.New("Cannot restrictify from a direct message. Try again from a channel or group.")
 )
 
 type channelNotVisibleErr struct {

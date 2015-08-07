@@ -44,6 +44,9 @@ func New(
 	case "guestify":
 		return NewGuestify(params, channel, commanderName)
 
+	case "restrictify":
+		return NewRestrictify(params, channel, commanderName)
+
 	default:
 		return help{}
 	}
