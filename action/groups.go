@@ -16,7 +16,7 @@ type groups struct {
 
 // NewGroups returns a new Groups action, used to list the groups the user with
 // the configured token is in
-func NewGroups(params []string, commanderName string) Action {
+func NewGroups(commanderName string) Action {
 	return &groups{commanderName: commanderName}
 }
 
