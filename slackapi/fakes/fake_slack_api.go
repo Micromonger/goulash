@@ -64,6 +64,15 @@ type FakeSlackAPI struct {
 	setUltraRestrictedReturns struct {
 		result1 error
 	}
+	SetRestrictedStub        func(teamName string, user string) error
+	setRestrictedMutex       sync.RWMutex
+	setRestrictedArgsForCall []struct {
+		teamName string
+		user     string
+	}
+	setRestrictedReturns struct {
+		result1 error
+	}
 	GetGroupsStub        func(excludeArchived bool) ([]slack.Group, error)
 	getGroupsMutex       sync.RWMutex
 	getGroupsArgsForCall []struct {
@@ -264,6 +273,39 @@ func (fake *FakeSlackAPI) SetUltraRestrictedArgsForCall(i int) (string, string, 
 func (fake *FakeSlackAPI) SetUltraRestrictedReturns(result1 error) {
 	fake.SetUltraRestrictedStub = nil
 	fake.setUltraRestrictedReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *FakeSlackAPI) SetRestricted(teamName string, user string) error {
+	fake.setRestrictedMutex.Lock()
+	fake.setRestrictedArgsForCall = append(fake.setRestrictedArgsForCall, struct {
+		teamName string
+		user     string
+	}{teamName, user})
+	fake.setRestrictedMutex.Unlock()
+	if fake.SetRestrictedStub != nil {
+		return fake.SetRestrictedStub(teamName, user)
+	} else {
+		return fake.setRestrictedReturns.result1
+	}
+}
+
+func (fake *FakeSlackAPI) SetRestrictedCallCount() int {
+	fake.setRestrictedMutex.RLock()
+	defer fake.setRestrictedMutex.RUnlock()
+	return len(fake.setRestrictedArgsForCall)
+}
+
+func (fake *FakeSlackAPI) SetRestrictedArgsForCall(i int) (string, string) {
+	fake.setRestrictedMutex.RLock()
+	defer fake.setRestrictedMutex.RUnlock()
+	return fake.setRestrictedArgsForCall[i].teamName, fake.setRestrictedArgsForCall[i].user
+}
+
+func (fake *FakeSlackAPI) SetRestrictedReturns(result1 error) {
+	fake.SetRestrictedStub = nil
+	fake.setRestrictedReturns = struct {
 		result1 error
 	}{result1}
 }

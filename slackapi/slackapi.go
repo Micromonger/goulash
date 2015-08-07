@@ -25,6 +25,7 @@ type SlackAPI interface {
 	InviteRestricted(teamName, channelID, firstName, lastName, emailAddress string) error
 	DisableUser(teamName string, user string) error
 	SetUltraRestricted(teamName string, user string, channel string) error
+	SetRestricted(teamName string, user string) error
 
 	// groups
 	GetGroups(excludeArchived bool) ([]slack.Group, error)
