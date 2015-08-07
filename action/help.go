@@ -39,7 +39,7 @@ func (h help) Do(
 			"`invite-restricted <email> <firstname> <lastname>`\n"+
 			"_Invite a Restricted Account to the current channel/group_\n"+
 			"\n"+
-			"`request-access <#channel>`\n"+
+			"`request-access <channel>`\n"+
 			"_Request an invitation to a channel_\n",
 		config.SlackSlashCommand(),
 		config.SlackUserID(),
