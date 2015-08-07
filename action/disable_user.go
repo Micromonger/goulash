@@ -38,7 +38,7 @@ func (du disableUser) Do(
 ) (string, error) {
 	logger = logger.Session("do")
 
-	user, err := du.check(du.searchVal(), config, api, logger)
+	user, err := du.check(du.searchVal(), api, logger)
 	if err != nil {
 		logger.Error("check-failed", err)
 		return du.failureMessage(err), err
@@ -73,7 +73,6 @@ func (du disableUser) failureMessage(err error) string {
 
 func (du disableUser) check(
 	searchVal string,
-	config config.Config,
 	api slackapi.SlackAPI,
 	logger lager.Logger,
 ) (slack.User, error) {
