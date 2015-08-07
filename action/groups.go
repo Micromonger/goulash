@@ -51,7 +51,7 @@ func (g groups) Do(
 
 	sort.Strings(groupNames)
 
-	messageText := fmt.Sprintf("%s is in the following groups:\n", c.SlackUserID())
+	messageText := "I am in the following groups:\n"
 	for _, groupName := range groupNames {
 		messageText = messageText + fmt.Sprintf("\n%s", groupName)
 	}
@@ -74,7 +74,7 @@ func (g groups) Do(
 	logger.Info("succeeded")
 
 	result := fmt.Sprintf(
-		"Successfully sent a list of the groups %s is in as a direct message.",
+		"Successfully sent a list of the groups @%s is in as a direct message.",
 		c.SlackUserID(),
 	)
 

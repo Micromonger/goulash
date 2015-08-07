@@ -176,7 +176,7 @@ var _ = Describe("Groups", func() {
 
 			actualChannelID, actualText, actualParams := fakeSlackAPI.PostMessageArgsForCall(0)
 			Ω(actualChannelID).Should(Equal("dm-id"))
-			Ω(actualText).Should(Equal("slack-user-id is in the following groups:\n\ngroup-1\ngroup-2\ngroup-3"))
+			Ω(actualText).Should(Equal("I am in the following groups:\n\ngroup-1\ngroup-2\ngroup-3"))
 			Ω(actualParams.AsUser).Should(BeTrue())
 		})
 
@@ -195,7 +195,7 @@ var _ = Describe("Groups", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal("Successfully sent a list of the groups slack-user-id is in as a direct message."))
+			Ω(result).Should(Equal("Successfully sent a list of the groups @slack-user-id is in as a direct message."))
 		})
 
 		It("returns an error if the PostMessage call fails", func() {
