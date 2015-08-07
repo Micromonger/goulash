@@ -127,7 +127,7 @@ Before submitting a PR it is recommended to use [Concourse](http://concourse.ci)
 $ vagrant init concourse/lite
 $ vagrant up
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
-$ fly execute --config ci/unit.yml
+$ fly --target "http://192.168.100.4:8080" execute --config ci/unit.yml --input goulash-develop=.
 ```
 
 ## Maintainers
