@@ -91,5 +91,17 @@ var _ = Describe("Action", func() {
 
 			Ω(a).Should(Equal(action.NewRestrictify([]string{"user@example.com"}, channel, "commander-name")))
 		})
+
+		It("supports creating a groups action", func() {
+			channel := slackapi.NewChannel("channel-name", "channel-id")
+			a = action.New(
+				channel,
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			Ω(a).Should(Equal(action.NewGroups([]string{"user@example.com"}, "commander-name")))
+		})
 	})
 })
