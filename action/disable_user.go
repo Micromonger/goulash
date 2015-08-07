@@ -40,7 +40,7 @@ func (du disableUser) Do(
 
 	user, err := du.check(du.searchVal(), api, logger)
 	if err != nil {
-		logger.Error("check-failed", err)
+		logger.Error("failed", err)
 		return du.failureMessage(err), err
 	}
 
@@ -89,6 +89,8 @@ func (du disableUser) check(
 		logger.Error("failed", err)
 		return slack.User{}, err
 	}
+
+	logger.Info("passed")
 
 	return user, nil
 }
