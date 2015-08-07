@@ -21,6 +21,15 @@ type FakeSlackAPI struct {
 		result2 string
 		result3 error
 	}
+	GetChannelsStub        func(excludeArchived bool) ([]slack.Channel, error)
+	getChannelsMutex       sync.RWMutex
+	getChannelsArgsForCall []struct {
+		excludeArchived bool
+	}
+	getChannelsReturns struct {
+		result1 []slack.Channel
+		result2 error
+	}
 	InviteGuestStub        func(teamName string, channelID string, firstName string, lastName string, emailAddress string) error
 	inviteGuestMutex       sync.RWMutex
 	inviteGuestArgsForCall []struct {
@@ -145,6 +154,39 @@ func (fake *FakeSlackAPI) PostMessageReturns(result1 string, result2 string, res
 		result2 string
 		result3 error
 	}{result1, result2, result3}
+}
+
+func (fake *FakeSlackAPI) GetChannels(excludeArchived bool) ([]slack.Channel, error) {
+	fake.getChannelsMutex.Lock()
+	fake.getChannelsArgsForCall = append(fake.getChannelsArgsForCall, struct {
+		excludeArchived bool
+	}{excludeArchived})
+	fake.getChannelsMutex.Unlock()
+	if fake.GetChannelsStub != nil {
+		return fake.GetChannelsStub(excludeArchived)
+	} else {
+		return fake.getChannelsReturns.result1, fake.getChannelsReturns.result2
+	}
+}
+
+func (fake *FakeSlackAPI) GetChannelsCallCount() int {
+	fake.getChannelsMutex.RLock()
+	defer fake.getChannelsMutex.RUnlock()
+	return len(fake.getChannelsArgsForCall)
+}
+
+func (fake *FakeSlackAPI) GetChannelsArgsForCall(i int) bool {
+	fake.getChannelsMutex.RLock()
+	defer fake.getChannelsMutex.RUnlock()
+	return fake.getChannelsArgsForCall[i].excludeArchived
+}
+
+func (fake *FakeSlackAPI) GetChannelsReturns(result1 []slack.Channel, result2 error) {
+	fake.GetChannelsStub = nil
+	fake.getChannelsReturns = struct {
+		result1 []slack.Channel
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *FakeSlackAPI) InviteGuest(teamName string, channelID string, firstName string, lastName string, emailAddress string) error {

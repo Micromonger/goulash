@@ -50,6 +50,9 @@ func New(
 	case "groups":
 		return NewGroups(commanderName, commanderID)
 
+	case "request-access":
+		return NewAccessRequest(params, commanderName, commanderID)
+
 	default:
 		return help{}
 	}
@@ -79,6 +82,30 @@ func findUser(searchVal string, api slackapi.SlackAPI) (slack.User, error) {
 	}
 
 	return foundUser, nil
+}
+
+func findChannel(searchVal string, api slackapi.SlackAPI) (slack.Channel, error) {
+	excludeArchived := true
+	channels, err := api.GetChannels(excludeArchived)
+	if err != nil {
+		return slack.Channel{}, err
+	}
+
+	var foundChannel slack.Channel
+	var found bool
+	for _, channel := range channels {
+		if matches(searchVal, channel.Name) {
+			found = true
+			foundChannel = channel
+			break
+		}
+	}
+
+	if !found {
+		return slack.Channel{}, NewChannelNotFoundErr(searchVal)
+	}
+
+	return foundChannel, nil
 }
 
 func matches(searchVal string, candidates ...string) bool {

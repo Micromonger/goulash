@@ -19,6 +19,7 @@ const (
 type SlackAPI interface {
 	// channel
 	PostMessage(channelID string, text string, params slack.PostMessageParameters) (channel string, timestamp string, err error)
+	GetChannels(excludeArchived bool) ([]slack.Channel, error)
 
 	// admin
 	InviteGuest(teamName string, channelID string, firstName string, lastName string, emailAddress string) error

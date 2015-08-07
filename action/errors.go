@@ -13,6 +13,7 @@ const (
 	fullUserCannotBeErrFmt        = "Full users cannot be %s."
 	userIsAlreadyErrFmt           = "User is already a %s."
 	cannotFromDirectMessageErrFmt = "Cannot %s from a direct message. Try again from a channel or group."
+	channelNotFoundErrFmt         = "Channel '#%s' not found."
 )
 
 var errUnauthorized = errors.New("Sorry, you don't have access to that function.")
@@ -128,4 +129,19 @@ func NewCannotFromDirectMessageErr(verb string) error {
 
 func (e cannotFromDirectMessageErr) Error() string {
 	return fmt.Sprintf(cannotFromDirectMessageErrFmt, e.verb)
+}
+
+type channelNotFoundErr struct {
+	channelName string
+}
+
+// NewChannelNotFoundErr returns an error
+func NewChannelNotFoundErr(channelName string) error {
+	return channelNotFoundErr{
+		channelName: channelName,
+	}
+}
+
+func (e channelNotFoundErr) Error() string {
+	return fmt.Sprintf(channelNotFoundErrFmt, e.channelName)
 }

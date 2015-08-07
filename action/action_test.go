@@ -103,5 +103,17 @@ var _ = Describe("Action", func() {
 
 			Ω(a).Should(Equal(action.NewGroups("commander-name", "commander-id")))
 		})
+
+		It("supports creating a request-access action", func() {
+			channel := slackapi.NewChannel("channel-name", "channel-id")
+			a = action.New(
+				channel,
+				"commander-name",
+				"commander-id",
+				"request-access #channel-name",
+			)
+
+			Ω(a).Should(Equal(action.NewAccessRequest([]string{"#channel-name"}, "commander-name", "commander-id")))
+		})
 	})
 })

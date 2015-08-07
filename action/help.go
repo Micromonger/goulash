@@ -37,7 +37,10 @@ func (h help) Do(
 			"_Convert a Restricted Account to a Single-Channel Guest_\n"+
 			"\n"+
 			"`groups`\n"+
-			"_List the groups that I am in_\n",
+			"_List the groups that I am in_\n"+
+			"\n"+
+			"`request-access <#channel>`\n"+
+			"_Request an invitation to a channel_\n",
 		config.SlackSlashCommand(),
 	)
 
