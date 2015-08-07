@@ -163,6 +163,7 @@ var _ = Describe("AccessRequest", func() {
 			Ω(actualChannelID).Should(Equal("channel-id"))
 			Ω(actualText).Should(Equal("@commander-name would like to be invited to this channel. To invite them, use `/invite @commander-name`"))
 			Ω(actualParams.AsUser).Should(BeTrue())
+			Ω(actualParams.Parse).Should(Equal("full"))
 		})
 
 		It("returns a positive result and nil on success", func() {

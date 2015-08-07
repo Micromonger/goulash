@@ -72,6 +72,7 @@ func (a accessRequest) Do(
 
 	postMessageParams := slack.NewPostMessageParameters()
 	postMessageParams.AsUser = true
+	postMessageParams.Parse = "full"
 
 	_, _, err = api.PostMessage(channel.ID, message, postMessageParams)
 	if err != nil {
