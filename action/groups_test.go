@@ -39,7 +39,7 @@ var _ = Describe("Groups", func() {
 
 	Describe("Do", func() {
 		It("returns an error if the commanding user is a single-channel guest", func() {
-			fakeSlackAPI.GetUserInfoReturns(slack.User{
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{
 				ID:                "commander-id",
 				IsRestricted:      true,
 				IsUltraRestricted: true,
@@ -61,7 +61,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("returns an error if the commanding user is a restricted account", func() {
-			fakeSlackAPI.GetUserInfoReturns(slack.User{
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{
 				ID:                "commander-id",
 				IsRestricted:      true,
 				IsUltraRestricted: false,
@@ -83,7 +83,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("returns an error if the GetUserInfo call fails", func() {
-			fakeSlackAPI.GetUserInfoReturns(slack.User{}, errors.New("get-user-info-err"))
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, errors.New("get-user-info-err"))
 
 			a := action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
@@ -101,6 +101,8 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("attempts to get groups", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
+
 			a := action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),
 				"commander-name",
@@ -117,6 +119,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("attempts to send a direct message with a sorted list of the returned groups", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("group-2", "slack-user-id"),
 				newGroup("group-1", "slack-user-id"),
@@ -142,6 +145,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("returns a positive result and nil on success", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("group-1", "slack-user-id"),
 			}, nil)
@@ -159,6 +163,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("returns an error if the PostMessage call fails", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("group-2", "slack-user-id"),
 				newGroup("group-1", "slack-user-id"),
@@ -181,6 +186,7 @@ var _ = Describe("Groups", func() {
 		})
 
 		It("returns an error if the GetGroups call fails", func() {
+			fakeSlackAPI.GetUserInfoReturns(&slack.User{}, nil)
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{}, errors.New("failed"))
 
 			a := action.New(

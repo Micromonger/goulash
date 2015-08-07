@@ -93,13 +93,13 @@ type FakeSlackAPI struct {
 		result3 string
 		result4 error
 	}
-	GetUserInfoStub        func(userID string) (slack.User, error)
+	GetUserInfoStub        func(userID string) (*slack.User, error)
 	getUserInfoMutex       sync.RWMutex
 	getUserInfoArgsForCall []struct {
 		userID string
 	}
 	getUserInfoReturns struct {
-		result1 slack.User
+		result1 *slack.User
 		result2 error
 	}
 	GetUsersStub        func() ([]slack.User, error)
@@ -387,7 +387,7 @@ func (fake *FakeSlackAPI) OpenIMChannelReturns(result1 bool, result2 bool, resul
 	}{result1, result2, result3, result4}
 }
 
-func (fake *FakeSlackAPI) GetUserInfo(userID string) (slack.User, error) {
+func (fake *FakeSlackAPI) GetUserInfo(userID string) (*slack.User, error) {
 	fake.getUserInfoMutex.Lock()
 	fake.getUserInfoArgsForCall = append(fake.getUserInfoArgsForCall, struct {
 		userID string
@@ -412,10 +412,10 @@ func (fake *FakeSlackAPI) GetUserInfoArgsForCall(i int) string {
 	return fake.getUserInfoArgsForCall[i].userID
 }
 
-func (fake *FakeSlackAPI) GetUserInfoReturns(result1 slack.User, result2 error) {
+func (fake *FakeSlackAPI) GetUserInfoReturns(result1 *slack.User, result2 error) {
 	fake.GetUserInfoStub = nil
 	fake.getUserInfoReturns = struct {
-		result1 slack.User
+		result1 *slack.User
 		result2 error
 	}{result1, result2}
 }
