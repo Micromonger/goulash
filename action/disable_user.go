@@ -86,8 +86,9 @@ func (du disableUser) check(
 	}
 
 	if !(user.IsRestricted || user.IsUltraRestricted) {
-		logger.Error("failed", errUserCannotBeDisabled)
-		return slack.User{}, errUserCannotBeDisabled
+		err = NewFullUserCannotBeErr("disabled")
+		logger.Error("failed", err)
+		return slack.User{}, err
 	}
 
 	return user, nil

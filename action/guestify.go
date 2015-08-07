@@ -91,7 +91,7 @@ func (g guestify) check(
 	logger = logger.Session("check")
 
 	if g.channel.Name(api) == slackapi.DirectMessageGroupName {
-		return slack.User{}, errCannotGuestifyFromDirectMessage
+		return slack.User{}, NewCannotFromDirectMessageErr("guestify")
 	}
 
 	user, err := findUser(searchVal, api)
@@ -100,11 +100,11 @@ func (g guestify) check(
 	}
 
 	if !(user.IsRestricted || user.IsUltraRestricted) {
-		return slack.User{}, errUserCannotBeGuestified
+		return slack.User{}, NewFullUserCannotBeErr("guestified")
 	}
 
 	if user.IsUltraRestricted {
-		return slack.User{}, errUserIsAlreadyUltraRestricted
+		return slack.User{}, NewUserIsAlreadyErr("single-channel guest")
 	}
 
 	logger.Info("passed")

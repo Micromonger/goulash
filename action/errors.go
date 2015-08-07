@@ -1,25 +1,15 @@
 package action
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
 const (
-	channelNotVisibleErrFmt = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
-	missingParameterErrFmt  = "Missing required %s parameter. See `%s help` for more information."
-	uninvitableDomainErrFmt = "Users for the '%s' domain are unable to be invited through %s. %s"
-	userNotFoundErrFmt      = "Unable to find user matching '%s'."
-)
-
-var (
-	errUserCannotBeDisabled               = errors.New("Full users cannot be disabled.")
-	errUserCannotBeGuestified             = errors.New("Full users cannot be guestified.")
-	errUserCannotBeRestrictified          = errors.New("Full users cannot be restrictified.")
-	errUserIsAlreadyUltraRestricted       = errors.New("User is already a single-channel guest.")
-	errUserIsAlreadyRestricted            = errors.New("User is already a restricted account.")
-	errCannotGuestifyFromDirectMessage    = errors.New("Cannot guestify from a direct message. Try again from a channel or group.")
-	errCannotRestrictifyFromDirectMessage = errors.New("Cannot restrictify from a direct message. Try again from a channel or group.")
+	channelNotVisibleErrFmt       = "<@%s> can only invite people to channels or private groups it is a member of. You can invite <@%s> by typing `/invite @%s` from the channel or private group you would like <@%s> to invite people to."
+	missingParameterErrFmt        = "Missing required %s parameter. See `%s help` for more information."
+	uninvitableDomainErrFmt       = "Users for the '%s' domain are unable to be invited through %s. %s"
+	userNotFoundErrFmt            = "Unable to find user matching '%s'."
+	fullUserCannotBeErrFmt        = "Full users cannot be %s."
+	userIsAlreadyErrFmt           = "User is already a %s."
+	cannotFromDirectMessageErrFmt = "Cannot %s from a direct message. Try again from a channel or group."
 )
 
 type channelNotVisibleErr struct {
@@ -88,4 +78,49 @@ func NewUserNotFoundErr(searchParam string) error {
 
 func (e userNotFoundErr) Error() string {
 	return fmt.Sprintf(userNotFoundErrFmt, e.searchParam)
+}
+
+type fullUserCannotBeErr struct {
+	verb string
+}
+
+// NewFullUserCannotBeErr returns a new FullUserCannotBeErr.
+func NewFullUserCannotBeErr(verb string) error {
+	return fullUserCannotBeErr{
+		verb: verb,
+	}
+}
+
+func (e fullUserCannotBeErr) Error() string {
+	return fmt.Sprintf(fullUserCannotBeErrFmt, e.verb)
+}
+
+type userIsAlreadyErr struct {
+	noun string
+}
+
+// NewUserIsAlreadyErr returns a new UserIsAlreadyErr.
+func NewUserIsAlreadyErr(noun string) error {
+	return userIsAlreadyErr{
+		noun: noun,
+	}
+}
+
+func (e userIsAlreadyErr) Error() string {
+	return fmt.Sprintf(userIsAlreadyErrFmt, e.noun)
+}
+
+type cannotFromDirectMessageErr struct {
+	verb string
+}
+
+// NewCannotFromDirectMessageErr returns a new CannotFromDirectMessageErr.
+func NewCannotFromDirectMessageErr(verb string) error {
+	return cannotFromDirectMessageErr{
+		verb: verb,
+	}
+}
+
+func (e cannotFromDirectMessageErr) Error() string {
+	return fmt.Sprintf(cannotFromDirectMessageErrFmt, e.verb)
 }

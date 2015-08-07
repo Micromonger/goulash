@@ -87,7 +87,7 @@ func (r restrictify) check(
 	logger = logger.Session("check")
 
 	if r.channel.Name(api) == slackapi.DirectMessageGroupName {
-		return slack.User{}, errCannotRestrictifyFromDirectMessage
+		return slack.User{}, NewCannotFromDirectMessageErr("restrictify")
 	}
 
 	user, err := findUser(searchVal, api)
@@ -96,11 +96,11 @@ func (r restrictify) check(
 	}
 
 	if !(user.IsRestricted || user.IsUltraRestricted) {
-		return slack.User{}, errUserCannotBeRestrictified
+		return slack.User{}, NewFullUserCannotBeErr("restrictified")
 	}
 
 	if user.IsRestricted {
-		return slack.User{}, errUserIsAlreadyRestricted
+		return slack.User{}, NewUserIsAlreadyErr("restricted account")
 	}
 
 	logger.Info("passed")
