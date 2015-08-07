@@ -25,7 +25,7 @@ func (h help) Do(
 			"_Disable a Slack user_\n"+
 			"\n"+
 			"`groups`\n"+
-			"_List the groups that I am in_\n"+
+			"_List the groups that @%s is in_\n"+
 			"\n"+
 			"`guestify <email|@username>`\n"+
 			"_Convert a Restricted Account to a Single-Channel Guest_\n"+
@@ -42,6 +42,7 @@ func (h help) Do(
 			"`request-access <#channel>`\n"+
 			"_Request an invitation to a channel_\n",
 		config.SlackSlashCommand(),
+		config.SlackUserID(),
 	)
 
 	return text, nil
