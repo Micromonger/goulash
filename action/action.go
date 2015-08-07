@@ -48,7 +48,7 @@ func New(
 		return NewRestrictify(params, channel, commanderName)
 
 	case "groups":
-		return NewGroups(commanderName)
+		return NewGroups(commanderName, commanderID)
 
 	default:
 		return help{}

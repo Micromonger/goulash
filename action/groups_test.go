@@ -38,6 +38,68 @@ var _ = Describe("Groups", func() {
 	})
 
 	Describe("Do", func() {
+		It("returns an error if the commanding user is a single-channel guest", func() {
+			fakeSlackAPI.GetUserInfoReturns(slack.User{
+				ID:                "commander-id",
+				IsRestricted:      true,
+				IsUltraRestricted: true,
+			}, nil)
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Sorry, you don't have access to that function."))
+			Ω(result).Should(Equal("Failed to list the groups I'm in: Sorry, you don't have access to that function."))
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
+		})
+
+		It("returns an error if the commanding user is a restricted account", func() {
+			fakeSlackAPI.GetUserInfoReturns(slack.User{
+				ID:                "commander-id",
+				IsRestricted:      true,
+				IsUltraRestricted: false,
+			}, nil)
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("Sorry, you don't have access to that function."))
+			Ω(result).Should(Equal("Failed to list the groups I'm in: Sorry, you don't have access to that function."))
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
+		})
+
+		It("returns an error if the GetUserInfo call fails", func() {
+			fakeSlackAPI.GetUserInfoReturns(slack.User{}, errors.New("get-user-info-err"))
+
+			a := action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"groups",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).Should(HaveOccurred())
+			Ω(err.Error()).Should(Equal("get-user-info-err"))
+			Ω(result).Should(Equal("Failed to list the groups I'm in: get-user-info-err"))
+
+			Ω(fakeSlackAPI.PostMessageCallCount()).Should(Equal(0))
+		})
+
 		It("attempts to get groups", func() {
 			a := action.New(
 				slackapi.NewChannel("channel-name", "channel-id"),

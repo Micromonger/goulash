@@ -12,12 +12,16 @@ import (
 
 type groups struct {
 	commanderName string
+	commanderID   string
 }
 
 // NewGroups returns a new Groups action, used to list the groups the user with
 // the configured token is in
-func NewGroups(commanderName string) Action {
-	return &groups{commanderName: commanderName}
+func NewGroups(commanderName string, commanderID string) Action {
+	return &groups{
+		commanderName: commanderName,
+		commanderID:   commanderID,
+	}
 }
 
 func (g groups) Do(
@@ -26,6 +30,12 @@ func (g groups) Do(
 	logger lager.Logger,
 ) (string, error) {
 	logger = logger.Session("do")
+
+	err := g.check(api, logger)
+	if err != nil {
+		logger.Error("failed", err)
+		return failureMessage(err), err
+	}
 
 	excludeArchived := true
 	groups, err := api.GetGroups(excludeArchived)
@@ -66,4 +76,26 @@ func (g groups) AuditMessage(api slackapi.SlackAPI) string {
 
 func failureMessage(err error) string {
 	return fmt.Sprintf("Failed to list the groups I'm in: %s", err.Error())
+}
+
+func (g groups) check(
+	api slackapi.SlackAPI,
+	logger lager.Logger,
+) error {
+	logger = logger.Session("check")
+
+	user, err := api.GetUserInfo(g.commanderID)
+	if err != nil {
+		logger.Error("failed", err)
+		return err
+	}
+
+	if user.IsRestricted || user.IsUltraRestricted {
+		logger.Error("failed", errUnauthorized)
+		return errUnauthorized
+	}
+
+	logger.Info("passed")
+
+	return nil
 }

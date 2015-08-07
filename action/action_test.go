@@ -101,7 +101,7 @@ var _ = Describe("Action", func() {
 				"groups",
 			)
 
-			Ω(a).Should(Equal(action.NewGroups("commander-name")))
+			Ω(a).Should(Equal(action.NewGroups("commander-name", "commander-id")))
 		})
 	})
 })

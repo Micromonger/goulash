@@ -34,5 +34,6 @@ type SlackAPI interface {
 	OpenIMChannel(userID string) (bool, bool, string, error)
 
 	// users
+	GetUserInfo(userID string) (slack.User, error)
 	GetUsers() ([]slack.User, error)
 }
