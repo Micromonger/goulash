@@ -40,8 +40,11 @@ func (h help) Do(
 			"_Invite a Restricted Account to the current channel/group_\n"+
 			"\n"+
 			"`request-access [#channel]`\n"+
-			"_Request an invitation to a channel_\n",
-		config.SlackSlashCommand(),
+			"_Request an invitation to a channel_\n"+
+			"\n"+
+			"`restrictify [email|@username]`\n"+
+			"_Convert a Single-Channel Guest to a Restricted Account_\n"+
+			config.SlackSlashCommand(),
 		config.SlackUserID(),
 	)
 
