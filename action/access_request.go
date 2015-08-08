@@ -83,7 +83,7 @@ func (a accessRequest) Do(
 	logger.Info("succeeded")
 
 	successMessage := fmt.Sprintf(
-		"Successfully requested access to #%s.",
+		"Successfully requested access to <#%s>.",
 		a.channelName(),
 	)
 

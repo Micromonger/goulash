@@ -182,7 +182,7 @@ var _ = Describe("AccessRequest", func() {
 
 			result, err := a.Do(c, fakeSlackAPI, logger)
 			Ω(err).ShouldNot(HaveOccurred())
-			Ω(result).Should(Equal("Successfully requested access to #channel-name."))
+			Ω(result).Should(Equal("Successfully requested access to <#channel-name>."))
 		})
 
 		It("returns an error if the PostMessage call fails", func() {
