@@ -1,3 +1,6 @@
 ---
 inherit: ../manifest.yml
 host: the-butler-staging
+env:
+  SLACK_AUDIT_LOG_CHANNEL_ID: "C092PG9DG"
+  SLACK_TEAM_NAME: "pivotalservices"

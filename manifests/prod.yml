@@ -1,3 +1,6 @@
 ---
 inherit: ../manifest.yml
 host: the-butler
+env:
+  SLACK_AUDIT_LOG_CHANNEL_ID: "G050JMNB6"
+  SLACK_TEAM_NAME: "pivotal"
