@@ -46,8 +46,7 @@ var _ = Describe("UserInfo", func() {
 				"info user@example.com",
 			)
 
-			a.Do(c, fakeSlackAPI, logger)
-
+			_, _ = a.Do(c, fakeSlackAPI, logger)
 			Ω(fakeSlackAPI.GetUsersCallCount()).Should(Equal(1))
 		})
 

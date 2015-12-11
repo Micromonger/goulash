@@ -69,8 +69,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	result, err := a.Do(h.config, h.api, h.logger)
 
 	if h.config.AuditLogChannelID() != "" {
-		if a, ok := a.(action.AuditableAction); ok {
-			h.postAuditLogEntry(a.AuditMessage(h.api), err)
+		if auditableAction, ok := a.(action.AuditableAction); ok {
+			h.postAuditLogEntry(auditableAction.AuditMessage(h.api), err)
 		}
 	}
 

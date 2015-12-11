@@ -20,8 +20,10 @@ var _ = Describe("EnvConfig", func() {
 		})
 
 		AfterEach(func() {
-			os.Unsetenv("GOULASH_TEST_CONFIG_SERVICE_NAME")
-			os.Unsetenv("GOULASH_TEST_SLACK_AUTH_TOKEN")
+			err := os.Unsetenv("GOULASH_TEST_CONFIG_SERVICE_NAME")
+			Expect(err).NotTo(HaveOccurred())
+			err = os.Unsetenv("GOULASH_TEST_SLACK_AUTH_TOKEN")
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		It("returns a service-based audit log channel id", func() {
