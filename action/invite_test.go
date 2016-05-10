@@ -7,8 +7,7 @@ import (
 	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -18,12 +17,12 @@ var _ = Describe("Invite", func() {
 	var (
 		a            action.Action
 		c            config.Config
-		fakeSlackAPI *fakeslackapi.FakeSlackAPI
+		fakeSlackAPI *slackapifakes.FakeSlackAPI
 		logger       lager.Logger
 	)
 
 	BeforeEach(func() {
-		fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+		fakeSlackAPI = &slackapifakes.FakeSlackAPI{}
 		c = config.NewLocalConfig(
 			"slack-auth-token",
 			"/slack-slash-command",
@@ -58,7 +57,7 @@ var _ = Describe("Invite", func() {
 		It("returns an error when the channel is not visible", func() {
 			expectedErr := action.NewChannelNotVisibleErr("slack-user-id")
 
-			fakeChannel := &fakeslackapi.FakeChannel{}
+			fakeChannel := &slackapifakes.FakeChannel{}
 			fakeChannel.VisibleReturns(false)
 
 			a = action.New(
@@ -85,7 +84,7 @@ var _ = Describe("Invite", func() {
 				"invite-guest",
 			)
 
-			result, err := a.Do(c, &fakeslackapi.FakeSlackAPI{}, logger)
+			result, err := a.Do(c, &slackapifakes.FakeSlackAPI{}, logger)
 			Ω(err).Should(BeAssignableToTypeOf(expectedErr))
 			Ω(result).Should(Equal(expectedErr.Error()))
 

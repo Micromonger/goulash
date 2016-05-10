@@ -9,8 +9,7 @@ import (
 	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,12 +19,12 @@ var _ = Describe("UserInfo", func() {
 	Describe("Do", func() {
 		var (
 			c            config.Config
-			fakeSlackAPI *fakeslackapi.FakeSlackAPI
+			fakeSlackAPI *slackapifakes.FakeSlackAPI
 			logger       lager.Logger
 		)
 
 		BeforeEach(func() {
-			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI = &slackapifakes.FakeSlackAPI{}
 			logger = lager.NewLogger("testlogger")
 			c = config.NewLocalConfig(
 				"slack-auth-token",

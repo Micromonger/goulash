@@ -7,9 +7,8 @@ import (
 	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 	"github.com/pivotalservices/slack"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -19,12 +18,12 @@ var _ = Describe("DisableUser", func() {
 	var (
 		a            action.Action
 		c            config.Config
-		fakeSlackAPI *fakeslackapi.FakeSlackAPI
+		fakeSlackAPI *slackapifakes.FakeSlackAPI
 		logger       lager.Logger
 	)
 
 	BeforeEach(func() {
-		fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+		fakeSlackAPI = &slackapifakes.FakeSlackAPI{}
 		c = config.NewLocalConfig(
 			"slack-auth-token",
 			"/slack-slash-command",
