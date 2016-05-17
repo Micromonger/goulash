@@ -7,9 +7,8 @@ import (
 	"github.com/pivotalservices/goulash/action"
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 	"github.com/pivotalservices/slack"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -18,12 +17,12 @@ import (
 var _ = Describe("AccessRequest", func() {
 	var (
 		c            config.Config
-		fakeSlackAPI *fakeslackapi.FakeSlackAPI
+		fakeSlackAPI *slackapifakes.FakeSlackAPI
 		logger       lager.Logger
 	)
 
 	BeforeEach(func() {
-		fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+		fakeSlackAPI = &slackapifakes.FakeSlackAPI{}
 	})
 
 	Describe("Do", func() {

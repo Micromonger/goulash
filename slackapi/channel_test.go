@@ -4,8 +4,7 @@ import (
 	"github.com/pivotalservices/slack"
 
 	"github.com/pivotalservices/goulash/slackapi"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -13,11 +12,11 @@ import (
 
 var _ = Describe("Channel", func() {
 	Describe("Name", func() {
-		var fakeSlackAPI *fakeslackapi.FakeSlackAPI
+		var fakeSlackAPI *slackapifakes.FakeSlackAPI
 		var channel slackapi.Channel
 
 		BeforeEach(func() {
-			fakeSlackAPI = &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI = &slackapifakes.FakeSlackAPI{}
 		})
 
 		Describe("when the group's name is slackapi.PrivateGroupName", func() {

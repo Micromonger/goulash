@@ -13,9 +13,8 @@ import (
 	"github.com/pivotalservices/goulash/config"
 	"github.com/pivotalservices/goulash/handler"
 	"github.com/pivotalservices/goulash/slackapi"
+	"github.com/pivotalservices/goulash/slackapi/slackapifakes"
 	"github.com/pivotalservices/slack"
-
-	fakeslackapi "github.com/pivotalservices/goulash/slackapi/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -56,7 +55,7 @@ var _ = Describe("Handler", func() {
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 		w := httptest.NewRecorder()
-		fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+		fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 		h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
@@ -77,7 +76,7 @@ var _ = Describe("Handler", func() {
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 		w := httptest.NewRecorder()
-		fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+		fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 		h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 		h.ServeHTTP(w, r)
 
@@ -101,7 +100,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -131,7 +130,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -161,7 +160,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 			Ω(w.Body.String()).Should(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
@@ -182,7 +181,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
@@ -207,7 +206,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("unexpected-group-1", "C1111111111"),
 				newGroup("unexpected-group-2", "C9999999999"),
@@ -234,7 +233,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -257,7 +256,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			w := httptest.NewRecorder()
 			c = config.NewLocalConfig(
 				"fake-slack-auth-token",
@@ -299,7 +298,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("unexpected-group-1", "C1111111111"),
 				newGroup("channel-name", "C1234567890"),
@@ -347,7 +346,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.InviteGuestReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
@@ -393,7 +392,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -422,7 +421,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			w := httptest.NewRecorder()
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
@@ -446,7 +445,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -476,7 +475,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetGroupsReturns([]slack.Group{
 				newGroup("unexpected-group-1", "C1111111111"),
 				newGroup("unexpected-group-2", "C9999999999"),
@@ -503,7 +502,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -525,7 +524,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
@@ -551,7 +550,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			w := httptest.NewRecorder()
 			c = config.NewLocalConfig(
 				"fake-slack-auth-token",
@@ -593,7 +592,7 @@ var _ = Describe("Handler", func() {
 
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.InviteRestrictedReturns(errors.New("failed to invite user"))
 
 			w := httptest.NewRecorder()
@@ -639,7 +638,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -664,7 +663,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
 
@@ -687,7 +686,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
@@ -711,7 +710,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, nil)
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
@@ -735,7 +734,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
 					Name: "tsmith",
@@ -770,7 +769,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
 					Name: "tsmith",
@@ -805,7 +804,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
 					Name: "tsmith",
@@ -840,7 +839,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
 			h := handler.New(c, fakeSlackAPI, fakeClock, lager.NewLogger("fakelogger"))
 			h.ServeHTTP(w, r)
@@ -864,7 +863,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{
 				{
 					Name: "tsmith",
@@ -917,7 +916,7 @@ var _ = Describe("Handler", func() {
 			r.Header.Set("Content-Type", "application/x-www-form-urlencoded; param=value")
 
 			w := httptest.NewRecorder()
-			fakeSlackAPI := &fakeslackapi.FakeSlackAPI{}
+			fakeSlackAPI := &slackapifakes.FakeSlackAPI{}
 			fakeSlackAPI.GetUsersReturns([]slack.User{}, errors.New("network error"))
 			c = config.NewLocalConfig(
 				"fake-slack-auth-token",
