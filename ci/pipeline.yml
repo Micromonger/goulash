@@ -1,0 +1,102 @@
+groups: []
+
+resources:
+- name: goulash-develop
+  type: git
+  source:
+    branch: develop
+    private_key: {{github-private-key}}
+    uri: git@github.com:pivotalservices/goulash.git
+
+- name: goulash-master
+  type: git
+  source:
+    branch: master
+    private_key: {{github-private-key}}
+    uri: git@github.com:pivotalservices/goulash.git
+
+- name: goulash-release
+  type: git
+  source:
+    branch: master
+    private_key: {{github-private-key}}
+    uri: git@github.com:pivotalservices/goulash.git
+    paths:
+      - goulash-master/VERSION
+
+- name: staging
+  type: cf
+  source:
+    api: https://api.run.pez.pivotal.io
+    organization: sys-pez
+    username: {{deploy-username}}
+    password: {{deploy-password}}
+    skip_cert_check: false
+    space: butler-staging
+
+- name: production
+  type: cf
+  source:
+    api: https://api.run.pez.pivotal.io
+    organization: sys-pez
+    username: {{deploy-username}}
+    password: {{deploy-password}}
+    skip_cert_check: false
+    space: butler-production
+
+jobs:
+- name: unit
+  serial: true
+  public: true
+  plan:
+  - get: goulash
+    resource: goulash-develop
+    trigger: true
+  - task: unit
+    file: goulash/ci/unit.yml
+  - put: goulash
+    resource: goulash-master
+    params:
+      repository: goulash
+
+- name: deploy
+  serial: true
+  plan:
+  - get: goulash
+    resource: goulash-master
+    trigger: true
+    passed:
+    - unit
+  - put: staging
+    params:
+      manifest: goulash/manifests/staging.yml
+      path: goulash
+      current_app_name: the-butler
+
+- name: tagit
+  serial: true
+  public: true
+  plan:
+  - get: goulash
+    resource: goulash-release
+    trigger: true
+  - put: goulash
+    resource: goulash-master
+    params:
+      tag: goulash/VERSION
+      tag_prefix: v
+      repository: goulash
+
+- name: shipit
+  serial: true
+  plan:
+  - get: goulash
+    resource: goulash-master
+    trigger: true
+    passed:
+      - tagit
+  - put: production
+    params:
+      manifest: goulash/manifests/prod.yml
+      path: goulash
+      current_app_name: the-butler
