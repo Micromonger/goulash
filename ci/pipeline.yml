@@ -47,7 +47,6 @@ resources:
 jobs:
 - name: unit
   serial: true
-  public: true
   plan:
   - get: goulash
     resource: goulash-develop

@@ -1,7 +1,7 @@
 ---
 platform: linux
 
-image: docker:///golang#1.4.2-wheezy
+image: docker:///golang
 
 inputs:
 - name: goulash
