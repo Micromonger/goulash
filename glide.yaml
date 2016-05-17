@@ -1,0 +1,20 @@
+package: github.com/pivotalservices/goulash
+import:
+- package: github.com/cloudfoundry-community/go-cfenv
+  version: master
+- package: github.com/mitchellh/mapstructure
+  version: master
+- package: github.com/onsi/ginkgo
+  version: master
+- package: github.com/onsi/gomega
+  version: master
+- package: github.com/pivotal-golang/clock
+  version: master
+- package: github.com/pivotal-golang/lager
+  version: master
+- package: github.com/pivotalservices/slack
+  version: master
+- package: golang.org/x/net
+  version: master
+  subpackages:
+  - websocket

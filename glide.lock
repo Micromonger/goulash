@@ -1,0 +1,22 @@
+hash: 853b76420509d27421b556dbbb4b596049152ef0573083f538857417b1df38b7
+updated: 2016-05-17T11:46:08.776567123-06:00
+imports:
+- name: github.com/cloudfoundry-community/go-cfenv
+  version: 18fa650ff6b7b4f6bd8f8611408d1533eb54a918
+- name: github.com/mitchellh/mapstructure
+  version: d2dd0262208475919e1a362f675cfc0e7c10e905
+- name: github.com/onsi/ginkgo
+  version: 5437a97bf824dec14e58d68c56ee36e772670c2e
+- name: github.com/onsi/gomega
+  version: c73e51675ad2455a4515b6213eb7145eaade4824
+- name: github.com/pivotal-golang/clock
+  version: 3fd3c1944c59d9742e1cd333672181cd1a6f9fa0
+- name: github.com/pivotal-golang/lager
+  version: 7639e31ce6622c55c15aa64144b85d5f4873d127
+- name: github.com/pivotalservices/slack
+  version: ebbfcf8c08c759fff693906e5026d10e34bdd948
+- name: golang.org/x/net
+  version: ef00b378c73f107bf44d5c9b69875255ce89b79a
+  subpackages:
+  - websocket
+devImports: []
