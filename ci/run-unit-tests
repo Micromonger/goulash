@@ -11,5 +11,5 @@ source_dir="$(cd "$(dirname "$0")" && pwd)"
 pushd $source_dir/..
   godep restore
   go install github.com/onsi/ginkgo/ginkgo
-  ginkgo -r -keepGoing -p -trace -randomizeAllSpecs -progress
+  ginkgo -p -randomizeAllSpecs action config handler slackapi
 popd
