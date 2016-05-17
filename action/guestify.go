@@ -26,7 +26,7 @@ func NewGuestify(
 	channel slackapi.Channel,
 	guestifyingUser string,
 ) Action {
-	guestifyParams := make([]string, 1)
+	guestifyParams := []string{""}
 	for i := range params {
 		guestifyParams[i] = params[i]
 	}

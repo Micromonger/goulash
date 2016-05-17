@@ -23,7 +23,7 @@ func NewInvite(
 	channel slackapi.Channel,
 	invitingUser string,
 ) Action {
-	inviteParams := make([]string, 3)
+	inviteParams := []string{"", "", ""}
 	for i := range params {
 		inviteParams[i] = params[i]
 	}

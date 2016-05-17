@@ -27,7 +27,7 @@ func New(
 	commanderID string,
 	text string,
 ) Action {
-	commandAndParams := strings.Split(text, " ")
+	commandAndParams := strings.Fields(text)
 	command := commandAndParams[0]
 	params := commandAndParams[1:]
 

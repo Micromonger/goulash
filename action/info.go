@@ -30,7 +30,7 @@ func NewInfo(
 	params []string,
 	requestingUser string,
 ) Action {
-	infoParams := make([]string, 1)
+	infoParams := []string{""}
 	for i := range params {
 		infoParams[i] = params[i]
 	}

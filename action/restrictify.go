@@ -26,11 +26,10 @@ func NewRestrictify(
 	channel slackapi.Channel,
 	restrictingUser string,
 ) Action {
-	restrictifyParams := make([]string, 1)
+	restrictifyParams := []string{""}
 	for i := range params {
 		restrictifyParams[i] = params[i]
 	}
-
 	return &restrictify{
 		params:          restrictifyParams,
 		channel:         channel,

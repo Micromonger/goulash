@@ -23,7 +23,7 @@ func NewAccessRequest(
 	commanderName string,
 	commanderID string,
 ) Action {
-	accessRequestParams := make([]string, 3)
+	accessRequestParams := []string{"", "", ""}
 	for i := range params {
 		accessRequestParams[i] = params[i]
 	}

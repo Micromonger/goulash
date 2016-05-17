@@ -178,5 +178,27 @@ var _ = Describe("Invite", func() {
 			Ω(err).ShouldNot(HaveOccurred())
 			Ω(result).Should(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
 		})
+
+		It("attempts to invite a single-channel guest when the args are padded with extra spaces", func() {
+			a = action.New(
+				slackapi.NewChannel("channel-name", "channel-id"),
+				"commander-name",
+				"commander-id",
+				"invite-guest user@example.com  Tom  Smith",
+			)
+
+			result, err := a.Do(c, fakeSlackAPI, logger)
+			Ω(err).ShouldNot(HaveOccurred())
+			Ω(result).Should(Equal("Successfully invited Tom Smith (user@example.com) as a single-channel guest to 'channel-name'"))
+
+			Ω(fakeSlackAPI.InviteGuestCallCount()).Should(Equal(1))
+
+			actualTeamName, actualChannelID, actualFirstName, actualLastName, actualEmailAddress := fakeSlackAPI.InviteGuestArgsForCall(0)
+			Ω(actualTeamName).Should(Equal("slack-team-name"))
+			Ω(actualChannelID).Should(Equal("channel-id"))
+			Ω(actualFirstName).Should(Equal("Tom"))
+			Ω(actualLastName).Should(Equal("Smith"))
+			Ω(actualEmailAddress).Should(Equal("user@example.com"))
+		})
 	})
 })

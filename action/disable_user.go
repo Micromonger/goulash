@@ -20,7 +20,7 @@ func (du disableUser) searchVal() string {
 
 // NewDisableUser returns a new disable user action
 func NewDisableUser(params []string, disablingUser string) Action {
-	disableUserParams := make([]string, 1)
+	disableUserParams := []string{""}
 	for i := range params {
 		disableUserParams[i] = params[i]
 	}
