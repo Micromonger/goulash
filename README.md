@@ -113,12 +113,11 @@ $ cf restage your-app-name
 ```
 
 ## Contributing
-Pull requests are welcomed. Any PR must include test coverage and pass [gometalinter](https://github.com/alecthomas/gometalinter).
+Pull requests are welcomed. Any PR must include test coverage.
 
 ```
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
-$ gometalinter --exclude="(Godeps|fakes)" ./...
-$ ginkgo *
+$ ginkgo action confi handler slackapi
 ```
 
 Before submitting a PR it is recommended to use [Concourse](http://concourse.ci) and its [`fly` tool](http://concourse.ci/fly-cli.html) to run `gometalinter` and `ginkgo` in an isolated environment: 
