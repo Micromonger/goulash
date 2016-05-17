@@ -117,7 +117,7 @@ Pull requests are welcomed. Any PR must include test coverage.
 
 ```
 $ cd $GOPATH/src/github.com/pivotalservices/goulash
-$ ginkgo action confi handler slackapi
+$ ginkgo action config handler slackapi
 ```
 
 Before submitting a PR it is recommended to use [Concourse](http://concourse.ci) and its [`fly` tool](http://concourse.ci/fly-cli.html) to run `gometalinter` and `ginkgo` in an isolated environment: 
