@@ -5,11 +5,11 @@ set -xe
 export GOPATH=$PWD/go
 export PATH=$GOPATH/bin:$PATH
 
-go get github.com/tools/godep
+go get github.com/Masterminds/glide
 
 source_dir="$(cd "$(dirname "$0")" && pwd)"
 pushd $source_dir/..
-  godep restore
+  glide install
   go install github.com/onsi/ginkgo/ginkgo
   ginkgo -p -randomizeAllSpecs action config handler slackapi
 popd
