@@ -1,1 +1,1 @@
-web: goulash
+web: ./goulash
