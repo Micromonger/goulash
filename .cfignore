@@ -1,0 +1,17 @@
+deploy_key
+deploy_key.pub
+/action
+/ci
+/cmd
+/config
+/handler
+/manifests
+/slackapi
+/vendor
+.gitignore
+glide.lock
+glide.yaml
+LICENSE
+manifest.yml
+README.md
+VERSION
