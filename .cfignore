@@ -4,6 +4,7 @@ deploy_key.pub
 /ci
 /cmd
 /config
+/credentials
 /handler
 /manifests
 /slackapi
