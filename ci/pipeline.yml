@@ -80,21 +80,21 @@ jobs:
   - get: goulash
     resource: goulash-pr
     trigger: true
-  - put: goulash
+  - put: goulash-pr
     params:
-      path: goulash-pr
+      path: goulash
       status: pending
   - task: unit
     file: goulash/ci/unit.yml
     on_success:
-      put: goulash
+      put: goulash-pr
       params:
-        path: goulash-pr
+        path: goulash
         status: success
     on_failure:
-      put: goulash
+      put: goulash-pr
       params:
-        path: goulash-pr
+        path: goulash
         status: failure
 
 - name: unit
