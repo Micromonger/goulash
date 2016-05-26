@@ -77,14 +77,15 @@ resources:
 jobs:
 - name: pr-unit
   plan:
-  - get: pull-request
+  - get: goulash
+    resource: pull-request
     trigger: true
   - put: pull-request
     params:
       path: pull-request
       status: pending
   - task: unit
-    file: pull-request/ci/unit.yml
+    file: goulash/ci/unit.yml
     on_success:
       put: pull-request
       params:
