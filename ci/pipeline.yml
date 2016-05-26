@@ -17,7 +17,7 @@ resources:
     file: version
     private_key: {{git-private-key}}
 
-- name: goulash-pr
+- name: pr
   type: pull-request
   source:
     repo: pivotalservices/goulash
@@ -75,45 +75,34 @@ resources:
     space: butler-production
 
 jobs:
-- name: pr-unit
-  plan:
-  - get: goulash
-    resource: goulash-pr
-    trigger: true
-  - put: goulash-pr
-    params:
-      path: goulash
-      status: pending
-  - task: unit
-    file: goulash/ci/unit.yml
-    on_success:
-      put: goulash-pr
-      params:
-        path: goulash
-        status: success
-    on_failure:
-      put: goulash-pr
-      params:
-        path: goulash
-        status: failure
-
 - name: unit
   serial: true
   plan:
   - get: goulash
     resource: master
     trigger: true
-  - task: unit
-    file: goulash/ci/unit.yml
-
-- name: stage-unit
-  serial: true
-  plan:
+  - get: goulash
+    resource: pr
+    trigger: true
   - get: goulash
     resource: prerelease
     trigger: true
+  - put: pr
+    params:
+      path: goulash
+      status: pending
   - task: unit
     file: goulash/ci/unit.yml
+    on_success:
+      put: pr
+      params:
+        path: goulash
+        status: success
+    on_failure:
+      put: pr
+      params:
+        path: goulash
+        status: failure
 
 # - name: stageit
 #   serial: true
