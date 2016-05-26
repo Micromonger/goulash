@@ -17,7 +17,7 @@ resources:
     file: version
     private_key: {{git-private-key}}
 
-- name: pull-request
+- name: goulash-pr
   type: pull-request
   source:
     repo: pivotalservices/goulash
@@ -78,23 +78,23 @@ jobs:
 - name: pr-unit
   plan:
   - get: goulash
-    resource: pull-request
+    resource: goulash-pr
     trigger: true
-  - put: pull-request
+  - put: goulash
     params:
-      path: pull-request
+      path: goulash-pr
       status: pending
   - task: unit
     file: goulash/ci/unit.yml
     on_success:
-      put: pull-request
+      put: goulash
       params:
-        path: pull-request
+        path: goulash-pr
         status: success
     on_failure:
-      put: pull-request
+      put: goulash
       params:
-        path: pull-request
+        path: goulash-pr
         status: failure
 
 - name: unit
