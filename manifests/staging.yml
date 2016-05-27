@@ -1,5 +1,5 @@
 ---
-inherit: ../manifest.yml
+inherit: ./manifest.yml
 host: the-butler-staging
 env:
   SLACK_AUDIT_LOG_CHANNEL_ID: "G092PH4NL"

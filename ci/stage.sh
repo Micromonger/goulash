@@ -12,6 +12,6 @@ source_dir="$(cd "$(dirname "$0")" && pwd)"
 pushd $source_dir/..
   glide install
   GOOS=linux GOARCH=amd64 go build -o $stage_dir/goulash github.com/pivotalservices/goulash/cmd/goulash
-  cp -R Procfile manifest.yml manifests $stage_dir
+  cp -R Procfile manifests/* $stage_dir
   git describe --abbrev=0 --tags > $stage_dir/tag
 popd

@@ -120,7 +120,7 @@ jobs:
         name: goulash-bits/tag
         tag: goulash-bits/tag
         globs:
-        - goulash-bits/**/*
+        - goulash-bits/*
 
 # - name: stageit
 #   serial: true
