@@ -113,6 +113,21 @@ jobs:
   - task: unit
     file: goulash/ci/unit.yml
 
+- name: stage
+  plan:
+  - get: goulash
+    resource: prerelease
+    passed: [prerelease-unit]
+  - task: stage
+    file: goulash/ci/stage.yml
+    on_success:
+      put: gh-release
+      params:
+        name: goulash-bits/tag
+        tag: goulash-bits/tag
+        globs:
+        - goulash-bits/**/*
+
 # - name: stageit
 #   serial: true
 #   plan:

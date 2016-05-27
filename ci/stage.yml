@@ -11,5 +11,9 @@ inputs:
 - name: goulash
   path: go/src/github.com/pivotalservices/goulash
 
+outputs:
+- name: goulash-bits
+  path: go/src/github.com/pivotalservices/goulash/stage
+
 run:
-  path: go/src/github.com/pivotalservices/goulash/ci/run-unit-tests.sh
+  path: go/src/github.com/pivotalservices/goulash/ci/stage.sh

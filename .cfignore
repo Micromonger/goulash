@@ -8,6 +8,7 @@ deploy_key.pub
 /handler
 /manifests
 /slackapi
+/stage
 /vendor
 .gitignore
 glide.lock
