@@ -13,6 +13,6 @@ pushd $source_dir/..
   glide install
   mkdir -p $stage_dir/release
   GOOS=linux GOARCH=amd64 go build -o $stage_dir/release/goulash github.com/pivotalservices/goulash/cmd/goulash
-  cp -f Procfile manifests/* manifests/.* $stage_dir/release
+  cp -f Procfile manifests/* manifests/.cfignore $stage_dir/release
   git describe --abbrev=0 --tags > $stage_dir/tag
 popd
