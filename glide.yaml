@@ -18,3 +18,4 @@ import:
   version: master
   subpackages:
   - websocket
+- package: gopkg.in/yaml.v2

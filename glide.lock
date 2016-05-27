@@ -1,5 +1,5 @@
-hash: 853b76420509d27421b556dbbb4b596049152ef0573083f538857417b1df38b7
-updated: 2016-05-17T11:46:08.776567123-06:00
+hash: 80f778738b6a0f0cb90bbe0e62004a784eddcf493fc221e271e85e91243b4811
+updated: 2016-05-26T15:35:22.563378332-06:00
 imports:
 - name: github.com/cloudfoundry-community/go-cfenv
   version: 18fa650ff6b7b4f6bd8f8611408d1533eb54a918
@@ -16,7 +16,9 @@ imports:
 - name: github.com/pivotalservices/slack
   version: ebbfcf8c08c759fff693906e5026d10e34bdd948
 - name: golang.org/x/net
-  version: ef00b378c73f107bf44d5c9b69875255ce89b79a
+  version: dfd9ed699ea197b58a32e0d1dcfa2be66f127ec4
   subpackages:
   - websocket
+- name: gopkg.in/yaml.v2
+  version: a83829b6f1293c91addabc89d0571c246397bbf4
 devImports: []

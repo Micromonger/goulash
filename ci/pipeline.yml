@@ -1,101 +1,147 @@
 groups: []
 
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
 resources:
-- name: goulash-develop
-  type: git
+- name: version
+  type: semver
   source:
-    branch: develop
-    private_key: {{github-private-key}}
+    initial_version: 1.1.1
+    driver: git
     uri: git@github.com:pivotalservices/goulash.git
+    branch: version
+    file: version
+    private_key: {{git-private-key}}
 
-- name: goulash-master
+- name: pr
+  type: pull-request
+  source:
+    repo: pivotalservices/goulash
+    access_token: {{github-access-token}}
+    private_key: {{git-private-key}}
+
+- name: master
   type: git
   source:
     branch: master
-    private_key: {{github-private-key}}
+    private_key: {{git-private-key}}
     uri: git@github.com:pivotalservices/goulash.git
 
-- name: goulash-release
+- name: release
   type: git
   source:
     branch: master
-    private_key: {{github-private-key}}
+    tag_filter: v*.*.*([!-])
+    private_key: {{git-private-key}}
     uri: git@github.com:pivotalservices/goulash.git
-    paths:
-      - goulash-master/VERSION
+
+- name: prerelease
+  type: git
+  source:
+    branch: master
+    tag_filter: v*.*.*([!-])-*
+    private_key: {{git-private-key}}
+    uri: git@github.com:pivotalservices/goulash.git
+
+- name: gh-release
+  type: github-release
+  source:
+    user: pivotalservices
+    repository: goulash
+    access_token: {{github-access-token}}
 
 - name: staging
   type: cf
   source:
-    api: https://api.run.pez.pivotal.io
-    organization: sys-pez
-    username: {{deploy-username}}
-    password: {{deploy-password}}
+    api: https://api.run.pivotal.io
+    organization: {{cf-org}}
+    username: {{cf-username}}
+    password: {{cf-password}}
     skip_cert_check: false
     space: butler-staging
 
 - name: production
   type: cf
   source:
-    api: https://api.run.pez.pivotal.io
-    organization: sys-pez
-    username: {{deploy-username}}
-    password: {{deploy-password}}
+    api: https://api.run.pivotal.io
+    organization: {{cf-org}}
+    username: {{cf-username}}
+    password: {{cf-password}}
     skip_cert_check: false
     space: butler-production
 
 jobs:
 - name: unit
-  serial: true
   plan:
   - get: goulash
-    resource: goulash-develop
+    resource: master
     trigger: true
   - task: unit
     file: goulash/ci/unit.yml
-  - put: goulash
-    resource: goulash-master
-    params:
-      repository: goulash
 
-- name: deploy
-  serial: true
+- name: pr-unit
   plan:
   - get: goulash
-    resource: goulash-master
+    resource: pr
     trigger: true
-    passed:
-    - unit
-  - put: staging
+  - put: pr
     params:
-      manifest: goulash/manifests/staging.yml
       path: goulash
-      current_app_name: the-butler
+      status: pending
+  - task: unit
+    file: goulash/ci/unit.yml
+    on_success:
+      put: pr
+      params:
+        path: goulash
+        status: success
+    on_failure:
+      put: pr
+      params:
+        path: goulash
+        status: failure
 
-- name: tagit
-  serial: true
-  public: true
+- name: prerelease-unit
   plan:
   - get: goulash
-    resource: goulash-release
+    resource: prerelease
     trigger: true
-  - put: goulash
-    resource: goulash-master
-    params:
-      tag: goulash/VERSION
-      tag_prefix: v
-      repository: goulash
+  - task: unit
+    file: goulash/ci/unit.yml
 
-- name: shipit
-  serial: true
-  plan:
-  - get: goulash
-    resource: goulash-master
-    trigger: true
-    passed:
-      - tagit
-  - put: production
-    params:
-      manifest: goulash/manifests/prod.yml
-      path: goulash
-      current_app_name: the-butler
+# - name: stageit
+#   serial: true
+#   plan:
+#   - get: goulash
+#     resource: prerelease
+#     trigger: true
+#     passed:
+#     - stage-unit
+#   - task: unit
+#     file: goulash/ci/unit.yml
+#   - put: gh-release
+#     params:
+#
+#   - put: staging
+#     params:
+#       manifest: goulash/manifests/staging.yml
+#       path: goulash
+#       current_app_name: the-butler
+#
+# - name: shipit
+#   serial: true
+#   plan:
+#   - get: goulash
+#     resource: release
+#     trigger: true
+#     passed:
+#     - unit
+#   - put: staging
+#     params:
+#       manifest: goulash/manifests/prod.yml
+#       path: goulash
+#       current_app_name: the-butler
