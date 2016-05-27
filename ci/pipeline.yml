@@ -35,7 +35,7 @@ resources:
   type: git
   source:
     branch: master
-    tag_filter: v*.*.*([!-])
+    tag_filter: v*.*.[^\\-]
     private_key: {{git-private-key}}
     uri: git@github.com:pivotalservices/goulash.git
 
@@ -43,7 +43,7 @@ resources:
   type: git
   source:
     branch: master
-    tag_filter: v*.*.*([!-])-*
+    tag_filter: v*.*.*-pre*
     private_key: {{git-private-key}}
     uri: git@github.com:pivotalservices/goulash.git
 
@@ -105,19 +105,13 @@ jobs:
         path: goulash
         status: failure
 
-- name: prerelease-unit
+- name: stage
   plan:
   - get: goulash
     resource: prerelease
     trigger: true
   - task: unit
     file: goulash/ci/unit.yml
-
-- name: stage
-  plan:
-  - get: goulash
-    resource: prerelease
-    passed: [prerelease-unit]
   - task: stage
     file: goulash/ci/stage.yml
     on_success:

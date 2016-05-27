@@ -13,7 +13,7 @@ inputs:
 
 outputs:
 - name: goulash-bits
-  path: go/src/github.com/pivotalservices/goulash/stage
+  path: stage
 
 run:
   path: go/src/github.com/pivotalservices/goulash/ci/stage.sh
