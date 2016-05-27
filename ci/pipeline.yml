@@ -121,7 +121,6 @@ jobs:
         tag: goulash-bits/tag
         globs:
         - goulash-bits/release/*
-        - goulash-bits/release/.*
 
 # - name: stageit
 #   serial: true
