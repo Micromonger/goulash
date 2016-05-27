@@ -11,7 +11,8 @@ stage_dir="$PWD/stage"
 source_dir="$(cd "$(dirname "$0")" && pwd)"
 pushd $source_dir/..
   glide install
-  GOOS=linux GOARCH=amd64 go build -o $stage_dir/goulash github.com/pivotalservices/goulash/cmd/goulash
-  cp -R Procfile manifests/* $stage_dir
+  mkdir -p $stage_dir/release
+  GOOS=linux GOARCH=amd64 go build -o $stage_dir/release/goulash github.com/pivotalservices/goulash/cmd/goulash
+  cp -R Procfile manifests/* manifests/.* $stage_dir/release
   git describe --abbrev=0 --tags > $stage_dir/tag
 popd
